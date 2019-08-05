@@ -1,7 +1,7 @@
 version: "2"
 services:
-  template-service:
-    image: openlmis/template-service
+  mw-dhis2-integration:
+    image: openlmismw/dhis2-integration
     links:
       - db
       - log
@@ -14,4 +14,4 @@ services:
   log:
     image: openlmis/rsyslog:1
     volumes:
-      - '../logs/template-service:/var/log'
+      - '../logs/dhis2-integration:/var/log'

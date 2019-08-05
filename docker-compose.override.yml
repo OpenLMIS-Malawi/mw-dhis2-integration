@@ -1,6 +1,6 @@
 version: "2"
 services:
-  template-service:
+  mw-dhis2-integration:
     image: openlmis/dev:5.2
     ports:
       - "5005:5005"

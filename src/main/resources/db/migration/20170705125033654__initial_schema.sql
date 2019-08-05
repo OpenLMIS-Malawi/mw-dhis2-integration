@@ -1,5 +1,5 @@
 --
--- Name: widget; Type: TABLE; Schema: template; Owner: postgres; Tablespace:
+-- Name: widget; Type: TABLE; Schema: dhis2integration; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE widget (
