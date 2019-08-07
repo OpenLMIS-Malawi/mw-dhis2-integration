@@ -1,0 +1,1 @@
+INSERT INTO referencedata.rights (id, description, name, type) VALUES ('ddaef531-f570-488f-ba73-ec9a0540c257', NULL, 'DHIS2_MANAGEMENT', 'GENERAL_ADMIN');
