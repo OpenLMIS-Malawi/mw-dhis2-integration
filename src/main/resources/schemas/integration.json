@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "title": "value",
+    "description": "Associate Program with the Schedule",
+    "properties": {
+        "archived": {
+            "type": "boolean",
+            "name": "archived"
+        },
+        "programId": {
+            "type": "string",
+            "name": "programId"
+        },
+        "schedulerId": {
+            "type": "string",
+            "name": "schedulerId"
+        },
+        "configurationId": {
+            "type": "string",
+            "name": "configurationId"
+        }
+    },
+    "required": [
+        "archived",
+        "programId",
+        "schedulerId",
+        "configurationId"
+    ]
+}

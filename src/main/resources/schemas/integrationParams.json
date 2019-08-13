@@ -1,0 +1,48 @@
+{
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "title": "value",
+    "description": "Integration params",
+    "properties": {
+        "scheduler": {
+            "type": "object",
+            "name": "scheduler",
+            "items":{
+                "name": {
+                    "type": "string",
+                    "name": "name"
+                },
+                "cronExpression": {
+                    "type": "string",
+                    "name": "cronExpression"
+                }
+            }
+        },
+        "configuration": {
+            "type": "object",
+            "name": "configuration",
+            "items":{
+                "name": {
+                    "type": "string",
+                    "name": "name"
+                },
+                "versionNumber": {
+                    "type": "number",
+                    "name": "versionNumber"
+                },
+                "active": {
+                    "type": "boolean",
+                    "name": "active"
+                },
+                "targetUrl": {
+                    "type": "string",
+                    "name": "targetUrl"
+                }
+            }
+        }
+    },
+    "required": [
+        "scheduler",
+        "configuration"
+    ]
+}
