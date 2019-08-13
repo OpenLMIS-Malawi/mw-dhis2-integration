@@ -25,8 +25,8 @@ schemas:
 
   - widget: !include schemas/widget.json
   - widgetPage: !include schemas/widgetPage.json
-  - facility: !include schemas/facility.json
-  - facilityPage: !include schemas/facilityPage.json
+  - singleMigration: !include schemas/singleMigration.json
+  - migrationPage: !include schemas/migrationPage.json
   - executionsPage: !include schemas/executionsPage.json
   - execution: !include schemas/execution.json
   - integrationParams: !include schemas/integrationParams.json
@@ -385,38 +385,38 @@ resourceTypes:
           401:
             body:
               application/json:
-  # /facilities:
-  #   displayName: facilities
-  #   get:
-  #     is: [ secured, paginated, sorted ]
-  #     description: Get all facilities that match the given parameters.
-  #     responses:
-  #       200:
-  #         body:
-  #           application/json:
-  #             schema: facilityPage
-  #       401:
-  #         body:
-  #           application/json:
-  #   /{id}:
-  #     uriParameters:
-  #       id:
-  #         displayName: id
-  #         type: string
-  #         required: true
-  #         repeat: false
-  #     get:
-  #       is: [ secured ]
-  #       description: Get chosen facility.
-  #       responses:
-  #         200:
-  #           body:
-  #             application/json:
-  #               schema: facility
-  #         404:
-  #           body:
-  #             application/json:
-  #               schema: localizedErrorResponse
-  #         401:
-  #           body:
-  #             application/json:
+  /manualMigration:
+    displayName: manualMigration
+    post:
+      is: [ secured ]
+      description: Start migration to DHIS2 by given parameters.
+      responses:
+        200:
+          body:
+            application/json:
+              schema: migrationPage
+        401:
+          body:
+            application/json:
+    /{id}:
+      uriParameters:
+        id:
+          displayName: id
+          type: string
+          required: true
+          repeat: false
+      post:
+        is: [ secured ]
+        description: Start migration to chosen facility/program.
+        responses:
+          200:
+            body:
+              application/json:
+                schema: singleMigration
+          404:
+            body:
+              application/json:
+                schema: localizedErrorResponse
+          401:
+            body:
+              application/json:

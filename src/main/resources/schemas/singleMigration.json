@@ -1,0 +1,27 @@
+
+{
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "title": "singleMigration",
+    "description": "Single migration",
+    "properties": {
+        "facilityId": {
+            "type": "string",
+            "name": "facilityId"
+        },
+        "programId": {
+            "type": "string",
+            "name": "programId"
+        },
+        "period": {
+            "type": "string",
+            "name": "period"
+        }
+
+    },
+    "required": [
+        "facilityId",
+        "programId",
+        "period"
+    ]
+}

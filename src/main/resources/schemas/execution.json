@@ -22,6 +22,9 @@
       }
     },
     "required": [
-      "name"
+      "id",
+      "responseDate",
+      "statusCode",
+      "body"
     ]
   }
