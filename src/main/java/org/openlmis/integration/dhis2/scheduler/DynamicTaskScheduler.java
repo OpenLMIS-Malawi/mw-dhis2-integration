@@ -19,9 +19,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.openlmis.integration.dhis2.service.PayloadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.CronTask;
@@ -30,20 +34,21 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
 
-
-
 @Service
-public class TaskScheduler implements SchedulingConfigurer {
+@EnableScheduling
+public class DynamicTaskScheduler implements SchedulingConfigurer {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(TaskScheduler.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
   private ScheduledTaskRegistrar newTaskRegistrar;
   private Set<String> cronExpresions = new HashSet<>();
+  @Autowired
+  private PayloadService payloadService;
 
   /**
    * Creates new poolScheduler.
    */
   @Bean
-  public org.springframework.scheduling.TaskScheduler poolScheduler() {
+  private TaskScheduler poolScheduler() {
     ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
     scheduler.setThreadNamePrefix("ThreadPoolTaskScheduler");
     scheduler.setPoolSize(1);
@@ -60,7 +65,6 @@ public class TaskScheduler implements SchedulingConfigurer {
     newTaskRegistrar = taskRegistrar;
     newTaskRegistrar.setScheduler(poolScheduler());
     //cronExpresions.add(schedulerRepository.findAll());
-
     // this is only for testing, in final version cronExpresions list will come from db
     cronExpresions.add("* * * * * ?");
     cronExpresions.add("0/2 * * * * ?");
@@ -78,9 +82,12 @@ public class TaskScheduler implements SchedulingConfigurer {
   /**
    * Place for init task.
    */
-  public void scheduleCron(String cron) {
+  private void scheduleCron(String cron) {
+    // here should be parameter for conditions that decide which task will be triggered.
     LOGGER.info("Next execution time of this taken from cron expression -> {}", cron);
     System.out.println("Next execution time of this taken from cron expression -> " + cron);
+    // Wee need to define what URL will be
+    payloadService.postPayload("ae7b4d39-c556-484e-a168-4098a9adec21");
     if (cron.equals("0/7 * * * * ?")) {
       //just for testing
       cancelAllTask();
@@ -90,7 +97,7 @@ public class TaskScheduler implements SchedulingConfigurer {
   /**
    * Delete all existing Task.
    */
-  public void cancelAllTask() {
+  private void cancelAllTask() {
     newTaskRegistrar.destroy();
     System.out.println("Cancel all tasks");
   }
