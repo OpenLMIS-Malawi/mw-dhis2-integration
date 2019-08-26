@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2;
 
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Locale;
 import org.javers.core.Javers;
 import org.javers.core.MappingStyle;
@@ -58,6 +60,9 @@ public class Application {
 
   @Value("${spring.jpa.properties.hibernate.default_schema}")
   private String preferredSchema;
+
+  @Value("${time.zoneId}")
+  private String timeZoneId;
 
 
   public static void main(String[] args) {
@@ -152,6 +157,11 @@ public class Application {
         .withPackagesToScan(javersProperties.getPackagesToScan())
         .withDateTimeProvider(customDateProvider)
         .build();
+  }
+
+  @Bean
+  public Clock clock() {
+    return Clock.system(ZoneId.of(timeZoneId));
   }
 
 

@@ -33,7 +33,8 @@ import org.javers.core.metamodel.object.InstanceId;
 import org.javers.repository.jql.QueryBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openlmis.integration.dhis2.domain.Widget;
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.Integration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -48,14 +49,24 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class AuditLogInitializerIntegrationTest {
 
-  private static final String[] WIDGET_FIELDS = {
-      "id", "name"
+  private static final String[] CONFIGURATION_FIELDS = {
+      "id", "name", "targetUrl"
   };
 
-  private static final String INSERT_WIDGET_SQL = String.format(
-      "INSERT INTO dhis2integration.widget (%s) VALUES (%s) ",
-      StringUtils.join(WIDGET_FIELDS, ", "),
-      StringUtils.repeat("?", ", ", WIDGET_FIELDS.length)
+  private static final String[] INTEGRATION_FIELDS = {
+      "id", "name", "programId", "cronExpression", "configurationId"
+  };
+
+  private static final String INSERT_CONFIGURATION_SQL = String.format(
+      "INSERT INTO dhis2integration.configurations (%s) VALUES (%s) ",
+      StringUtils.join(CONFIGURATION_FIELDS, ", "),
+      StringUtils.repeat("?", ", ", CONFIGURATION_FIELDS.length)
+  );
+
+  private static final String INSERT_INTEGRATION_SQL = String.format(
+      "INSERT INTO dhis2integration.integrations (%s) VALUES (%s) ",
+      StringUtils.join(INTEGRATION_FIELDS, ", "),
+      StringUtils.repeat("?", ", ", INTEGRATION_FIELDS.length)
   );
 
   @Autowired
@@ -68,13 +79,27 @@ public class AuditLogInitializerIntegrationTest {
   private EntityManager entityManager;
 
   @Test
-  public void shouldCreateSnapshotForWidget() {
-    //given
-    UUID widgetId = UUID.randomUUID();
-    addWidget(widgetId);
+  public void shouldCreateSnapshotForConfiguration() {
+    UUID configurationId = UUID.randomUUID();
+    addConfiguration(configurationId);
 
+    executeTest(configurationId, Configuration.class);
+  }
+
+  @Test
+  public void shouldCreateSnapshotForIntegration() {
+    UUID configurationId = UUID.randomUUID();
+    UUID integrationId = UUID.randomUUID();
+
+    addConfiguration(configurationId);
+    addIntegration(integrationId, configurationId);
+
+    executeTest(integrationId, Integration.class);
+  }
+
+  private void executeTest(Object id, Class clazz) {
     //when
-    QueryBuilder jqlQuery = QueryBuilder.byInstanceId(widgetId, Widget.class);
+    QueryBuilder jqlQuery = QueryBuilder.byInstanceId(id, clazz);
     List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery.build());
 
     assertThat(snapshots, hasSize(0));
@@ -94,16 +119,29 @@ public class AuditLogInitializerIntegrationTest {
     assertThat(globalId, instanceOf(InstanceId.class));
 
     InstanceId instanceId = (InstanceId) globalId;
-    assertThat(instanceId.getCdoId(), is(widgetId));
-    assertThat(instanceId.getTypeName(), is("Widget"));
+    assertThat(instanceId.getCdoId(), is(id));
+    assertThat(instanceId.getTypeName(), is(clazz.getSimpleName()));
   }
 
-  private void addWidget(UUID id) {
+  private void addConfiguration(UUID id) {
     entityManager.flush();
     entityManager
-        .createNativeQuery(INSERT_WIDGET_SQL)
+        .createNativeQuery(INSERT_CONFIGURATION_SQL)
         .setParameter(1, id)
-        .setParameter(2, "name")
+        .setParameter(2, "test-configuration")
+        .setParameter(3, "http://localhost")
+        .executeUpdate();
+  }
+
+  private void addIntegration(UUID id, UUID configurationId) {
+    entityManager.flush();
+    entityManager
+        .createNativeQuery(INSERT_INTEGRATION_SQL)
+        .setParameter(1, id)
+        .setParameter(2, "test-integration")
+        .setParameter(3, UUID.randomUUID())
+        .setParameter(4, "0/30 * * * * ")
+        .setParameter(5, configurationId)
         .executeUpdate();
   }
 }

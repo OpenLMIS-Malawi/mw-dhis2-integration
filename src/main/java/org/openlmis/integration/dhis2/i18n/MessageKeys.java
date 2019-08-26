@@ -24,22 +24,27 @@ public abstract class MessageKeys {
   private static final String SERVICE_PREFIX = "integration.dhis2";
   private static final String ERROR = "error";
 
-  private static final String WIDGET = "widget";
+  private static final String CONFIGURATION = "configuration";
+  private static final String INTEGRATION = "integration";
   private static final String JAVERS = "javers";
 
-  private static final String ID = "id";
-  private static final String CODE = "code";
+  private static final String NAME = "name";
+  private static final String TARGET_URL = "targetUrl";
+  private static final String PROGRAM_ID = "programId";
 
-  private static final String MISMATCH = "mismatch";
-  private static final String NOT_FOUND = "notFound";
   private static final String DUPLICATED = "duplicated";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
-  public static final String ERROR_WIDGET_NOT_FOUND = join(ERROR_PREFIX, WIDGET, NOT_FOUND);
-  public static final String ERROR_WIDGET_ID_MISMATCH = join(ERROR_PREFIX, WIDGET, ID, MISMATCH);
-  public static final String ERROR_WIDGET_CODE_DUPLICATED =
-      join(ERROR_PREFIX, WIDGET, CODE, DUPLICATED);
+  public static final String ERROR_CONFIGURATION_NAME_DUPLICATED =
+      join(ERROR_PREFIX, CONFIGURATION, NAME, DUPLICATED);
+  public static final String ERROR_CONFIGURATION_TARGET_URL_DUPLICATED =
+      join(ERROR_PREFIX, CONFIGURATION, TARGET_URL, DUPLICATED);
+
+  public static final String ERROR_INTEGRATION_NAME_DUPLICATED =
+      join(ERROR_PREFIX, INTEGRATION, NAME, DUPLICATED);
+  public static final String ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED =
+      join(ERROR_PREFIX, INTEGRATION, PROGRAM_ID, DUPLICATED);
 
   public static final String ERROR_JAVERS_EXISTING_ENTRY =
       join(ERROR_PREFIX, JAVERS, "entryAlreadyExists");

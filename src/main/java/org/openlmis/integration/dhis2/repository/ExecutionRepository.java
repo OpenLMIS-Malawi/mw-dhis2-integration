@@ -13,30 +13,12 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.domain;
+package org.openlmis.integration.dhis2.repository;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
-import org.openlmis.integration.dhis2.ToStringTestUtils;
+import java.util.UUID;
+import org.openlmis.integration.dhis2.domain.Execution;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public class BaseEntityTest {
-
-  @Test
-  public void equalsContract() {
-    EqualsVerifier
-        .forClass(BaseEntity.class)
-        .withRedefinedSubclass(Configuration.class)
-        .suppress(Warning.NONFINAL_FIELDS)
-        .verify();
-  }
-
-  @Test
-  public void shouldImplementToString() {
-    BaseEntity base = new BaseEntity() {
-    };
-    ToStringTestUtils.verify(BaseEntity.class, base, "UUID_TYPE");
-  }
-
+public interface ExecutionRepository extends JpaRepository<Execution, UUID> {
 
 }

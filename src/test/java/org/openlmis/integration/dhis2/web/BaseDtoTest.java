@@ -17,17 +17,17 @@ package org.openlmis.integration.dhis2.web;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlmis.integration.dhis2.ToStringTestUtils;
-import org.openlmis.integration.dhis2.web.widget.WidgetDto;
 
 public class BaseDtoTest {
 
   @Test
+  @Ignore("Test has been ignored for now because we don't have any dto")
   public void equalsContract() {
     EqualsVerifier
         .forClass(BaseDto.class)
-        .withRedefinedSubclass(WidgetDto.class)
         .suppress(Warning.NONFINAL_FIELDS)
         .verify();
   }

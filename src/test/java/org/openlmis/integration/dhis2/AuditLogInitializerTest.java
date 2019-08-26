@@ -37,8 +37,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.openlmis.integration.dhis2.domain.Widget;
-import org.openlmis.integration.dhis2.repository.WidgetRepository;
+import org.openlmis.integration.dhis2.domain.BaseEntity;
+import org.openlmis.integration.dhis2.repository.BaseAuditableRepository;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.context.ApplicationContext;
@@ -58,13 +58,13 @@ public class AuditLogInitializerTest {
   private Javers javers;
 
   @Mock
-  private WidgetRepository tradeItemRepository;
-
-  @Mock
   private CdoSnapshot snapshot;
 
   @Mock
   private TestItemRepository testItemRepository;
+
+  @Mock
+  private AuditableTestItemRepository auditableTestItemRepository;
 
   private AuditLogInitializer auditLogInitializer;
 
@@ -89,12 +89,15 @@ public class AuditLogInitializerTest {
 
   @Test
   public void shouldNotCreateSecondSnapshot() {
-    repositoryMap.put("tradeItemRepository", tradeItemRepository);
+    repositoryMap.put("auditableTestItemRepository", auditableTestItemRepository);
 
-    ArrayList<Widget> content = Lists.newArrayList(new WidgetDataBuilder().build());
-    Page<Widget> page = new PageImpl<>(content);
+    TestItem test = new TestItem("test");
+    test.setId(UUID.randomUUID());
 
-    when(tradeItemRepository.findAllWithoutSnapshots(any(Pageable.class)))
+    ArrayList<TestItem> content = Lists.newArrayList(test);
+    Page<TestItem> page = new PageImpl<>(content);
+
+    when(auditableTestItemRepository.findAllWithoutSnapshots(any(Pageable.class)))
         .thenReturn(page)
         .thenReturn(new PageImpl<>(Lists.newArrayList()));
 
@@ -107,14 +110,22 @@ public class AuditLogInitializerTest {
 
   @Getter
   @AllArgsConstructor
-  class TestItem {
+  static class TestItem extends BaseEntity {
 
-    UUID id;
+    private String name;
+
   }
 
   @JaversSpringDataAuditable
   interface TestItemRepository
       extends PagingAndSortingRepository<TestItem, UUID> {
+
+  }
+
+  @JaversSpringDataAuditable
+  interface AuditableTestItemRepository
+      extends BaseAuditableRepository<TestItem, UUID>,
+      PagingAndSortingRepository<TestItem, UUID> {
 
   }
 }

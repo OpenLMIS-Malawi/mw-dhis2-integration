@@ -39,7 +39,15 @@ public class GlobalErrorHandling extends AbstractErrorHandling {
   private static final Map<String, String> CONSTRAINT_MAP = new HashMap<>();
 
   static {
-    CONSTRAINT_MAP.put("unq_widget_code", MessageKeys.ERROR_WIDGET_CODE_DUPLICATED);
+    CONSTRAINT_MAP.put(
+        "configuration_name_unique", MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED);
+    CONSTRAINT_MAP.put(
+        "configuration_target_url_unique", MessageKeys.ERROR_CONFIGURATION_TARGET_URL_DUPLICATED);
+
+    CONSTRAINT_MAP.put(
+        "integration_name_unique", MessageKeys.ERROR_INTEGRATION_NAME_DUPLICATED);
+    CONSTRAINT_MAP.put(
+        "integration_program_id_unique", MessageKeys.ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED);
   }
 
   @ExceptionHandler(NotFoundException.class)

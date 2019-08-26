@@ -37,7 +37,9 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.openlmis.integration.dhis2.domain.BaseEntity;
-import org.openlmis.integration.dhis2.repository.WidgetRepository;
+import org.openlmis.integration.dhis2.repository.ConfigurationRepository;
+import org.openlmis.integration.dhis2.repository.ExecutionRepository;
+import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +113,13 @@ public abstract class BaseWebIntegrationTest {
   Javers javers;
 
   @MockBean
-  WidgetRepository widgetRepository;
+  ConfigurationRepository configurationRepository;
+
+  @MockBean
+  ExecutionRepository executionRepository;
+
+  @MockBean
+  IntegrationRepository integrationRepository;
 
   /**
    * Constructor for test.

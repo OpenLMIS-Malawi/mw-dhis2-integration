@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.Resource;
 import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
@@ -31,7 +30,7 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openlmis.integration.dhis2.domain.Widget;
+import org.openlmis.integration.dhis2.domain.Integration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -63,21 +62,19 @@ public class JaVersIntegrationTest {
   public void shouldAlwaysCommitWithUtcTimeZone() {
 
     //given
-    Widget widget = new Widget();
-    widget.setId(UUID.randomUUID());
-    widget.setName("name_1");
+    Integration integration = new IntegrationDataBuilder().build();
 
     //when
     DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
-    javers.commit(COMMIT_AUTHOR, widget);
+    javers.commit(COMMIT_AUTHOR, integration);
 
     DateTimeZone.setDefault(DateTimeZone.forID("Africa/Johannesburg"));
-    widget.setName("name_2");
-    javers.commit(COMMIT_AUTHOR, widget);
+    integration.setConfiguration(new ConfigurationDataBuilder().build());
+    javers.commit(COMMIT_AUTHOR, integration);
 
     //then
-    List<CdoSnapshot> snapshots = javers.findSnapshots(
-        QueryBuilder.byClass(Widget.class).build());
+    List<CdoSnapshot> snapshots = javers
+        .findSnapshots(QueryBuilder.byClass(Integration.class).build());
     assertEquals(2, snapshots.size());
 
     LocalDateTime commitTime1 = snapshots.get(0).getCommitMetadata().getCommitDate();
