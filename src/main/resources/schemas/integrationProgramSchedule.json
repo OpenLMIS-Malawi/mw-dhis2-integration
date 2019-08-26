@@ -4,17 +4,17 @@
     "title": "value",
     "description": "Associate Program with the Schedule",
     "properties": {
-        "archived": {
-            "type": "boolean",
-            "name": "archived"
+        "name": {
+            "type": "string",
+            "name": "name"
         },
         "programId": {
             "type": "string",
             "name": "programId"
         },
-        "schedulerId": {
+        "cronExpression": {
             "type": "string",
-            "name": "schedulerId"
+            "name": "cronExpression"
         },
         "configurationId": {
             "type": "string",
@@ -22,9 +22,9 @@
         }
     },
     "required": [
-        "archived",
+        "name",
         "programId",
-        "schedulerId",
+        "cronExpression",
         "configurationId"
     ]
 }

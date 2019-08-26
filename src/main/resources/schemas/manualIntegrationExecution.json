@@ -2,12 +2,12 @@
 {
     "type": "object",
     "$schema": "http://json-schema.org/draft-04/schema",
-    "title": "singleMigration",
-    "description": "Single migration",
+    "title": "manualIntegrationExecution",
+    "description": "Manual integration execution",
     "properties": {
-        "facilityId": {
+        "targetUrl": {
             "type": "string",
-            "name": "facilityId"
+            "name": "targetUrl"
         },
         "programId": {
             "type": "string",
@@ -16,12 +16,16 @@
         "period": {
             "type": "string",
             "name": "period"
+        },
+        "configurationId": {
+            "type": "string",
+            "name": "configurationId"
         }
-
     },
     "required": [
         "facilityId",
         "programId",
-        "period"
+        "period",
+        "configurationId"
     ]
 }

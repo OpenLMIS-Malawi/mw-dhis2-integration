@@ -8,7 +8,7 @@
         "type": "array",
         "items": {
           "type": "object",
-          "$ref": "execution.json"
+          "$ref": "integrationExecution.json"
         }
       },
       "totalPages": {

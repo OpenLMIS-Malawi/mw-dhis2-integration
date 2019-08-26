@@ -25,12 +25,11 @@ schemas:
 
   - widget: !include schemas/widget.json
   - widgetPage: !include schemas/widgetPage.json
-  - singleMigration: !include schemas/singleMigration.json
-  - migrationPage: !include schemas/migrationPage.json
-  - executionsPage: !include schemas/executionsPage.json
-  - execution: !include schemas/execution.json
-  - integrationParams: !include schemas/integrationParams.json
-  - integrationProgramAssociate: !include schemas/integrationProgramAssociate.json
+  - manualIntegrationExecution: !include schemas/manualIntegrationExecution.json
+  - integrationExecutionPage: !include schemas/integrationExecutionPage.json
+  - integrationExecution: !include schemas/integrationExecution.json
+  - integrationConfiguration: !include schemas/integrationConfiguration.json
+  - integrationProgramSchedule: !include schemas/integrationProgramSchedule.json
 
 traits:
   - secured:
@@ -238,7 +237,7 @@ resourceTypes:
         200:
           body:
             application/json:
-              schema: executionsPage
+              schema: integrationExecutionPage
         401:
           body:
             application/json:
@@ -256,7 +255,7 @@ resourceTypes:
           200:
             body:
               application/json:
-                schema: execution
+                schema: integrationExecution
           404:
             body:
               application/json:
@@ -264,19 +263,19 @@ resourceTypes:
           401:
             body:
               application/json:
-  /integrationParams:
-    displayName: integrationParams
+  /integrationConfigurations:
+    displayName: integrationConfigurations
     post:
       is: [ secured ]
-      description: Add integration parameters.
+      description: Add integration configuration.
       body:
         application/json:
-          schema: integrationParams
+          schema: integrationConfiguration
       responses:
         201:
           body:
             application/json:
-              schema: integrationParams
+              schema: integrationConfiguration
         401:
           body:
             application/json:
@@ -290,12 +289,12 @@ resourceTypes:
           repeat: false
       get:
         is: [ secured ]
-        description: Get integration parameters.
+        description: Get integration configuration.
         responses:
           200:
             body:
               application/json:
-                schema: integrationParams
+                schema: integrationConfiguration
           404:
             body:
               application/json:
@@ -308,12 +307,12 @@ resourceTypes:
         description: Change integration parameters.
         body:
           application/json:
-            schema: integrationParams
+            schema: integrationConfiguration
         responses:
           200:
             body:
               application/json:
-                schema: integrationParams
+                schema: integrationConfiguration
           400:
             body:
               application/json:
@@ -325,19 +324,19 @@ resourceTypes:
           401:
             body:
               application/json:
-  /integrationProgramAssociations:
-    displayName: integrationProgramAssociations
+  /integrationProgramSchedules:
+    displayName: integrationProgramSchedules
     post:
       is: [ secured ]
       description: Associate Program with a schedule.
       body:
         application/json:
-          schema: integrationProgramAssociate
+          schema: integrationProgramSchedule
       responses:
         201:
           body:
             application/json:
-              schema: integrationProgramAssociate
+              schema: integrationProgramSchedule
         401:
           body:
             application/json:
@@ -355,7 +354,7 @@ resourceTypes:
           200:
             body:
               application/json:
-                schema: integrationProgramAssociate
+                schema: integrationProgramSchedule
           404:
             body:
               application/json:
@@ -368,12 +367,12 @@ resourceTypes:
         description: Change association betweend Program and Schedule.
         body:
           application/json:
-            schema: integrationProgramAssociate
+            schema: integrationProgramSchedule
         responses:
           200:
             body:
               application/json:
-                schema: integrationProgramAssociate
+                schema: integrationProgramSchedule
           400:
             body:
               application/json:
@@ -385,38 +384,24 @@ resourceTypes:
           401:
             body:
               application/json:
-  /manualIntegrationExecutions:
-    displayName: manualIntegrationExecutions
+  /manualIntegrationExecution:
+    displayName: manualIntegrationExecution
     post:
       is: [ secured ]
-      description: Start migration to DHIS2 by given parameters.
+      description: Start migration to a chosen program.
+      body:
+        application/json:
+          schema: integrationExecution
       responses:
         200:
           body:
             application/json:
-              schema: migrationPage
+              schema: integrationExecution
+        404:
+          body:
+            application/json:
+              schema: localizedErrorResponse
         401:
           body:
             application/json:
-    /{id}:
-      uriParameters:
-        id:
-          displayName: id
-          type: string
-          required: true
-          repeat: false
-      post:
-        is: [ secured ]
-        description: Start migration to chosen facility/program.
-        responses:
-          200:
-            body:
-              application/json:
-                schema: singleMigration
-          404:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
+          

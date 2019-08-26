@@ -2,22 +2,8 @@
     "type": "object",
     "$schema": "http://json-schema.org/draft-04/schema",
     "title": "value",
-    "description": "Integration params",
+    "description": "Integration configuration",
     "properties": {
-        "scheduler": {
-            "type": "object",
-            "name": "scheduler",
-            "items":{
-                "name": {
-                    "type": "string",
-                    "name": "name"
-                },
-                "cronExpression": {
-                    "type": "string",
-                    "name": "cronExpression"
-                }
-            }
-        },
         "configuration": {
             "type": "object",
             "name": "configuration",
@@ -26,23 +12,37 @@
                     "type": "string",
                     "name": "name"
                 },
-                "versionNumber": {
-                    "type": "number",
-                    "name": "versionNumber"
-                },
-                "active": {
-                    "type": "boolean",
-                    "name": "active"
-                },
                 "targetUrl": {
                     "type": "string",
                     "name": "targetUrl"
                 }
             }
+        },
+        "integration": {
+            "type": "object",
+            "name": "integration",
+            "items":{
+                "name": {
+                    "type": "string",
+                    "name": "name"
+                },
+                "programId": {
+                    "type": "string",
+                    "name": "programId"
+                },
+                "cronExpression": {
+                    "type": "string",
+                    "name": "cronExpression"
+                },
+                "configurationId": {
+                    "type": "string",
+                    "name": "configurationId"
+                }
+            }
         }
     },
     "required": [
-        "scheduler",
-        "configuration"
+        "configuration",
+        "integration"
     ]
 }
