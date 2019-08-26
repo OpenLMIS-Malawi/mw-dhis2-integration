@@ -391,7 +391,7 @@ resourceTypes:
       description: Start migration to a chosen program.
       body:
         application/json:
-          schema: integrationExecution
+          schema: manualIntegrationExecution
       responses:
         200:
           body:
