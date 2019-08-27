@@ -15,6 +15,11 @@
 
 package org.openlmis.integration.dhis2.scheduler;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
@@ -30,11 +35,6 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.UUID;
-
 
 @Service
 @EnableScheduling
@@ -43,8 +43,8 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   private static Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
   private ScheduledTaskRegistrar newTaskRegistrar;
   private Set<String> cronExpresions = new HashSet<>();
-  @Autowired
-  private PayloadService payloadService;
+  //  @Autowired
+  //  private PayloadService payloadService;
 
   /**
    * Creates new poolScheduler.

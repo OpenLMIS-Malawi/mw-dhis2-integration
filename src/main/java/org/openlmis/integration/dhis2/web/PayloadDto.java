@@ -18,9 +18,11 @@ package org.openlmis.integration.dhis2.web;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Set;
+
 import lombok.Data;
 
-import java.util.Set;
+
 
 
 /**

@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/api")
 public class ManualIntegrationController {
 
-  @Autowired
-  private PayloadService payloadService;
+  //  @Autowired
+  //  private PayloadService payloadService;
 
   /**
    * This method is used to manual trigger Integration.
@@ -43,7 +43,8 @@ public class ManualIntegrationController {
   @PostMapping("manualIntegrationExecution")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ManualIntegrationDto manualIntegration(@RequestBody ManualIntegrationDto manualIntegrationDto) {
+  public ManualIntegrationDto manualIntegration(
+      @RequestBody ManualIntegrationDto manualIntegrationDto) {
     PayloadMap payloadMap = new PayloadMap();
     payloadMap.setTargetUrl(manualIntegrationDto.getTargetUrl());
     payloadMap.setPeriodId(manualIntegrationDto.getPeriodId());
