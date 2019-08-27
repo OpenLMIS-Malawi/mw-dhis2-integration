@@ -15,11 +15,8 @@
 
 package org.openlmis.integration.dhis2.scheduler;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
-
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +29,11 @@ import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
 
 
 @Service
@@ -57,8 +59,8 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   }
 
   /**
-  * Creates new task by cron expressions from DB.
-  */
+   * Creates new task by cron expressions from DB.
+   */
 
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
@@ -73,7 +75,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     cronExpresions.add("0/5 * * * * ?");
     cronExpresions.add("0/6 * * * * ?");
     cronExpresions.add("0/7 * * * * ?");
-    for (String cron: cronExpresions) {
+    for (String cron : cronExpresions) {
       CronTrigger croneTrigger = new CronTrigger(cron, TimeZone.getDefault());
       newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(cron), croneTrigger));
     }
@@ -87,7 +89,11 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     LOGGER.info("Next execution time of this taken from cron expression -> {}", cron);
     System.out.println("Next execution time of this taken from cron expression -> " + cron);
     // Wee need to define what URL will be
-    payloadService.postPayload("ae7b4d39-c556-484e-a168-4098a9adec21");
+    PayloadMap payloadMap = new PayloadMap();
+    payloadMap.setTargetUrl("https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io");
+    payloadMap.setProgramId(UUID.randomUUID().toString());
+    payloadMap.setFacilityId(UUID.randomUUID().toString());
+    // payloadService.postPayload(payloadMap);
     if (cron.equals("0/7 * * * * ?")) {
       //just for testing
       cancelAllTask();

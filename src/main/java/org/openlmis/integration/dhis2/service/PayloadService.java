@@ -15,65 +15,82 @@
 
 package org.openlmis.integration.dhis2.service;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.codehaus.jackson.map.ObjectMapper;
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
+import org.openlmis.integration.dhis2.domain.Execution;
+import org.openlmis.integration.dhis2.domain.ExecutionResponse;
+import org.openlmis.integration.dhis2.domain.Integration;
+import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.web.BaseController;
+import org.openlmis.integration.dhis2.web.FacilitiesDto;
+import org.openlmis.integration.dhis2.web.PayloadDto;
+import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-
-
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class PayloadService extends BaseController {
 
   private static Logger LOGGER = LoggerFactory.getLogger(PayloadService.class);
 
-  /**
-   * Get data to send. Now it is hardcoded for development, in the future it will be replaced by
-   * repository.
-   */
-
-  private PayloadDto getPayload() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    PayloadDto payload = new PayloadDto();
-    try {
-      payload = objectMapper.readValue(new File("src/tb.json"), PayloadDto.class);
-    } catch (IOException e) {
-      payload.setDescription("Brak pliku");
-      //e.printStackTrace();
-    }
-    return payload;
-  }
+  @Autowired
+  private ExecutionRepository executionRepository;
 
   /**
    * Method is responsible for sending payload to Interop layer. Response is a status (202, 500 or
    * 503), message and notificationsChannel.
    */
 
-  public void postPayload(String url) {
+  public void postPayload(PayloadMap payloadMap) {
     RestTemplate restTemplate = new RestTemplate();
-    String resourceUrl = "https://" + url + ".mock.pstmn.io"; // we have to add correct URL
-    ResponseEntity response = restTemplate.postForEntity(resourceUrl, getPayload(),
+    PayloadDto payload = new PayloadDto();
+    Set<FacilitiesDto> facilities = new HashSet<>(); //get from repository
+
+    payload.setDescription("Some description here");
+    payload.setFacilities(facilities);
+    payload.setReportingperiod(payloadMap.getPeriodId());
+
+    ResponseEntity response = restTemplate.postForEntity(payloadMap.getTargetUrl(), payload,
         String.class);
-    HttpStatus status = response.getStatusCode();
-    response.getStatusCodeValue();
-    ResponseBody responseBody = new ResponseBody();
-    try {
-      responseBody = new ObjectMapper().readValue(response.getBody().toString(),
-          ResponseBody.class);
-    } catch (IOException e) {
-      LOGGER.error(e.getMessage());
-    }
-    LOGGER.info("Response status: " + status.toString() + "; Message: "
-        + responseBody.getMessage());
-    System.out.println("Response status: " + status.toString() + "; Message: "
-        + responseBody.getMessage());
+    int status = response.getStatusCodeValue();
+
+
+    Integration integration = new Integration(); //get from api/db
+    ConfigurationAuthenticationDetails authenticationDetails =
+        new ConfigurationAuthenticationDetails("6648df1f-542b-46b0-b66e-0709fc444cfe");
+
+    Configuration configuration = new Configuration("Name", payloadMap.getTargetUrl(),
+        authenticationDetails);
+
+    integration.setConfiguration(configuration);
+    UUID facilityId = UUID.fromString(payloadMap.getFacilityId());
+    //    UUID facilityId = UUID.randomUUID();
+    UUID processingPeriodId = UUID.fromString(payloadMap.getPeriodId());
+    //    UUID processingPeriodId = UUID.randomUUID();
+    Clock clock = Clock.systemUTC();
+
+    Execution execution = Execution.forManualExecution(integration, facilityId,
+        processingPeriodId, clock);
+    ExecutionResponse executionResponse = new ExecutionResponse(ZonedDateTime.now(), status,
+        response.getBody().toString());
+    execution.markAsDone(executionResponse, clock);
+    executionRepository.save(execution);
+
+    // save to DB here.
+    LOGGER.info("Response status: " + status + "; Message: "
+        + response.getBody().toString());
+    System.out.println("Response status: " + status + "; Message: "
+        + response.getBody().toString());
+
   }
 }

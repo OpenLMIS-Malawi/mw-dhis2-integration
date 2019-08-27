@@ -13,24 +13,20 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.service;
+package org.openlmis.integration.dhis2.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
- * Instance of this object is the response from DHIS2.
+ * Model of ValuesDto DTO.
  */
 
-@Getter
-@Setter
-public class ResponseBody {
-
-  @JsonProperty("message")
-  private String message;
-  @JsonProperty("notificationsChannel")
-  private String notificationsChannel;
-
+@Data
+public class ValuesDto {
+  @JsonProperty("productcode")
+  private String productcode;
+  @JsonProperty("values")
+  private String value;
 }

@@ -13,9 +13,9 @@
             "type": "string",
             "name": "programId"
         },
-        "period": {
+        "periodId": {
             "type": "string",
-            "name": "period"
+            "name": "periodId"
         },
         "configurationId": {
             "type": "string",
@@ -25,7 +25,7 @@
     "required": [
         "facilityId",
         "programId",
-        "period",
+        "periodId",
         "configurationId"
     ]
 }

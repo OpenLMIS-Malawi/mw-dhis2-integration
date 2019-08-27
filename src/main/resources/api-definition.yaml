@@ -396,11 +396,7 @@ resourceTypes:
         200:
           body:
             application/json:
-              schema: integrationExecution
-        404:
-          body:
-            application/json:
-              schema: localizedErrorResponse
+              schema: manualIntegrationExecution
         401:
           body:
             application/json:

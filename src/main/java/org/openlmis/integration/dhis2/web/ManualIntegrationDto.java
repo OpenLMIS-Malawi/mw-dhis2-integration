@@ -13,20 +13,35 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.service;
+package org.openlmis.integration.dhis2.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * Model of ValuesDto DTO.
- */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(callSuper = true)
+public class ManualIntegrationDto {
 
-@Data
-public class ValuesDto {
-  @JsonProperty("productcode")
-  private String productcode;
-  @JsonProperty("values")
-  private String value;
+  /**
+   * Request body of Manual integration call.
+   */
+  @JsonProperty(value = "targetUrl")
+  private String targetUrl;
+  @JsonProperty(value = "programId")
+  private String programId;
+  @JsonProperty(value = "periodId")
+  private String periodId;
+  @JsonProperty(value = "configurationId")
+  private String configurationId;
+  @JsonProperty(value = "facilityId")
+  private String facilityId;
+
 }
