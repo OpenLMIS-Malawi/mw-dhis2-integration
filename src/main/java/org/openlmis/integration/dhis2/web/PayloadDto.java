@@ -36,8 +36,8 @@ public class PayloadDto {
   private String description;
   @JsonProperty("facilities")
   private Set<FacilitiesDto> facilities;
-  @JsonProperty("reportingperiod")
-  private String reportingperiod;
+  @JsonProperty("reporting-period")
+  private String reportingPeriod;
 
 }
 

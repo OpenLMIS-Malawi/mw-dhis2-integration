@@ -30,8 +30,8 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FacilitiesDto {
-  @JsonProperty("facilitycode")
-  private String facilitycode;
+  @JsonProperty("facility-code")
+  private String facilityCode;
   @JsonProperty("values")
   private Set<ValuesDto> values;
 }

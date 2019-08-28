@@ -58,7 +58,7 @@ public class PayloadService extends BaseController {
 
     payload.setDescription("Some description here");
     payload.setFacilities(facilities);
-    payload.setReportingperiod(payloadMap.getPeriodId());
+    payload.setReportingPeriod(payloadMap.getPeriodId());
 
     ResponseEntity response = restTemplate.postForEntity(payloadMap.getTargetUrl(), payload,
         String.class);

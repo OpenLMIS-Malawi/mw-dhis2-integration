@@ -25,8 +25,8 @@ import lombok.Data;
 
 @Data
 public class ValuesDto {
-  @JsonProperty("productcode")
-  private String productcode;
+  @JsonProperty("product-code")
+  private String productCode;
   @JsonProperty("values")
   private String value;
 }
