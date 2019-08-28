@@ -38,8 +38,8 @@ public class ManualIntegrationController {
    * @return returning some data - not precized yet
    */
 
-  @PostMapping("manualIntegrationExecution")
-  @ResponseStatus(HttpStatus.OK)
+  @PostMapping("integrationExecutions")
+  @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ManualIntegrationDto manualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {

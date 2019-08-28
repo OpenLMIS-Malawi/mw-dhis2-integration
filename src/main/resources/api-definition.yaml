@@ -23,13 +23,13 @@ schemas:
 
   - version: !include schemas/version.json
 
-  - widget: !include schemas/widget.json
-  - widgetPage: !include schemas/widgetPage.json
   - manualIntegrationExecution: !include schemas/manualIntegrationExecution.json
   - integrationExecutionPage: !include schemas/integrationExecutionPage.json
   - integrationExecution: !include schemas/integrationExecution.json
   - integrationConfiguration: !include schemas/integrationConfiguration.json
+  - integrationConfigurationPage: !include schemas/integrationConfigurationPage.json
   - integrationProgramSchedule: !include schemas/integrationProgramSchedule.json
+  - integrationProgramSchedulePage: !include schemas/integrationProgramSchedulePage.json
 
 traits:
   - secured:
@@ -143,91 +143,6 @@ resourceTypes:
             schema: version
 
 /api:
-  /widgets:
-    displayName: widgets
-    get:
-      is: [ secured, paginated, sorted ]
-      description: Get all widgets that match the given parameters.
-      responses:
-        200:
-          body:
-            application/json:
-              schema: widgetPage
-        401:
-          body:
-            application/json:
-    post:
-      is: [ secured ]
-      description: Creates given widget if possible.
-      body:
-        application/json:
-          schema: widget
-      responses:
-        201:
-          body:
-            application/json:
-              schema: widget
-        401:
-          body:
-            application/json:
-    /{id}:
-      uriParameters:
-        id:
-          displayName: id
-          type: string
-          required: true
-          repeat: false
-      get:
-        is: [ secured ]
-        description: Get chosen widget.
-        responses:
-          200:
-            body:
-              application/json:
-                schema: widget
-          404:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
-      put:
-        is: [ secured ]
-        description: Update existing widget.
-        body:
-          application/json:
-            schema: widget
-        responses:
-          200:
-            body:
-              application/json:
-                schema: widget
-          400:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          404:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
-      delete:
-        is: [ secured ]
-        description: "[AVOID USING] Completely removes widget. This action is not recoverable."
-        responses:
-          204:
-          404:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
-    /{id}/auditLog:
-      type: instanceAuditLog
   /integrationExecutions:
     displayName: integrationExecutions
     get:
@@ -238,6 +153,20 @@ resourceTypes:
           body:
             application/json:
               schema: integrationExecutionPage
+        401:
+          body:
+            application/json:
+    post:
+      is: [ secured ]
+      description: Start migration to a chosen program.
+      body:
+        application/json:
+          schema: manualIntegrationExecution
+      responses:
+        201:
+          body:
+            application/json:
+              schema: manualIntegrationExecution
         401:
           body:
             application/json:
@@ -265,6 +194,17 @@ resourceTypes:
               application/json:
   /integrationConfigurations:
     displayName: integrationConfigurations
+    get:
+      is: [ secured, paginated, sorted ]
+      description: Get all integration configuration.
+      responses:
+        200:
+          body:
+            application/json:
+              schema: integrationConfigurationPage
+        401:
+          body:
+            application/json:
     post:
       is: [ secured ]
       description: Add integration configuration.
@@ -326,6 +266,17 @@ resourceTypes:
               application/json:
   /integrationProgramSchedules:
     displayName: integrationProgramSchedules
+    get:
+      is: [ secured, paginated, sorted ]
+      description: Get all program settings.
+      responses:
+        200:
+          body:
+            application/json:
+              schema: integrationProgramSchedulePage
+        401:
+          body:
+            application/json:
     post:
       is: [ secured ]
       description: Associate Program with a schedule.
@@ -384,20 +335,3 @@ resourceTypes:
           401:
             body:
               application/json:
-  /manualIntegrationExecution:
-    displayName: manualIntegrationExecution
-    post:
-      is: [ secured ]
-      description: Start migration to a chosen program.
-      body:
-        application/json:
-          schema: manualIntegrationExecution
-      responses:
-        200:
-          body:
-            application/json:
-              schema: manualIntegrationExecution
-        401:
-          body:
-            application/json:
-          

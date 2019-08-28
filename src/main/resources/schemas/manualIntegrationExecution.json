@@ -5,9 +5,9 @@
     "title": "manualIntegrationExecution",
     "description": "Manual integration execution",
     "properties": {
-        "targetUrl": {
+        "facilityId": {
             "type": "string",
-            "name": "targetUrl"
+            "name": "facilityId"
         },
         "programId": {
             "type": "string",
@@ -16,16 +16,11 @@
         "periodId": {
             "type": "string",
             "name": "periodId"
-        },
-        "configurationId": {
-            "type": "string",
-            "name": "configurationId"
         }
     },
     "required": [
         "facilityId",
         "programId",
-        "periodId",
-        "configurationId"
+        "periodId"
     ]
 }

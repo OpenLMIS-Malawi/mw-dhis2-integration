@@ -31,7 +31,7 @@ import org.springframework.http.MediaType;
 @SuppressWarnings("PMD.TooManyMethods")
 public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = "/api/manualIntegrationExecution";
+  private static final String RESOURCE_URL = "/api/integrationExecutions";
   private static final String URL = "targetUrl";
   private static final String PROGRAMID = "programId";
   private static final String PERIODID = "periodId";
@@ -50,7 +50,7 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
         .when()
         .post(RESOURCE_URL)
         .then()
-        .statusCode(HttpStatus.SC_OK)
+        .statusCode(HttpStatus.SC_CREATED)
         .body(URL, is(manualIntegrationDto.getTargetUrl()))
         .body(PROGRAMID, is(manualIntegrationDto.getProgramId()))
         .body(PERIODID, is(manualIntegrationDto.getPeriodId()))
