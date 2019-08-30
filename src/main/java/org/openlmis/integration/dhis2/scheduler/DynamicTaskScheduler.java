@@ -15,15 +15,25 @@
 
 package org.openlmis.integration.dhis2.scheduler;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.openlmis.integration.dhis2.domain.Integration;
+import org.openlmis.integration.dhis2.repository.IntegrationRepository;
+import org.openlmis.integration.dhis2.util.Pagination;
+import org.openlmis.integration.dhis2.web.ConfigurationAuthenticationDetailsDto;
+import org.openlmis.integration.dhis2.web.ConfigurationDto;
+import org.openlmis.integration.dhis2.web.IntegrationDto;
 import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -33,16 +43,18 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @EnableScheduling
 public class DynamicTaskScheduler implements SchedulingConfigurer {
 
+  private Pageable pageable = new PageRequest(Pagination.DEFAULT_PAGE_NUMBER, 2000);
   private static Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
   private ScheduledTaskRegistrar newTaskRegistrar;
-  private Set<String> cronExpresions = new HashSet<>();
   //  @Autowired
   //  private PayloadService payloadService;
+
+  @Autowired
+  private IntegrationRepository integrationRepository;
 
   /**
    * Creates new poolScheduler.
@@ -64,35 +76,62 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
     newTaskRegistrar = taskRegistrar;
     newTaskRegistrar.setScheduler(poolScheduler());
-    //cronExpresions.add(schedulerRepository.findAll());
-    // this is only for testing, in final version cronExpresions list will come from db
-    cronExpresions.add("* * * * * ?");
-    cronExpresions.add("0/2 * * * * ?");
-    cronExpresions.add("0/3 * * * * ?");
-    cronExpresions.add("0/4 * * * * ?");
-    cronExpresions.add("0/5 * * * * ?");
-    cronExpresions.add("0/6 * * * * ?");
-    cronExpresions.add("0/7 * * * * ?");
-    for (String cron : cronExpresions) {
-      CronTrigger croneTrigger = new CronTrigger(cron, TimeZone.getDefault());
-      newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(cron), croneTrigger));
+
+    Page<Integration> page = integrationRepository.findAllWithoutSnapshots(pageable);
+    List<IntegrationDto> content = page
+        .getContent()
+        .stream()
+        .map(IntegrationDto::newInstance)
+        .collect(Collectors.toList());
+
+    //  for testing <start>
+    ConfigurationAuthenticationDetailsDto confa1 = new ConfigurationAuthenticationDetailsDto(
+        "usrname", "paswd");
+    ConfigurationAuthenticationDetailsDto confa2 = new ConfigurationAuthenticationDetailsDto(
+        UUID.randomUUID().toString());
+
+    ConfigurationDto conf1 = new ConfigurationDto("name1", "tarteg url", confa1);
+    ConfigurationDto conf2 = new ConfigurationDto("name1", "tarteg url", confa2);
+
+    IntegrationDto object1 = new IntegrationDto("Name", UUID.randomUUID(),
+        "* * * * * ?",  conf1);
+    IntegrationDto object2 = new IntegrationDto("Name", UUID.randomUUID(),
+        "0/2 * * * * ?", conf2);
+    IntegrationDto object5 = new IntegrationDto("Name", UUID.randomUUID(),
+        "0/5 * * * * ?", conf1);
+
+    content.add(object1);
+    content.add(object2);
+    content.add(object5);
+    // </end>
+
+    for (IntegrationDto integrationDto : content) {
+      CronTrigger croneTrigger = new CronTrigger(integrationDto.getCronExpression(),
+          TimeZone.getDefault());
+      newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(integrationDto), croneTrigger));
     }
   }
 
   /**
    * Place for init task.
    */
-  private void scheduleCron(String cron) {
-    // here should be parameter for conditions that decide which task will be triggered.
-    LOGGER.info("Next execution time of this taken from cron expression -> {}", cron);
-    System.out.println("Next execution time of this taken from cron expression -> " + cron);
-    // Wee need to define what URL will be
+  private void scheduleCron(IntegrationDto integrationDto) {
+    // println only for testing
+    System.out.println("Next execution time of this taken from cron expression -> "
+        + integrationDto.getCronExpression());
+
+    ConfigurationDto configurationDto =
+        integrationDto.getConfiguration();
+
     PayloadMap payloadMap = new PayloadMap();
-    payloadMap.setTargetUrl("https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io");
-    payloadMap.setProgramId(UUID.randomUUID().toString());
-    payloadMap.setFacilityId(UUID.randomUUID().toString());
+    payloadMap.setTargetUrl(configurationDto.getTargetUrl());
+    payloadMap.setProgramId(integrationDto.getProgramId());
+    payloadMap.setConfigurationId(configurationDto.getId());
+    payloadMap.setManualExecution(false);
+
+    // enable when postPayload is ready.
     // payloadService.postPayload(payloadMap);
-    if (cron.equals("0/7 * * * * ?")) {
+    if (integrationDto.getCronExpression().equals("0/5 * * * * ?")) {
       //just for testing
       cancelAllTask();
     }

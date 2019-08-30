@@ -21,14 +21,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.openlmis.integration.dhis2.domain.Configuration;
-import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.web.BaseController;
+import org.openlmis.integration.dhis2.web.ConfigurationAuthenticationDetailsDto;
+import org.openlmis.integration.dhis2.web.ConfigurationDto;
 import org.openlmis.integration.dhis2.web.FacilitiesDto;
+import org.openlmis.integration.dhis2.web.IntegrationDto;
 import org.openlmis.integration.dhis2.web.PayloadDto;
 import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
@@ -58,27 +59,27 @@ public class PayloadService extends BaseController {
 
     payload.setDescription("Some description here");
     payload.setFacilities(facilities);
-    payload.setReportingPeriod(payloadMap.getPeriodId());
+    payload.setReportingPeriod(payloadMap.getPeriodId().toString());
 
     ResponseEntity response = restTemplate.postForEntity(payloadMap.getTargetUrl(), payload,
         String.class);
     int status = response.getStatusCodeValue();
 
 
-    Integration integration = new Integration(); //get from api/db
-    ConfigurationAuthenticationDetails authenticationDetails =
-        new ConfigurationAuthenticationDetails("6648df1f-542b-46b0-b66e-0709fc444cfe");
+    IntegrationDto integrationDto = new IntegrationDto(); //get from api/db
+    ConfigurationAuthenticationDetailsDto authenticationDetailsDto =
+        new ConfigurationAuthenticationDetailsDto("6648df1f-542b-46b0-b66e-0709fc444cfe");
+    ConfigurationDto configurationDto = new ConfigurationDto("Name", payloadMap.getTargetUrl(),
+        authenticationDetailsDto);
+//    integrationDto.setConfiguration(configurationDto);
 
-    Configuration configuration = new Configuration("Name", payloadMap.getTargetUrl(),
-        authenticationDetails);
 
-    integration.setConfiguration(configuration);
-    UUID facilityId = UUID.fromString(payloadMap.getFacilityId());
+    UUID facilityId = payloadMap.getFacilityId();
     //    UUID facilityId = UUID.randomUUID();
-    UUID processingPeriodId = UUID.fromString(payloadMap.getPeriodId());
+    UUID processingPeriodId = payloadMap.getPeriodId();
     //    UUID processingPeriodId = UUID.randomUUID();
     Clock clock = Clock.systemUTC();
-
+    Integration integration = new Integration();
     Execution execution = Execution.forManualExecution(integration, facilityId,
         processingPeriodId, clock);
     ExecutionResponse executionResponse = new ExecutionResponse(ZonedDateTime.now(), status,

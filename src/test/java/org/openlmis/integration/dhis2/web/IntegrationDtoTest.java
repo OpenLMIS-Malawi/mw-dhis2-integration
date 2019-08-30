@@ -15,24 +15,35 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+
+import org.junit.Test;
+import org.openlmis.integration.dhis2.ToStringTestUtils;
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.Integration;
+
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class IntegrationDtoTest {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PayloadMap {
+  @Test
+  public void equalsContract() {
 
-  private String targetUrl;
-  private UUID programId;
-  private UUID facilityId;
-  private UUID periodId;
-  private UUID configurationId;
-  private String cronExpression;
-  private boolean manualExecution;
+    EqualsVerifier
+        .forClass(IntegrationDto.class)
+        .withRedefinedSuperclass()
+        .suppress(Warning.NONFINAL_FIELDS) // DTO fields cannot be final
+        .verify();
+  }
 
+  @Test
+  public void shouldImplementToString() {
+    IntegrationDto dto = IntegrationDto.newInstance(
+        new Integration("", UUID.randomUUID(),"",new Configuration())
+    );
+
+    ToStringTestUtils.verify(IntegrationDto.class, dto);
+  }
 
 }

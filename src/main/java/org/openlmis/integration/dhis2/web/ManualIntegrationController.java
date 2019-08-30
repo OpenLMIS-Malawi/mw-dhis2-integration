@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+
 
 @Controller
 @Transactional
@@ -45,9 +49,9 @@ public class ManualIntegrationController {
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
     PayloadMap payloadMap = new PayloadMap();
     payloadMap.setTargetUrl(manualIntegrationDto.getTargetUrl());
-    payloadMap.setPeriodId(manualIntegrationDto.getPeriodId());
+    payloadMap.setPeriodId(UUID.fromString(manualIntegrationDto.getPeriodId()));
     payloadMap.setManualExecution(true);
-    payloadMap.setProgramId(manualIntegrationDto.getProgramId());
+    payloadMap.setProgramId(UUID.fromString(manualIntegrationDto.getProgramId()));
     // uncomment bellow when postPayload is ready.
     //    payloadService.postPayload(payloadMap);
     return manualIntegrationDto;
