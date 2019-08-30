@@ -15,14 +15,13 @@
 
 package org.openlmis.integration.dhis2.scheduler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
-import org.openlmis.integration.dhis2.util.Pagination;
 import org.openlmis.integration.dhis2.web.ConfigurationAuthenticationDetailsDto;
 import org.openlmis.integration.dhis2.web.ConfigurationDto;
 import org.openlmis.integration.dhis2.web.IntegrationDto;
@@ -31,9 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -47,7 +43,6 @@ import org.springframework.stereotype.Service;
 @EnableScheduling
 public class DynamicTaskScheduler implements SchedulingConfigurer {
 
-  private Pageable pageable = new PageRequest(Pagination.DEFAULT_PAGE_NUMBER, 2000);
   private static Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
   private ScheduledTaskRegistrar newTaskRegistrar;
   //  @Autowired
@@ -76,13 +71,12 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
     newTaskRegistrar = taskRegistrar;
     newTaskRegistrar.setScheduler(poolScheduler());
+    List<Integration> integrationList = integrationRepository.findAll();
+    List<IntegrationDto> integrationDtoList = new ArrayList<>();
 
-    Page<Integration> page = integrationRepository.findAllWithoutSnapshots(pageable);
-    List<IntegrationDto> content = page
-        .getContent()
-        .stream()
-        .map(IntegrationDto::newInstance)
-        .collect(Collectors.toList());
+    for (Integration integration:integrationList) {
+      integrationDtoList.add(IntegrationDto.newInstance(integration));
+    }
 
     //  for testing <start>
     ConfigurationAuthenticationDetailsDto confa1 = new ConfigurationAuthenticationDetailsDto(
@@ -100,12 +94,12 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     IntegrationDto object5 = new IntegrationDto("Name", UUID.randomUUID(),
         "0/5 * * * * ?", conf1);
 
-    content.add(object1);
-    content.add(object2);
-    content.add(object5);
+    integrationDtoList.add(object1);
+    integrationDtoList.add(object2);
+    integrationDtoList.add(object5);
     // </end>
 
-    for (IntegrationDto integrationDto : content) {
+    for (IntegrationDto integrationDto : integrationDtoList) {
       CronTrigger croneTrigger = new CronTrigger(integrationDto.getCronExpression(),
           TimeZone.getDefault());
       newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(integrationDto), croneTrigger));
@@ -117,6 +111,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
    */
   private void scheduleCron(IntegrationDto integrationDto) {
     // println only for testing
+    LOGGER.info("Scheduled task named: " + integrationDto.getName());
     System.out.println("Next execution time of this taken from cron expression -> "
         + integrationDto.getCronExpression());
 

@@ -26,10 +26,7 @@ import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.web.BaseController;
-import org.openlmis.integration.dhis2.web.ConfigurationAuthenticationDetailsDto;
-import org.openlmis.integration.dhis2.web.ConfigurationDto;
 import org.openlmis.integration.dhis2.web.FacilitiesDto;
-import org.openlmis.integration.dhis2.web.IntegrationDto;
 import org.openlmis.integration.dhis2.web.PayloadDto;
 import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
@@ -66,12 +63,12 @@ public class PayloadService extends BaseController {
     int status = response.getStatusCodeValue();
 
 
-    IntegrationDto integrationDto = new IntegrationDto(); //get from api/db
-    ConfigurationAuthenticationDetailsDto authenticationDetailsDto =
-        new ConfigurationAuthenticationDetailsDto("6648df1f-542b-46b0-b66e-0709fc444cfe");
-    ConfigurationDto configurationDto = new ConfigurationDto("Name", payloadMap.getTargetUrl(),
-        authenticationDetailsDto);
-//    integrationDto.setConfiguration(configurationDto);
+    //IntegrationDto integrationDto = new IntegrationDto(); //get from api/db
+    //ConfigurationAuthenticationDetailsDto authenticationDetailsDto =
+    //    new ConfigurationAuthenticationDetailsDto("6648df1f-542b-46b0-b66e-0709fc444cfe");
+    //ConfigurationDto configurationDto = new ConfigurationDto("Name", payloadMap.getTargetUrl(),
+    //authenticationDetailsDto);
+    //    integrationDto.setConfiguration(configurationDto);
 
 
     UUID facilityId = payloadMap.getFacilityId();

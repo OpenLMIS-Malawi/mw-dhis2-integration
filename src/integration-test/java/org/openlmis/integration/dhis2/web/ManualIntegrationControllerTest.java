@@ -41,7 +41,6 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
 
   @Test
   public void shouldCreateRequest() {
-
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
@@ -79,7 +78,7 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
     dto.setTargetUrl("https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io");
     dto.setProgramId(UUID.randomUUID().toString());
     dto.setConfigurationId(UUID.randomUUID().toString());
-    dto.setPeriodId("12-11");
+    dto.setPeriodId(UUID.randomUUID().toString());
     dto.setFacilityId(UUID.randomUUID().toString());
     return dto;
   }

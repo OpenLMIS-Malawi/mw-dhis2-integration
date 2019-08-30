@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import java.util.UUID;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
@@ -23,7 +25,7 @@ import org.openlmis.integration.dhis2.ToStringTestUtils;
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.Integration;
 
-import java.util.UUID;
+
 
 public class IntegrationDtoTest {
 

@@ -53,6 +53,7 @@ public final class IntegrationDto extends BaseDto implements Importer, Exporter 
     integration.export(dto);
     return dto;
   }
+
   @JsonSetter("configuration")
   public void setConfiguration(ConfigurationDto configuration) {
     this.configuration = configuration;
