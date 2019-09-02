@@ -48,7 +48,6 @@ public class ManualIntegrationController {
   public ManualIntegrationDto manualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
     PayloadMap payloadMap = new PayloadMap();
-    payloadMap.setTargetUrl(manualIntegrationDto.getTargetUrl());
     payloadMap.setPeriodId(UUID.fromString(manualIntegrationDto.getPeriodId()));
     payloadMap.setManualExecution(true);
     payloadMap.setProgramId(UUID.fromString(manualIntegrationDto.getProgramId()));

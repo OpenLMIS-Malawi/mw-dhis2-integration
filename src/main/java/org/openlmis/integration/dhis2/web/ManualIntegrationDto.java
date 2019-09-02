@@ -15,8 +15,6 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,15 +31,8 @@ public class ManualIntegrationDto {
   /**
    * Request body of Manual integration call.
    */
-  @JsonProperty(value = "targetUrl")
-  private String targetUrl;
-  @JsonProperty(value = "programId")
   private String programId;
-  @JsonProperty(value = "periodId")
   private String periodId;
-  @JsonProperty(value = "configurationId")
-  private String configurationId;
-  @JsonProperty(value = "facilityId")
   private String facilityId;
 
 }
