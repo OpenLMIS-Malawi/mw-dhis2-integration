@@ -15,16 +15,15 @@
 
 package org.openlmis.integration.dhis2.scheduler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
-import org.openlmis.integration.dhis2.web.ConfigurationAuthenticationDetailsDto;
-import org.openlmis.integration.dhis2.web.ConfigurationDto;
-import org.openlmis.integration.dhis2.web.IntegrationDto;
+import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,8 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
 
   private static Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
   private ScheduledTaskRegistrar newTaskRegistrar;
-  //  @Autowired
-  //  private PayloadService payloadService;
+  @Autowired
+  private PayloadService payloadService;
 
   @Autowired
   private IntegrationRepository integrationRepository;
@@ -72,61 +71,50 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     newTaskRegistrar = taskRegistrar;
     newTaskRegistrar.setScheduler(poolScheduler());
     List<Integration> integrationList = integrationRepository.findAll();
-    List<IntegrationDto> integrationDtoList = new ArrayList<>();
-
-    for (Integration integration:integrationList) {
-      integrationDtoList.add(IntegrationDto.newInstance(integration));
-    }
 
     //  for testing <start>
-    ConfigurationAuthenticationDetailsDto confa1 = new ConfigurationAuthenticationDetailsDto(
+    ConfigurationAuthenticationDetails confa1 = new ConfigurationAuthenticationDetails(
         "usrname", "paswd");
-    ConfigurationAuthenticationDetailsDto confa2 = new ConfigurationAuthenticationDetailsDto(
+    ConfigurationAuthenticationDetails confa2 = new ConfigurationAuthenticationDetails(
         UUID.randomUUID().toString());
 
-    ConfigurationDto conf1 = new ConfigurationDto("name1", "tarteg url", confa1);
-    ConfigurationDto conf2 = new ConfigurationDto("name1", "tarteg url", confa2);
+    Configuration conf1 = new Configuration("name1", "https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io", confa1);
+    Configuration conf2 = new Configuration("name1", "https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io", confa2);
 
-    IntegrationDto object1 = new IntegrationDto("Name", UUID.randomUUID(),
+    Integration object1 = new Integration("Name", UUID.randomUUID(),
         "* * * * * ?",  conf1);
-    IntegrationDto object2 = new IntegrationDto("Name", UUID.randomUUID(),
+    Integration object2 = new Integration("Name", UUID.randomUUID(),
         "0/2 * * * * ?", conf2);
-    IntegrationDto object5 = new IntegrationDto("Name", UUID.randomUUID(),
+    Integration object5 = new Integration("Name", UUID.randomUUID(),
         "0/5 * * * * ?", conf1);
 
-    integrationDtoList.add(object1);
-    integrationDtoList.add(object2);
-    integrationDtoList.add(object5);
+    integrationList.add(object1);
+    integrationList.add(object2);
+    integrationList.add(object5);
     // </end>
 
-    for (IntegrationDto integrationDto : integrationDtoList) {
-      CronTrigger croneTrigger = new CronTrigger(integrationDto.getCronExpression(),
+    for (Integration integration : integrationList) {
+      CronTrigger croneTrigger = new CronTrigger(integration.getCronExpression(),
           TimeZone.getDefault());
-      newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(integrationDto), croneTrigger));
+      newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(integration), croneTrigger));
     }
   }
-
   /**
-   * Place for init task.
+   * Place for init tasks.
    */
-  private void scheduleCron(IntegrationDto integrationDto) {
+  private void scheduleCron(Integration integration) {
     // println only for testing
-    LOGGER.info("Scheduled task named: " + integrationDto.getName());
+    LOGGER.info("Scheduled task named: " + integration.getName());
     System.out.println("Next execution time of this taken from cron expression -> "
-        + integrationDto.getCronExpression());
-
-    ConfigurationDto configurationDto =
-        integrationDto.getConfiguration();
+        + integration.getCronExpression());
 
     PayloadMap payloadMap = new PayloadMap();
-    payloadMap.setTargetUrl(configurationDto.getTargetUrl());
-    payloadMap.setProgramId(integrationDto.getProgramId());
-    payloadMap.setConfigurationId(configurationDto.getId());
+    payloadMap.setIntegration(integration);
     payloadMap.setManualExecution(false);
-
+    payloadMap.setPeriodId(UUID.randomUUID());
     // enable when postPayload is ready.
-    // payloadService.postPayload(payloadMap);
-    if (integrationDto.getCronExpression().equals("0/5 * * * * ?")) {
+    payloadService.postPayload(payloadMap);
+    if (integration.getCronExpression().equals("0/5 * * * * ?")) {
       //just for testing
       cancelAllTask();
     }

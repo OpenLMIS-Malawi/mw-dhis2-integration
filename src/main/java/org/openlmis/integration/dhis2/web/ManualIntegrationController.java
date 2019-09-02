@@ -15,8 +15,11 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import java.util.UUID;
+import org.openlmis.integration.dhis2.domain.Integration;
 
+import org.openlmis.integration.dhis2.repository.IntegrationRepository;
+import org.openlmis.integration.dhis2.service.PayloadService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +36,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/api")
 public class ManualIntegrationController {
 
-  //  @Autowired
-  //  private PayloadService payloadService;
+  @Autowired
+  private PayloadService payloadService;
+
+  @Autowired
+  private IntegrationRepository integrationRepository;
 
   /**
    * This method is used to manual trigger Integration.
@@ -48,11 +54,17 @@ public class ManualIntegrationController {
   public ManualIntegrationDto manualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
     PayloadMap payloadMap = new PayloadMap();
-    payloadMap.setPeriodId(UUID.fromString(manualIntegrationDto.getPeriodId()));
+
+    Integration integration = integrationRepository.findByProgramId(
+        manualIntegrationDto.getProgramId());
+
+    payloadMap.setIntegration(integration);
     payloadMap.setManualExecution(true);
-    payloadMap.setProgramId(UUID.fromString(manualIntegrationDto.getProgramId()));
+    payloadMap.setFacilityId(manualIntegrationDto.getFacilityId());
+    payloadMap.setPeriodId(manualIntegrationDto.getPeriodId());
+
     // uncomment bellow when postPayload is ready.
-    //    payloadService.postPayload(payloadMap);
+    payloadService.postPayload(payloadMap);
     return manualIntegrationDto;
   }
 }

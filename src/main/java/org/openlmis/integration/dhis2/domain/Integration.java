@@ -40,6 +40,7 @@ import org.javers.core.metamodel.annotation.TypeName;
 @ToString(callSuper = true)
 public class Integration extends BaseEntity {
 
+  @Getter
   @Column(nullable = false, unique = true, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String name;
 
@@ -48,6 +49,7 @@ public class Integration extends BaseEntity {
   @Column(nullable = false, unique = true)
   private UUID programId;
 
+  @Getter
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String cronExpression;
 
@@ -56,7 +58,7 @@ public class Integration extends BaseEntity {
   @JoinColumn(name = "configurationId", nullable = false)
   private Configuration configuration;
 
-  String getTargetUrl() {
+  public String getTargetUrl() {
     return configuration.getTargetUrl();
   }
 

@@ -15,11 +15,15 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+
 
 @Getter
 @Setter
@@ -31,8 +35,8 @@ public class ManualIntegrationDto {
   /**
    * Request body of Manual integration call.
    */
-  private String programId;
-  private String periodId;
-  private String facilityId;
+  private UUID programId;
+  private UUID periodId;
+  private UUID facilityId;
 
 }

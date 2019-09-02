@@ -51,40 +51,38 @@ public class PayloadService extends BaseController {
 
   public void postPayload(PayloadMap payloadMap) {
     RestTemplate restTemplate = new RestTemplate();
-    PayloadDto payload = new PayloadDto();
+    PayloadDto payloadDto = new PayloadDto();
     Set<FacilitiesDto> facilities = new HashSet<>(); //get from repository
 
-    payload.setDescription("Some description here");
-    payload.setFacilities(facilities);
-    payload.setReportingPeriod(payloadMap.getPeriodId().toString());
+    Integration integration = payloadMap.getIntegration();
 
-    ResponseEntity response = restTemplate.postForEntity(payloadMap.getTargetUrl(), payload,
+    payloadDto.setDescription("Some description here");
+    payloadDto.setFacilities(facilities);
+    payloadDto.setReportingPeriod(payloadMap.getPeriodId().toString());
+
+    ResponseEntity response =
+        restTemplate.postForEntity(integration.getTargetUrl(),
+            payloadDto,
         String.class);
     int status = response.getStatusCodeValue();
 
-
-    //IntegrationDto integrationDto = new IntegrationDto(); //get from api/db
-    //ConfigurationAuthenticationDetailsDto authenticationDetailsDto =
-    //    new ConfigurationAuthenticationDetailsDto("6648df1f-542b-46b0-b66e-0709fc444cfe");
-    //ConfigurationDto configurationDto = new ConfigurationDto("Name", payloadMap.getTargetUrl(),
-    //authenticationDetailsDto);
-    //    integrationDto.setConfiguration(configurationDto);
-
-
     UUID facilityId = payloadMap.getFacilityId();
-    //    UUID facilityId = UUID.randomUUID();
     UUID processingPeriodId = payloadMap.getPeriodId();
-    //    UUID processingPeriodId = UUID.randomUUID();
+
     Clock clock = Clock.systemUTC();
-    Integration integration = new Integration();
-    Execution execution = Execution.forManualExecution(integration, facilityId,
-        processingPeriodId, clock);
+    Execution execution;
+    if (payloadMap.isManualExecution()) {
+      execution = Execution.forManualExecution(integration, facilityId,
+          processingPeriodId, clock);
+    } else {
+      execution = Execution.forAutomaticExecution(integration, processingPeriodId, clock);
+    }
+
     ExecutionResponse executionResponse = new ExecutionResponse(ZonedDateTime.now(), status,
         response.getBody().toString());
     execution.markAsDone(executionResponse, clock);
     executionRepository.save(execution);
 
-    // save to DB here.
     LOGGER.info("Response status: " + status + "; Message: "
         + response.getBody().toString());
     System.out.println("Response status: " + status + "; Message: "

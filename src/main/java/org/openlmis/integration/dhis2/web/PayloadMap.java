@@ -21,18 +21,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.openlmis.integration.dhis2.domain.Integration;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PayloadMap {
 
-  private String targetUrl;
-  private UUID programId;
+  private Integration integration;
   private UUID facilityId;
   private UUID periodId;
-  private UUID configurationId;
-  private String cronExpression;
   private boolean manualExecution;
-
 
 }

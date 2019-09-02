@@ -22,11 +22,10 @@ import guru.nidi.ramltester.junit.RamlMatchers;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
+import org.openlmis.integration.dhis2.service.PayloadService;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
-
-
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
@@ -37,8 +36,12 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
   private static final String FACILITYID = "facilityId";
   private ManualIntegrationDto manualIntegrationDto = generateRequestBody();
 
+  @MockBean
+  PayloadService payloadService;
+
   @Test
   public void shouldCreateRequest() {
+
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
@@ -48,9 +51,9 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
         .post(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.SC_CREATED)
-        .body(PROGRAMID, is(manualIntegrationDto.getProgramId()))
-        .body(PERIODID, is(manualIntegrationDto.getPeriodId()))
-        .body(FACILITYID, is(manualIntegrationDto.getFacilityId()));
+        .body(PROGRAMID, is(manualIntegrationDto.getProgramId().toString()))
+        .body(PERIODID, is(manualIntegrationDto.getPeriodId().toString()))
+        .body(FACILITYID, is(manualIntegrationDto.getFacilityId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -71,9 +74,9 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
 
   private ManualIntegrationDto generateRequestBody() {
     ManualIntegrationDto dto = new ManualIntegrationDto();
-    dto.setProgramId(UUID.randomUUID().toString());
-    dto.setPeriodId(UUID.randomUUID().toString());
-    dto.setFacilityId(UUID.randomUUID().toString());
+    dto.setProgramId(UUID.randomUUID());
+    dto.setPeriodId(UUID.randomUUID());
+    dto.setFacilityId(UUID.randomUUID());
     return dto;
   }
 
