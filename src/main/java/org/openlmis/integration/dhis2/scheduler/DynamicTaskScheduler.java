@@ -99,9 +99,11 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
       newTaskRegistrar.addCronTask(new CronTask(() -> scheduleCron(integration), croneTrigger));
     }
   }
+
   /**
    * Place for init tasks.
    */
+
   private void scheduleCron(Integration integration) {
     // println only for testing
     LOGGER.info("Scheduled task named: " + integration.getName());
