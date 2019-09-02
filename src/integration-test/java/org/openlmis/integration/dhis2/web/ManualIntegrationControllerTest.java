@@ -32,10 +32,8 @@ import org.springframework.http.MediaType;
 public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = "/api/integrationExecutions";
-  private static final String URL = "targetUrl";
   private static final String PROGRAMID = "programId";
   private static final String PERIODID = "periodId";
-  private static final String CONFIGID = "configurationId";
   private static final String FACILITYID = "facilityId";
   private ManualIntegrationDto manualIntegrationDto = generateRequestBody();
 
@@ -50,10 +48,8 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
         .post(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.SC_CREATED)
-        .body(URL, is(manualIntegrationDto.getTargetUrl()))
         .body(PROGRAMID, is(manualIntegrationDto.getProgramId()))
         .body(PERIODID, is(manualIntegrationDto.getPeriodId()))
-        .body(CONFIGID, is(manualIntegrationDto.getConfigurationId()))
         .body(FACILITYID, is(manualIntegrationDto.getFacilityId()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
@@ -75,9 +71,7 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
 
   private ManualIntegrationDto generateRequestBody() {
     ManualIntegrationDto dto = new ManualIntegrationDto();
-    dto.setTargetUrl("https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io");
     dto.setProgramId(UUID.randomUUID().toString());
-    dto.setConfigurationId(UUID.randomUUID().toString());
     dto.setPeriodId(UUID.randomUUID().toString());
     dto.setFacilityId(UUID.randomUUID().toString());
     return dto;
