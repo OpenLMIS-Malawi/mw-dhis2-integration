@@ -26,6 +26,7 @@ public abstract class MessageKeys {
 
   private static final String CONFIGURATION = "configuration";
   private static final String INTEGRATION = "integration";
+  private static final String EXECUTION = "execution";
   private static final String JAVERS = "javers";
 
   private static final String NAME = "name";
@@ -33,6 +34,7 @@ public abstract class MessageKeys {
   private static final String PROGRAM_ID = "programId";
 
   private static final String DUPLICATED = "duplicated";
+  private static final String NOT_FOUND = "notFound";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
@@ -45,6 +47,8 @@ public abstract class MessageKeys {
       join(ERROR_PREFIX, INTEGRATION, NAME, DUPLICATED);
   public static final String ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED =
       join(ERROR_PREFIX, INTEGRATION, PROGRAM_ID, DUPLICATED);
+
+  public static final String ERROR_EXECUTION_NOT_FOUND = join(ERROR_PREFIX, EXECUTION, NOT_FOUND);
 
   public static final String ERROR_JAVERS_EXISTING_ENTRY =
       join(ERROR_PREFIX, JAVERS, "entryAlreadyExists");

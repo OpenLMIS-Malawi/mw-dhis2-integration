@@ -15,18 +15,33 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import static org.openlmis.integration.dhis2.web.ManualIntegrationController.RESOURCE_PATH;
+import static org.openlmis.integration.dhis2.web.IntegrationExecutionsController.RESOURCE_PATH;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
+
+import org.openlmis.integration.dhis2.exception.NotFoundException;
+import org.openlmis.integration.dhis2.i18n.MessageKeys;
+import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @RestController
 @RequestMapping(RESOURCE_PATH)
-public class ManualIntegrationController extends BaseController {
+public class IntegrationExecutionsController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
 
@@ -44,6 +59,8 @@ public class ManualIntegrationController extends BaseController {
   @Autowired
   private IntegrationRepository integrationRepository;
 
+  @Autowired
+  private ExecutionRepository executionRepository;
   /**
    * This method is used to manual trigger Integration.
    *
@@ -63,5 +80,37 @@ public class ManualIntegrationController extends BaseController {
     payloadService.postPayload(payloadRequest);
 
     return manualIntegrationDto;
+  }
+
+  /**
+   * Retrieves all historical executions. Note that an empty collection rather than a 404 should be
+   * returned if no historical executions exist.
+   */
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public Page<ExecutionDto> getAllHistoricalExecutions(Pageable pageable) {
+    Page<Execution> page = executionRepository.findAll(pageable);
+    List<ExecutionDto> content = page
+        .getContent()
+        .stream()
+        .map(ExecutionDto::newInstance)
+        .collect(Collectors.toList());
+    return Pagination.getPage(content, pageable, page.getTotalElements());
+  }
+
+  /**
+   * Retrieves the historical execution.
+   */
+  @GetMapping(value = "/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ExecutionDto getSpecifiedHisoricalExecution(@PathVariable("id") UUID id) {
+    Execution execution = executionRepository.findOne(id);
+
+    if (execution == null) {
+      throw new NotFoundException(MessageKeys.ERROR_EXECUTION_NOT_FOUND);
+    }
+    return ExecutionDto.newInstance(execution);
   }
 }

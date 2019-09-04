@@ -19,14 +19,17 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import guru.nidi.ramltester.junit.RamlMatchers;
+
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
+import org.openlmis.integration.dhis2.service.PayloadService;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class ManualIntegrationControllerIntegrationTest extends BaseWebIntegrationTest {
+public class IntegrationExecutionsControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = IntegrationExecutionsController.RESOURCE_PATH;
   private static final String PROGRAM_ID = "programId";
@@ -37,6 +40,7 @@ public class ManualIntegrationControllerIntegrationTest extends BaseWebIntegrati
 
   @Test
   public void shouldCreateRequest() {
+
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())

@@ -88,7 +88,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     Integration object1 = new Integration("Name", UUID.randomUUID(),
         "* * * * * ?", conf1);
     Integration object2 = new Integration("Name", UUID.randomUUID(),
-        "0/2 * * * * ?", conf2);
+        "0/4 * * * * ?", conf2);
     Integration object5 = new Integration("Name", UUID.randomUUID(),
         "0/5 * * * * ?", conf1);
 
