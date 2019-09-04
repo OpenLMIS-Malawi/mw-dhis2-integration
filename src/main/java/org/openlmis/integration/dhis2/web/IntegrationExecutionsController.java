@@ -61,11 +61,13 @@ public class IntegrationExecutionsController extends BaseController {
 
   @Autowired
   private ExecutionRepository executionRepository;
+
   /**
    * This method is used to manual trigger Integration.
    *
    * @return returning some data - not precized yet
    */
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ManualIntegrationDto manualIntegration(

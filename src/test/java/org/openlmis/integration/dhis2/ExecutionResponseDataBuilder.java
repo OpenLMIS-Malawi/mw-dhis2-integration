@@ -15,8 +15,8 @@
 
 package org.openlmis.integration.dhis2;
 
-    import java.time.ZonedDateTime;
-    import org.openlmis.integration.dhis2.domain.ExecutionResponse;
+import java.time.ZonedDateTime;
+import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 
 
 public class ExecutionResponseDataBuilder {
