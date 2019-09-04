@@ -16,23 +16,19 @@
 package org.openlmis.integration.dhis2;
 
     import java.time.ZonedDateTime;
-    import java.util.UUID;
-    import java.util.concurrent.atomic.AtomicInteger;
-
-    import org.openlmis.integration.dhis2.domain.Execution;
     import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 
 
 public class ExecutionResponseDataBuilder {
 
-  private static AtomicInteger instanceNumber = new AtomicInteger(0);
-  private UUID id = UUID.randomUUID();
+  //  private static AtomicInteger instanceNumber = new AtomicInteger(0);
+  //  private UUID id = UUID.randomUUID();
 
   private ZonedDateTime responseDate;
   private int statusCode;
   private String body;
 
-  private Execution execution;
+  //  private Execution execution;
 
   public ExecutionResponseDataBuilder withResponseDate(ZonedDateTime responseDate) {
     this.responseDate = responseDate;

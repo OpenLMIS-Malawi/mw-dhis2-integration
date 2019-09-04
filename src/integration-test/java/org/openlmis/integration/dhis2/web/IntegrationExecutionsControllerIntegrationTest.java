@@ -23,8 +23,6 @@ import guru.nidi.ramltester.junit.RamlMatchers;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
-import org.openlmis.integration.dhis2.service.PayloadService;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
