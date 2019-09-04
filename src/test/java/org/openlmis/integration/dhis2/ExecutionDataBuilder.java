@@ -16,37 +16,17 @@
 package org.openlmis.integration.dhis2;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlmis.integration.dhis2.domain.Execution;
-import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.domain.Integration;
 
 public class ExecutionDataBuilder {
 
-  private static AtomicInteger instanceNumber = new AtomicInteger(0);
   private UUID id = UUID.randomUUID();
-  private boolean manualExecution = false;
-  private UUID programId = UUID.randomUUID();
   private UUID facilityId = UUID.randomUUID();
   private UUID processingPeriodId = UUID.randomUUID();
-  private String targetUrl =  "https://lmis-dev.health.gov.mw";
-  private ZonedDateTime startDate = ZonedDateTime.now();
-  private ZonedDateTime endDate = ZonedDateTime.now();
-  private ExecutionResponse response = new ExecutionResponseDataBuilder().buildAsNew();
-
-
-  public ExecutionDataBuilder withManualExecution(boolean manualExecution) {
-    this.manualExecution = manualExecution;
-    return this;
-  }
-
-  public ExecutionDataBuilder withProgramId(UUID programId) {
-    this.programId = programId;
-    return this;
-  }
+  private Clock startDate = Clock.systemUTC();
 
   public ExecutionDataBuilder withFacilityId(UUID facilityId) {
     this.facilityId = facilityId;
@@ -58,31 +38,26 @@ public class ExecutionDataBuilder {
     return this;
   }
 
-  public ExecutionDataBuilder withTargetUrl(String targetUrl) {
-    this.targetUrl = targetUrl;
-    return this;
-  }
-
-  public ExecutionDataBuilder withStartDate(ZonedDateTime startDate) {
+  public ExecutionDataBuilder withStartDate(Clock startDate) {
     this.startDate = startDate;
     return this;
   }
 
-  public ExecutionDataBuilder withEndDate(ZonedDateTime endDate) {
-    this.endDate = endDate;
-    return this;
-  }
 
-  public ExecutionDataBuilder withResponse(ExecutionResponse response) {
-    this.response = response;
-    return this;
+  /**
+   * Builds new instance of Execution (with id field) as Automatic execution.
+   */
+  public Execution buildAsAutomatic() {
+    Execution execution = buildAsNewAutomatic();
+    execution.setId(id);
+    return execution;
   }
 
   /**
-   * Builds new instance of Execution (with id field).
+   * Builds new instance of Execution (with id field) as Manual execution.
    */
-  public Execution build() {
-    Execution execution = buildAsAutomatic();
+  public Execution buildAsManual() {
+    Execution execution = buildAsNewManual();
     execution.setId(id);
     return execution;
   }
@@ -91,19 +66,19 @@ public class ExecutionDataBuilder {
    * Builds new instance of Execution as a new object (without id field) as Automatic execution.
    */
 
-  public Execution buildAsAutomatic() {
+  public Execution buildAsNewAutomatic() {
     Integration integration = new IntegrationDataBuilder().build();
     return Execution.forAutomaticExecution(
-        integration, UUID.randomUUID(), Clock.systemUTC());
+        integration, processingPeriodId, startDate);
   }
 
   /**
    * Builds new instance of Execution as a new object (without id field) as Manual execution.
    */
 
-  public Execution buildAsManual() {
+  public Execution buildAsNewManual() {
     Integration integration = new IntegrationDataBuilder().build();
     return Execution.forManualExecution(
-        integration, UUID.randomUUID(),UUID.randomUUID(), Clock.systemUTC());
+        integration, facilityId, processingPeriodId, startDate);
   }
 }

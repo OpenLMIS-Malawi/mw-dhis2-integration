@@ -61,7 +61,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     this.taskRegistrar.setScheduler(poolScheduler());
 
     List<Integration> integrations = integrationRepository.findAll();
-    addTestingData(integrations);
+    //addTestingData(integrations);
 
     TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
     for (Integration integration : integrations) {
