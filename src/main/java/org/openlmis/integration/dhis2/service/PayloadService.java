@@ -16,19 +16,13 @@
 package org.openlmis.integration.dhis2.service;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
-
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.ExecutionResponse;
-import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
-import org.openlmis.integration.dhis2.web.BaseController;
-import org.openlmis.integration.dhis2.web.FacilitiesDto;
-import org.openlmis.integration.dhis2.web.PayloadDto;
-import org.openlmis.integration.dhis2.web.PayloadMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,56 +31,48 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class PayloadService extends BaseController {
+public class PayloadService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(PayloadService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PayloadService.class);
 
   @Autowired
   private ExecutionRepository executionRepository;
+
+  @Autowired
+  private Clock clock;
+
+  private RestTemplate restTemplate;
 
   /**
    * Method is responsible for sending payload to Interop layer. Response is a status (202, 500 or
    * 503), message and notificationsChannel.
    */
 
-  public void postPayload(PayloadMap payloadMap) {
-    RestTemplate restTemplate = new RestTemplate();
-    PayloadDto payloadDto = new PayloadDto();
-    Set<FacilitiesDto> facilities = new HashSet<>(); //get from repository
+  public void postPayload(PayloadRequest payloadRequest) {
+    Execution execution = payloadRequest.createExecution(clock);
+    executionRepository.saveAndFlush(execution);
 
-    Integration integration = payloadMap.getIntegration();
+    Payload payload = createPayload();
+    ExecutionResponse response = sendPayload(payloadRequest, payload);
 
-    payloadDto.setDescription("Some description here");
-    payloadDto.setFacilities(facilities);
-    payloadDto.setReportingPeriod(payloadMap.getPeriodId().toString());
+    execution.markAsDone(response, clock);
+    executionRepository.saveAndFlush(execution);
 
-    ResponseEntity response =
-        restTemplate.postForEntity(integration.getTargetUrl(),
-            payloadDto,
-        String.class);
+    LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
+  }
+
+  private ExecutionResponse sendPayload(PayloadRequest request, Payload payload) {
+    ResponseEntity<String> response = restTemplate
+        .postForEntity(request.getTargetUrl(), payload, String.class);
+    ZonedDateTime responseTime = ZonedDateTime.now(clock);
     int status = response.getStatusCodeValue();
 
-    UUID facilityId = payloadMap.getFacilityId();
-    UUID processingPeriodId = payloadMap.getPeriodId();
+    return new ExecutionResponse(responseTime, status, response.getBody());
+  }
 
-    Clock clock = Clock.systemUTC();
-    Execution execution;
-    if (payloadMap.isManualExecution()) {
-      execution = Execution.forManualExecution(integration, facilityId,
-          processingPeriodId, clock);
-    } else {
-      execution = Execution.forAutomaticExecution(integration, processingPeriodId, clock);
-    }
-
-    ExecutionResponse executionResponse = new ExecutionResponse(ZonedDateTime.now(), status,
-        response.getBody().toString());
-    execution.markAsDone(executionResponse, clock);
-    executionRepository.save(execution);
-
-    LOGGER.info("Response status: " + status + "; Message: "
-        + response.getBody().toString());
-    System.out.println("Response status: " + status + "; Message: "
-        + response.getBody().toString());
-
+  private Payload createPayload() {
+    Set<PayloadFacility> facilities = new HashSet<>(); //get from repository
+    LocalDate reportingPeriod = LocalDate.of(2019, 5, 1);
+    return new Payload(facilities, reportingPeriod);
   }
 }

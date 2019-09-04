@@ -40,6 +40,7 @@ import org.openlmis.integration.dhis2.domain.BaseEntity;
 import org.openlmis.integration.dhis2.repository.ConfigurationRepository;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
+import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -120,6 +121,9 @@ public abstract class BaseWebIntegrationTest {
 
   @MockBean
   IntegrationRepository integrationRepository;
+
+  @MockBean
+  PayloadService payloadService;
 
   /**
    * Constructor for test.

@@ -13,25 +13,41 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.web;
+package org.openlmis.integration.dhis2.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Set;
-
-import lombok.Data;
-
+import lombok.Getter;
 
 
 /**
- * Model of ValuesDto DTO.
+ * Model of Payload DTO. Instance of this object will be send to DHIS2
  */
-@Data
+
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FacilitiesDto {
-  @JsonProperty("facility-code")
-  private String facilityCode;
-  @JsonProperty("values")
-  private Set<ValuesDto> values;
+class Payload {
+  private static final DateTimeFormatter DESCRIPTION_FORMATTER = DateTimeFormatter
+      .ofPattern("MMMM yyyy");
+  private static final DateTimeFormatter REPORTING_PERIOD_FORMATTER = DateTimeFormatter
+      .ofPattern("yyyyMM");
+
+  private final String description;
+  private final Set<PayloadFacility> facilities;
+
+  @JsonProperty("reporting-period")
+  private final String reportingPeriod;
+
+  Payload(Set<PayloadFacility> facilities, LocalDate reportingPeriod) {
+    this.facilities = Collections.unmodifiableSet(facilities);
+    this.description = String
+        .format("Stock indicators for %s period", reportingPeriod.format(DESCRIPTION_FORMATTER));
+    this.reportingPeriod = reportingPeriod.format(REPORTING_PERIOD_FORMATTER);
+  }
+
 }
+

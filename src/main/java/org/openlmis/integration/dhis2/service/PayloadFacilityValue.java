@@ -13,31 +13,23 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.web;
+package org.openlmis.integration.dhis2.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Set;
-
-import lombok.Data;
-
-
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * Model of Payload DTO. Instance of this object will be send to DHIS2
+ * Model of ValuesDto DTO.
  */
+@Getter
+@AllArgsConstructor
+class PayloadFacilityValue {
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadDto {
-  @JsonProperty("description")
-  private String description;
-  @JsonProperty("facilities")
-  private Set<FacilitiesDto> facilities;
-  @JsonProperty("reporting-period")
-  private String reportingPeriod;
+  @JsonProperty("product-code")
+  private final String productCode;
+
+  @JsonProperty("values")
+  private final String value;
 
 }
-

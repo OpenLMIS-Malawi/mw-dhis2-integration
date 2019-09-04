@@ -32,9 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping(BaseController.API_PATH)
-public abstract class BaseController {
+abstract class BaseController {
 
-  protected static final String API_PATH = "/api";
+  static final String API_PATH = "/api";
 
   @Resource(name = "javersProvider")
   private Javers javers;

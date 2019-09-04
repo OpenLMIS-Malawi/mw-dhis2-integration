@@ -26,6 +26,7 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -43,9 +44,11 @@ public final class ExecutionResponse {
   @Column(nullable = false, columnDefinition = BaseEntity.TIMESTAMP_COLUMN_DEFINITION)
   private ZonedDateTime responseDate;
 
+  @Getter
   @Column(nullable = false)
   private int statusCode;
 
+  @Getter
   @Column(nullable = false, columnDefinition = BaseEntity.TEXT_COLUMN_DEFINITION)
   private String body;
 

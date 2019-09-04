@@ -22,26 +22,21 @@ import guru.nidi.ramltester.junit.RamlMatchers;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
-import org.openlmis.integration.dhis2.service.PayloadService;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
+public class ManualIntegrationControllerIntegrationTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = "/api/integrationExecutions";
-  private static final String PROGRAMID = "programId";
-  private static final String PERIODID = "periodId";
-  private static final String FACILITYID = "facilityId";
+  private static final String RESOURCE_URL = ManualIntegrationController.RESOURCE_PATH;
+  private static final String PROGRAM_ID = "programId";
+  private static final String PERIOD_ID = "periodId";
+  private static final String FACILITY_ID = "facilityId";
+
   private ManualIntegrationDto manualIntegrationDto = generateRequestBody();
-
-  @MockBean
-  PayloadService payloadService;
 
   @Test
   public void shouldCreateRequest() {
-
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
@@ -51,9 +46,9 @@ public class ManualIntegrationControllerTest extends BaseWebIntegrationTest {
         .post(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.SC_CREATED)
-        .body(PROGRAMID, is(manualIntegrationDto.getProgramId().toString()))
-        .body(PERIODID, is(manualIntegrationDto.getPeriodId().toString()))
-        .body(FACILITYID, is(manualIntegrationDto.getFacilityId().toString()));
+        .body(PROGRAM_ID, is(manualIntegrationDto.getProgramId().toString()))
+        .body(PERIOD_ID, is(manualIntegrationDto.getPeriodId().toString()))
+        .body(FACILITY_ID, is(manualIntegrationDto.getFacilityId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }

@@ -15,26 +15,28 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import org.openlmis.integration.dhis2.domain.Integration;
+import static org.openlmis.integration.dhis2.web.ManualIntegrationController.RESOURCE_PATH;
 
+import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
+import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 
-
-@Controller
 @Transactional
-@RequestMapping("/api")
-public class ManualIntegrationController {
+@RestController
+@RequestMapping(RESOURCE_PATH)
+public class ManualIntegrationController extends BaseController {
+
+  public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
 
   @Autowired
   private PayloadService payloadService;
@@ -47,24 +49,19 @@ public class ManualIntegrationController {
    *
    * @return returning some data - not precized yet
    */
-
-  @PostMapping("integrationExecutions")
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @ResponseBody
   public ManualIntegrationDto manualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
-    PayloadMap payloadMap = new PayloadMap();
 
     Integration integration = integrationRepository.findByProgramId(
         manualIntegrationDto.getProgramId());
 
-    payloadMap.setIntegration(integration);
-    payloadMap.setManualExecution(true);
-    payloadMap.setFacilityId(manualIntegrationDto.getFacilityId());
-    payloadMap.setPeriodId(manualIntegrationDto.getPeriodId());
+    PayloadRequest payloadRequest = PayloadRequest.forManualExecution(integration,
+        manualIntegrationDto.getFacilityId(), manualIntegrationDto.getPeriodId());
 
-    // uncomment bellow when postPayload is ready.
-    payloadService.postPayload(payloadMap);
+    payloadService.postPayload(payloadRequest);
+
     return manualIntegrationDto;
   }
 }
