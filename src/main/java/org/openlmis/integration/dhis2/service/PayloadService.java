@@ -41,7 +41,7 @@ public class PayloadService {
   @Autowired
   private Clock clock;
 
-  private RestTemplate restTemplate;
+  private RestTemplate restTemplate = new RestTemplate();
 
   /**
    * Method is responsible for sending payload to Interop layer. Response is a status (202, 500 or
