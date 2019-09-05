@@ -19,31 +19,43 @@ import java.time.Clock;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
+import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PayloadRequest {
 
   private final Integration integration;
+
+  @Getter
   private final UUID facilityId;
-  private final UUID periodId;
+
+  @Getter
+  private final ProcessingPeriodDto period;
+
   private final boolean manualExecution;
 
-  public static PayloadRequest forAutomaticExecution(Integration integration, UUID periodId) {
-    return new PayloadRequest(integration, null, periodId, false);
+  public static PayloadRequest forAutomaticExecution(Integration integration,
+      ProcessingPeriodDto period) {
+    return new PayloadRequest(integration, null, period, false);
   }
 
   public static PayloadRequest forManualExecution(Integration integration, UUID facilityId,
-      UUID periodId) {
-    return new PayloadRequest(integration, facilityId, periodId, true);
+      ProcessingPeriodDto period) {
+    return new PayloadRequest(integration, facilityId, period, true);
+  }
+
+  public UUID getProgramId() {
+    return integration.getProgramId();
   }
 
   Execution createExecution(Clock clock) {
     if (manualExecution) {
-      return Execution.forManualExecution(integration, facilityId, periodId, clock);
+      return Execution.forManualExecution(integration, facilityId, period.getId(), clock);
     } else {
-      return Execution.forAutomaticExecution(integration, periodId, clock);
+      return Execution.forAutomaticExecution(integration, period.getId(), clock);
     }
   }
 

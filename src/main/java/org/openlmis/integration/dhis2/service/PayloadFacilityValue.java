@@ -29,7 +29,6 @@ class PayloadFacilityValue {
   @JsonProperty("product-code")
   private final String productCode;
 
-  @JsonProperty("values")
-  private final String value;
+  private final Number value;
 
 }

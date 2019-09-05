@@ -16,6 +16,8 @@
 package org.openlmis.integration.dhis2.scheduler;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -25,6 +27,8 @@ import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
+import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +52,9 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
 
   @Autowired
   private IntegrationRepository integrationRepository;
+
+  @Autowired
+  private PeriodReferenceDataService periodReferenceDataService;
 
   @Autowired
   private Clock clock;
@@ -116,8 +123,12 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
         "Next execution time of this taken from cron expression -> {}",
         integration.getCronExpression());
 
-    UUID periodId = UUID.randomUUID();
-    PayloadRequest request = PayloadRequest.forAutomaticExecution(integration, periodId);
+    LocalDate now = LocalDate.now(clock);
+    LocalDate startDate = now.with(TemporalAdjusters.firstDayOfMonth());
+    LocalDate endDate = now.with(TemporalAdjusters.lastDayOfMonth());
+
+    ProcessingPeriodDto period = periodReferenceDataService.search(startDate, endDate).get(0);
+    PayloadRequest request = PayloadRequest.forAutomaticExecution(integration, period);
 
     // enable when postPayload is ready.
     payloadService.postPayload(request);

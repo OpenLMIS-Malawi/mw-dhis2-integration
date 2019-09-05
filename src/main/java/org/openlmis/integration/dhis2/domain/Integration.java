@@ -21,7 +21,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,7 +43,7 @@ public class Integration extends BaseEntity {
   @Column(nullable = false, unique = true, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String name;
 
-  @Getter(AccessLevel.PACKAGE)
+  @Getter
   @Type(type = UUID_TYPE)
   @Column(nullable = false, unique = true)
   private UUID programId;

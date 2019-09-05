@@ -16,13 +16,13 @@
 package org.openlmis.integration.dhis2.service;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
+import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
+import org.openlmis.integration.dhis2.service.referencedata.ProgramDto;
+import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +39,12 @@ public class PayloadService {
   private ExecutionRepository executionRepository;
 
   @Autowired
+  private ProgramReferenceDataService programReferenceDataService;
+
+  @Autowired
+  private PayloadBuilder payloadBuilder;
+
+  @Autowired
   private Clock clock;
 
   private RestTemplate restTemplate = new RestTemplate();
@@ -49,10 +55,12 @@ public class PayloadService {
    */
 
   public void postPayload(PayloadRequest payloadRequest) {
+    ProgramDto program = programReferenceDataService.findOne(payloadRequest.getProgramId());
+
     Execution execution = payloadRequest.createExecution(clock);
     executionRepository.saveAndFlush(execution);
 
-    Payload payload = createPayload();
+    Payload payload = createPayload(payloadRequest, program);
     ExecutionResponse response = sendPayload(payloadRequest, payload);
 
     execution.markAsDone(response, clock);
@@ -70,9 +78,12 @@ public class PayloadService {
     return new ExecutionResponse(responseTime, status, response.getBody());
   }
 
-  private Payload createPayload() {
-    Set<PayloadFacility> facilities = new HashSet<>(); //get from repository
-    LocalDate reportingPeriod = LocalDate.of(2019, 5, 1);
-    return new Payload(facilities, reportingPeriod);
+  private Payload createPayload(PayloadRequest request, ProgramDto program) {
+    ProcessingPeriodDto period = request.getPeriod();
+
+    return payloadBuilder.build(program.getName(), period.getStartDate(), period.getEndDate(),
+        request.getFacilityId()
+    );
   }
+
 }

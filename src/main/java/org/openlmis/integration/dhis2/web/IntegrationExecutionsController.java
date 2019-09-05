@@ -20,16 +20,16 @@ import static org.openlmis.integration.dhis2.web.IntegrationExecutionsController
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
-
 import org.openlmis.integration.dhis2.exception.NotFoundException;
 import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
+import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,6 +61,9 @@ public class IntegrationExecutionsController extends BaseController {
   private IntegrationRepository integrationRepository;
 
   @Autowired
+  private PeriodReferenceDataService periodReferenceDataService;
+
+  @Autowired
   private ExecutionRepository executionRepository;
 
   /**
@@ -77,8 +80,11 @@ public class IntegrationExecutionsController extends BaseController {
     Integration integration = integrationRepository.findByProgramId(
         manualIntegrationDto.getProgramId());
 
+    ProcessingPeriodDto period = periodReferenceDataService
+        .findOne(manualIntegrationDto.getPeriodId());
+
     PayloadRequest payloadRequest = PayloadRequest.forManualExecution(integration,
-        manualIntegrationDto.getFacilityId(), manualIntegrationDto.getPeriodId());
+        manualIntegrationDto.getFacilityId(), period);
 
     payloadService.postPayload(payloadRequest);
 
