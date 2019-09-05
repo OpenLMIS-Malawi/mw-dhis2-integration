@@ -15,15 +15,12 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import java.util.UUID;
-
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
 import org.junit.Test;
+import org.openlmis.integration.dhis2.IntegrationDataBuilder;
 import org.openlmis.integration.dhis2.ToStringTestUtils;
-import org.openlmis.integration.dhis2.domain.Configuration;
-import org.openlmis.integration.dhis2.domain.Integration;
 
 
 
@@ -42,7 +39,7 @@ public class IntegrationDtoTest {
   @Test
   public void shouldImplementToString() {
     IntegrationDto dto = IntegrationDto.newInstance(
-        new Integration("", UUID.randomUUID(),"",new Configuration())
+        new IntegrationDataBuilder().buildAsNew()
     );
 
     ToStringTestUtils.verify(IntegrationDto.class, dto);

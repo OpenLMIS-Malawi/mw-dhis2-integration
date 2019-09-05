@@ -17,16 +17,17 @@ package org.openlmis.integration.dhis2.web;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+
 import org.junit.Test;
-import org.openlmis.integration.dhis2.ConfigurationDataBuilder;
+import org.openlmis.integration.dhis2.ExecutionResponseDataBuilder;
 import org.openlmis.integration.dhis2.ToStringTestUtils;
 
-public class ConfigurationDtoTest {
+public class ExecutionResponseDtoTest {
 
   @Test
   public void equalsContract() {
     EqualsVerifier
-        .forClass(ConfigurationDto.class)
+        .forClass(ExecutionResponseDto.class)
         .withRedefinedSuperclass()
         .suppress(Warning.NONFINAL_FIELDS) // DTO fields cannot be final
         .verify();
@@ -34,11 +35,10 @@ public class ConfigurationDtoTest {
 
   @Test
   public void shouldImplementToString() {
-    ConfigurationDto dto = ConfigurationDto.newInstance(
-        new ConfigurationDataBuilder().buildAsNew()
+    ExecutionResponseDto dto = ExecutionResponseDto.newInstance(
+        new ExecutionResponseDataBuilder().buildAsNew()
     );
 
-    ToStringTestUtils.verify(ConfigurationDto.class, dto);
+    ToStringTestUtils.verify(ExecutionResponseDto.class, dto);
   }
-
 }
