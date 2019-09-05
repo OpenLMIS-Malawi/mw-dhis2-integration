@@ -24,8 +24,8 @@ public class ExecutionResponseDataBuilder {
 
   private ZonedDateTime responseDate = ZonedDateTime.now();
   private int statusCode = 200;
-  private String body = "{\"message\": \"Payload recieved successfully\", " +
-      "\"notificationsChannel\": \"b5547ea8-c136-4852-9e4f-e7cf635f3673\"} ";
+  private String body = "{\"message\": \"Payload recieved successfully\", "
+      + "\"notificationsChannel\": \"b5547ea8-c136-4852-9e4f-e7cf635f3673\"} ";
 
 
   public ExecutionResponseDataBuilder withResponseDate(ZonedDateTime responseDate) {
