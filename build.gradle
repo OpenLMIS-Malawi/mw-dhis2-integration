@@ -50,6 +50,9 @@ dependencies {
     compile 'org.webjars.npm:api-console:3.0.17'
     compile 'org.hibernate:hibernate-java8'
 
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-client:3.7.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.7.0'
+
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-core:1.+"
     testCompile "org.springframework.boot:spring-boot-starter-test"
