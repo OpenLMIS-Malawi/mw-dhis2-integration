@@ -21,14 +21,12 @@ import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 
 public class ExecutionResponseDataBuilder {
 
-  //  private static AtomicInteger instanceNumber = new AtomicInteger(0);
-  //  private UUID id = UUID.randomUUID();
 
-  private ZonedDateTime responseDate;
-  private int statusCode;
-  private String body;
+  private ZonedDateTime responseDate = ZonedDateTime.now();
+  private int statusCode = 200;
+  private String body = "{\"message\": \"Payload recieved successfully\", " +
+      "\"notificationsChannel\": \"b5547ea8-c136-4852-9e4f-e7cf635f3673\"} ";
 
-  //  private Execution execution;
 
   public ExecutionResponseDataBuilder withResponseDate(ZonedDateTime responseDate) {
     this.responseDate = responseDate;
@@ -44,15 +42,6 @@ public class ExecutionResponseDataBuilder {
     this.body = body;
     return this;
   }
-
-  //  /**
-  //   * Builds new instance of Execution (with id field).
-  //   */
-  //  public ExecutionResponse build() {
-  //    ExecutionResponse executionResponse = buildAsNew();
-  //    executionResponse.setId(id);
-  //    return executionResponse;
-  //  }
 
   /**
    * Builds new instance of Execution as a new object (without id field).

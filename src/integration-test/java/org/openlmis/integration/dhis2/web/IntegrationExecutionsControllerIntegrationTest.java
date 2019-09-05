@@ -15,14 +15,24 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 
 import guru.nidi.ramltester.junit.RamlMatchers;
 
+import java.util.Arrays;
 import java.util.UUID;
+
 import org.apache.http.HttpStatus;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.openlmis.integration.dhis2.ExecutionDataBuilder;
+import org.openlmis.integration.dhis2.domain.Execution;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
@@ -30,9 +40,15 @@ import org.springframework.http.MediaType;
 public class IntegrationExecutionsControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = IntegrationExecutionsController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + IntegrationExecutionsController.ID_URL;
   private static final String PROGRAM_ID = "programId";
   private static final String PERIOD_ID = "periodId";
   private static final String FACILITY_ID = "facilityId";
+
+  private Execution execution = new ExecutionDataBuilder().buildAsAutomatic();
+  private Execution execution1 = new ExecutionDataBuilder().buildAsManual();
+
+  private ExecutionDto executionDto = ExecutionDto.newInstance(execution);
 
   private ManualIntegrationDto manualIntegrationDto = generateRequestBody();
 
@@ -67,6 +83,69 @@ public class IntegrationExecutionsControllerIntegrationTest extends BaseWebInteg
         .statusCode(HttpStatus.SC_UNAUTHORIZED);
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnPageOfExecutions() {
+    given(executionRepository.findAll(any(Pageable.class)))
+        .willReturn(new PageImpl<>(Arrays.asList(execution, execution1)));
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .queryParam("page", pageable.getPageNumber())
+        .queryParam("size", pageable.getPageSize())
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body("content", hasSize(2));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnGivenExecution() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body(ID, Matchers.is(executionDto.getId().toString()));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForGetSpecifiedRequestEndpointIfUserIsNotAuthorized() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForAllExecutionEndpointIfUserIsNotAuthorized() {
+    restAssured.given()
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(),RamlMatchers.hasNoViolations());
   }
 
   private ManualIntegrationDto generateRequestBody() {

@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IntegrationExecutionsController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
+  public static final String ID_URL = "/{id}";
 
   @Autowired
   private PayloadService payloadService;
@@ -104,7 +105,7 @@ public class IntegrationExecutionsController extends BaseController {
   /**
    * Retrieves the historical execution.
    */
-  @GetMapping(value = "/{id}")
+  @GetMapping(value = ID_URL)
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ExecutionDto getSpecifiedHisoricalExecution(@PathVariable("id") UUID id) {

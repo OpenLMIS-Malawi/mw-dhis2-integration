@@ -19,6 +19,7 @@ import java.time.Clock;
 import java.util.UUID;
 
 import org.openlmis.integration.dhis2.domain.Execution;
+import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.domain.Integration;
 
 public class ExecutionDataBuilder {
@@ -27,6 +28,7 @@ public class ExecutionDataBuilder {
   private UUID facilityId = UUID.randomUUID();
   private UUID processingPeriodId = UUID.randomUUID();
   private Clock startDate = Clock.systemUTC();
+  private Clock endDate = Clock.systemUTC();
 
   public ExecutionDataBuilder withFacilityId(UUID facilityId) {
     this.facilityId = facilityId;
@@ -40,6 +42,11 @@ public class ExecutionDataBuilder {
 
   public ExecutionDataBuilder withStartDate(Clock startDate) {
     this.startDate = startDate;
+    return this;
+  }
+
+  public ExecutionDataBuilder withEndDate(Clock endDate) {
+    this.endDate = endDate;
     return this;
   }
 
@@ -68,8 +75,12 @@ public class ExecutionDataBuilder {
 
   public Execution buildAsNewAutomatic() {
     Integration integration = new IntegrationDataBuilder().build();
-    return Execution.forAutomaticExecution(
+    Execution execution = Execution.forAutomaticExecution(
         integration, processingPeriodId, startDate);
+    ExecutionResponse executionResponse = new ExecutionResponseDataBuilder().buildAsNew();
+    execution.markAsDone(executionResponse,endDate);
+
+    return execution;
   }
 
   /**
@@ -78,7 +89,11 @@ public class ExecutionDataBuilder {
 
   public Execution buildAsNewManual() {
     Integration integration = new IntegrationDataBuilder().build();
-    return Execution.forManualExecution(
+    Execution execution = Execution.forManualExecution(
         integration, facilityId, processingPeriodId, startDate);
+    ExecutionResponse executionResponse = new ExecutionResponseDataBuilder().buildAsNew();
+    execution.markAsDone(executionResponse,endDate);
+
+    return execution;
   }
 }

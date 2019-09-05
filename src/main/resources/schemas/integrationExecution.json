@@ -13,7 +13,7 @@
         "title": "programId"
       },
       "facilityId": {
-        "type": "string",
+        "type": ["string", "null"],
         "title": "facilityId"
       },
       "processingPeriodId": {
@@ -49,6 +49,10 @@
             "title": "body"
           }
         }
+      },
+      "id": {
+        "type": "string",
+        "title": "id"
       }
     },
     "required": [

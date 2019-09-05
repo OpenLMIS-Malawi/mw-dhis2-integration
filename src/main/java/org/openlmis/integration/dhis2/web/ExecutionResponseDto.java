@@ -16,7 +16,6 @@
 package org.openlmis.integration.dhis2.web;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -34,12 +33,11 @@ import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @ToString(callSuper = true)
-public final class ExecutionResponseDto extends BaseDto implements ExecutionResponse.Exporter {
+public final class ExecutionResponseDto implements ExecutionResponse.Exporter {
 
-  private UUID id;
-  private ZonedDateTime responseDate;
+  private String responseDate;
   private int statusCode;
   private String body;
 
@@ -53,4 +51,8 @@ public final class ExecutionResponseDto extends BaseDto implements ExecutionResp
     return dto;
   }
 
+  @Override
+  public void setResponseDate(ZonedDateTime responseDate) {
+    this.responseDate = responseDate.toString();
+  }
 }
