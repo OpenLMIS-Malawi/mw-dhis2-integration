@@ -19,10 +19,10 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
-import java.util.UUID;
-import org.openlmis.integration.dhis2.domain.Configuration;
-import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
+import java.util.stream.Collectors;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.service.PayloadRequest;
@@ -45,8 +45,6 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
 
-  private ScheduledTaskRegistrar taskRegistrar;
-
   @Autowired
   private PayloadService payloadService;
 
@@ -56,52 +54,33 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   @Autowired
   private PeriodReferenceDataService periodReferenceDataService;
 
-  @Autowired
   private Clock clock;
+  private TimeZone timeZone;
 
   /**
    * Creates new task by cron expressions from DB.
    */
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-    this.taskRegistrar = taskRegistrar;
-    this.taskRegistrar.setScheduler(poolScheduler());
+    taskRegistrar.setScheduler(poolScheduler());
 
-    List<Integration> integrations = integrationRepository.findAll();
-    //addTestingData(integrations);
+    Map<String, List<Integration>> integrations = integrationRepository
+        .findAll()
+        .stream()
+        .collect(Collectors.groupingBy(Integration::getCronExpression));
 
-    TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
-    for (Integration integration : integrations) {
-      CronTrigger trigger = new CronTrigger(integration.getCronExpression(), timeZone);
-      Runnable task = () -> createTask(integration);
+    for (Entry<String, List<Integration>> entry : integrations.entrySet()) {
+      CronTrigger trigger = new CronTrigger(entry.getKey(), timeZone);
+      Runnable task = () -> sendData(entry.getValue());
 
-      CronTask cronTask = new CronTask(task, trigger);
-
-      this.taskRegistrar.addCronTask(cronTask);
+      taskRegistrar.addCronTask(new CronTask(task, trigger));
     }
   }
 
-  private void addTestingData(List<Integration> integrationList) {
-    ConfigurationAuthenticationDetails confa1 = new ConfigurationAuthenticationDetails(
-        "usrname", "paswd");
-    ConfigurationAuthenticationDetails confa2 = new ConfigurationAuthenticationDetails(
-        UUID.randomUUID().toString());
-
-    Configuration conf1 = new Configuration("name1",
-        "https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io", confa1);
-    Configuration conf2 = new Configuration("name1",
-        "https://ae7b4d39-c556-484e-a168-4098a9adec21.mock.pstmn.io", confa2);
-
-    Integration object1 = new Integration("Name", UUID.randomUUID(),
-        "* * * * * ?", conf1);
-    Integration object2 = new Integration("Name", UUID.randomUUID(),
-        "0/4 * * * * ?", conf2);
-    Integration object5 = new Integration("Name", UUID.randomUUID(),
-        "0/5 * * * * ?", conf1);
-
-    integrationList.add(object1);
-    integrationList.add(object2);
-    integrationList.add(object5);
+  @Autowired
+  public void setClock(Clock clock) {
+    this.clock = clock;
+    this.timeZone = TimeZone.getTimeZone(clock.getZone());
   }
 
   private TaskScheduler poolScheduler() {
@@ -109,42 +88,30 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     scheduler.setThreadNamePrefix("ThreadPoolTaskScheduler");
     scheduler.setPoolSize(1);
     scheduler.initialize();
+
     return scheduler;
   }
 
   /**
    * Place for init tasks.
    */
-  private void createTask(Integration integration) {
-    LOGGER.info("Scheduled task named: {}", integration.getName());
-
-    // only for testing
-    LOGGER.error(
-        "Next execution time of this taken from cron expression -> {}",
-        integration.getCronExpression());
-
+  private void sendData(List<Integration> integrations) {
     LocalDate now = LocalDate.now(clock);
     LocalDate startDate = now.with(TemporalAdjusters.firstDayOfMonth());
     LocalDate endDate = now.with(TemporalAdjusters.lastDayOfMonth());
 
     ProcessingPeriodDto period = periodReferenceDataService.search(startDate, endDate).get(0);
-    PayloadRequest request = PayloadRequest.forAutomaticExecution(integration, period);
 
-    // enable when postPayload is ready.
-    payloadService.postPayload(request);
-
-    // just for testing
-    if (integration.getCronExpression().equals("0/5 * * * * ?")) {
-      cancelAllTask();
+    for (Integration integration : integrations) {
+      sendData(integration, period);
     }
   }
 
-  /**
-   * Delete all existing Task.
-   */
-  private void cancelAllTask() {
-    taskRegistrar.destroy();
-    LOGGER.error("Cancel all tasks");
+  private void sendData(Integration integration, ProcessingPeriodDto period) {
+    LOGGER.info("Send data for {} for {} period", integration.getName(), period.getName());
+
+    PayloadRequest request = PayloadRequest.forAutomaticExecution(integration, period);
+    payloadService.postPayload(request);
   }
 
 }
