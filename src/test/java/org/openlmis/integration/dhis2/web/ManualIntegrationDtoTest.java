@@ -14,29 +14,27 @@
  */
 
 package org.openlmis.integration.dhis2.web;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.Test;
+import org.openlmis.integration.dhis2.ToStringTestUtils;
 
-import java.util.UUID;
+public class ManualIntegrationDtoTest {
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+  @Test
+  public void equalsContract() {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode
-@ToString(callSuper = true)
-public final class ManualIntegrationDto {
+    EqualsVerifier
+        .forClass(ManualIntegrationDto.class)
+        .withRedefinedSuperclass()
+        .suppress(Warning.NONFINAL_FIELDS)
+        .verify();
+  }
 
-  /**
-   * Request body of Manual integration call.
-   */
-  private UUID programId;
-  private UUID periodId;
-  private UUID facilityId;
+  @Test
+  public void shouldImplementToString() {
+    ManualIntegrationDto dto = new ManualIntegrationDto();
+    ToStringTestUtils.verify(ManualIntegrationDto.class, dto);
+  }
 
 }
