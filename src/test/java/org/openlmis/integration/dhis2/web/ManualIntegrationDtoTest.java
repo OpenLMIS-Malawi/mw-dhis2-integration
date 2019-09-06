@@ -14,6 +14,7 @@
  */
 
 package org.openlmis.integration.dhis2.web;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
