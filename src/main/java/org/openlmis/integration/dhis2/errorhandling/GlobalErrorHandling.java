@@ -22,6 +22,7 @@ import org.openlmis.integration.dhis2.exception.NotFoundException;
 import org.openlmis.integration.dhis2.exception.ValidationMessageException;
 import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.util.Message;
+import org.openlmis.integration.dhis2.web.MissingPermissionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -89,5 +90,17 @@ public class GlobalErrorHandling extends AbstractErrorHandling {
     }
 
     return getLocalizedMessage(new Message(ex.getMessage()));
+  }
+
+  /**
+   * Handles the {@link MissingPermissionException} which signals unauthorized access.
+   *
+   * @return the localized message
+   */
+  @ExceptionHandler(MissingPermissionException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  @ResponseBody
+  public Message.LocalizedMessage handleMissingPermissionException(MissingPermissionException ex) {
+    return getLocalizedMessage(ex.asMessage());
   }
 }

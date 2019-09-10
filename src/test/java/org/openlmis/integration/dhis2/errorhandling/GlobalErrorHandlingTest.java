@@ -18,6 +18,8 @@ package org.openlmis.integration.dhis2.errorhandling;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED;
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_PERMISSION_MISSING;
 
 import java.util.Locale;
 import org.hibernate.exception.ConstraintViolationException;
@@ -29,10 +31,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.openlmis.integration.dhis2.exception.NotFoundException;
 import org.openlmis.integration.dhis2.exception.ValidationMessageException;
-import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.i18n.MessageService;
 import org.openlmis.integration.dhis2.util.Message;
 import org.openlmis.integration.dhis2.util.Message.LocalizedMessage;
+import org.openlmis.integration.dhis2.web.MissingPermissionException;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -41,6 +43,7 @@ public class GlobalErrorHandlingTest {
 
   private static final Locale ENGLISH_LOCALE = Locale.ENGLISH;
   private static final String ERROR_MESSAGE = "error-message";
+  private static final String MESSAGE_KEY = "key";
 
   @Mock
   private MessageService messageService;
@@ -70,11 +73,11 @@ public class GlobalErrorHandlingTest {
         null, constraintViolation);
 
     // when
-    mockMessage(MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED);
+    mockMessage(ERROR_CONFIGURATION_NAME_DUPLICATED);
     LocalizedMessage message = errorHandler.handleDataIntegrityViolation(exp);
 
     // then
-    assertMessage(message, MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED);
+    assertMessage(message, ERROR_CONFIGURATION_NAME_DUPLICATED);
   }
 
   @Test
@@ -110,40 +113,58 @@ public class GlobalErrorHandlingTest {
   @Test
   public void shouldHandleMessageException() {
     // given
-    String messageKey = "key";
-    ValidationMessageException exp = new ValidationMessageException(messageKey);
+    ValidationMessageException exp = new ValidationMessageException(MESSAGE_KEY);
 
     // when
-    mockMessage(messageKey);
+    mockMessage(MESSAGE_KEY);
     LocalizedMessage message = errorHandler.handleMessageException(exp);
 
     // then
-    assertMessage(message, messageKey);
+    assertMessage(message, MESSAGE_KEY);
   }
 
   @Test
   public void shouldHandleNotFoundException() {
     // given
-    String messageKey = "key";
-    NotFoundException exp = new NotFoundException(messageKey);
+    NotFoundException exp = new NotFoundException(MESSAGE_KEY);
 
     // when
-    mockMessage(messageKey);
+    mockMessage(MESSAGE_KEY);
     LocalizedMessage message = errorHandler.handleNotFoundException(exp);
 
     // then
-    assertMessage(message, messageKey);
+    assertMessage(message, MESSAGE_KEY);
   }
 
-  private void assertMessage(LocalizedMessage localized, String key) {
+  @Test
+  public void shouldHandleMissingPermissionException() {
+    // given
+    MissingPermissionException exp = new MissingPermissionException(MESSAGE_KEY);
+
+    // when
+    mockMessage(ERROR_PERMISSION_MISSING, MESSAGE_KEY);
+    Message.LocalizedMessage message = errorHandler.handleMissingPermissionException(exp);
+
+    // then
+    assertMessage(message, ERROR_PERMISSION_MISSING);
+  }
+
+  private void assertMessage(Message.LocalizedMessage localized, String key) {
     assertThat(localized)
         .hasFieldOrPropertyWithValue("messageKey", key);
     assertThat(localized)
         .hasFieldOrPropertyWithValue("message", ERROR_MESSAGE);
   }
 
-  private void mockMessage(String key) {
-    when(messageSource.getMessage(key, null, ENGLISH_LOCALE))
-        .thenReturn(ERROR_MESSAGE);
+  private void mockMessage(String key, String... params) {
+    if (params.length == 0) {
+      when(messageSource.getMessage(key, new Object[0], ENGLISH_LOCALE))
+          .thenReturn(ERROR_MESSAGE);
+      when(messageSource.getMessage(key, null, ENGLISH_LOCALE))
+          .thenReturn(ERROR_MESSAGE);
+    } else {
+      when(messageSource.getMessage(key, params, ENGLISH_LOCALE))
+          .thenReturn(ERROR_MESSAGE);
+    }
   }
 }

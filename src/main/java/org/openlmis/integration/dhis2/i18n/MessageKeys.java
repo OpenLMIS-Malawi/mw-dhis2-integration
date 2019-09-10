@@ -26,6 +26,7 @@ public abstract class MessageKeys {
 
   private static final String USER = "user";
   private static final String RIGHT = "right";
+  private static final String PERMISSION = "permission";
   private static final String CONFIGURATION = "configuration";
   private static final String INTEGRATION = "integration";
   private static final String EXECUTION = "execution";
@@ -40,11 +41,14 @@ public abstract class MessageKeys {
   private static final String DUPLICATED = "duplicated";
   private static final String NOT_FOUND = "notFound";
   private static final String MISMATCH = "mismatch";
+  private static final String MISSING = "missing";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
   public static final String ERROR_USER_NOT_FOUND = join(ERROR_PREFIX, USER, NOT_FOUND);
   public static final String ERROR_RIGHT_NOT_FOUND = join(ERROR_PREFIX, RIGHT, NOT_FOUND);
+
+  public static final String ERROR_PERMISSION_MISSING = join(ERROR_PREFIX, PERMISSION, MISSING);
 
   public static final String ERROR_CONFIGURATION_NAME_DUPLICATED =
       join(ERROR_PREFIX, CONFIGURATION, NAME, DUPLICATED);
