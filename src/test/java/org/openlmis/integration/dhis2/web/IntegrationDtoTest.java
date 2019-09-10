@@ -15,16 +15,26 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.openlmis.integration.dhis2.ConfigurationDataBuilder;
 import org.openlmis.integration.dhis2.IntegrationDataBuilder;
 import org.openlmis.integration.dhis2.ToStringTestUtils;
-
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.Integration;
+import org.openlmis.integration.dhis2.exception.ValidationMessageException;
+import org.openlmis.integration.dhis2.i18n.MessageKeys;
 
 
 public class IntegrationDtoTest {
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void equalsContract() {
@@ -45,4 +55,27 @@ public class IntegrationDtoTest {
     ToStringTestUtils.verify(IntegrationDto.class, dto);
   }
 
+  @Test
+  public void shouldGetConfigurationId() {
+    IntegrationDto dto = new IntegrationDto();
+
+    Configuration configuration = new ConfigurationDataBuilder().build();
+    Integration integration = new IntegrationDataBuilder()
+        .withConfiguration(configuration)
+        .build();
+    integration.export(dto);
+
+    assertThat(dto.getConfigurationId()).isEqualTo(configuration.getId());
+  }
+
+  @Test
+  public void shouldThrowExceptionIfConfigurationDoesNotExist() {
+    exception.expect(ValidationMessageException.class);
+    exception.expectMessage(MessageKeys.ERROR_INTEGRATION_CONFIGURATION_REQUIRED);
+
+    IntegrationDto dto = new IntegrationDto();
+    dto.setConfiguration((ConfigurationDto) null);
+
+    dto.getConfigurationId();
+  }
 }

@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import org.openlmis.integration.dhis2.domain.Integration;
@@ -54,6 +53,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   @Autowired
   private PeriodReferenceDataService periodReferenceDataService;
 
+  private ScheduledTaskRegistrar taskRegistrar;
   private Clock clock;
   private TimeZone timeZone;
 
@@ -62,19 +62,42 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
    */
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-    taskRegistrar.setScheduler(poolScheduler());
+    this.taskRegistrar = taskRegistrar;
+    this.taskRegistrar.setScheduler(poolScheduler());
 
-    Map<String, List<Integration>> integrations = integrationRepository
+    refresh(true);
+  }
+
+  public void refresh() {
+    refresh(false);
+  }
+
+  private void refresh(boolean initialization) {
+    List<CronTask> tasks = integrationRepository
         .findAll()
         .stream()
-        .collect(Collectors.groupingBy(Integration::getCronExpression));
+        .collect(Collectors.groupingBy(Integration::getCronExpression))
+        .entrySet()
+        .stream()
+        .map(this::createTask)
+        .collect(Collectors.toList());
 
-    for (Entry<String, List<Integration>> entry : integrations.entrySet()) {
-      CronTrigger trigger = new CronTrigger(entry.getKey(), timeZone);
-      Runnable task = () -> sendData(entry.getValue());
+    taskRegistrar.destroy();
+    taskRegistrar.setCronTasksList(tasks);
 
-      taskRegistrar.addCronTask(new CronTask(task, trigger));
+    if (!initialization) {
+      // when the service is initialized by spring the following method does not need to be call
+      // because the framework will do this for us but the method needs to be called after each
+      // change in any integration entry.
+      taskRegistrar.afterPropertiesSet();
     }
+  }
+
+  private CronTask createTask(Map.Entry<String, List<Integration>> entry) {
+    CronTrigger trigger = new CronTrigger(entry.getKey(), timeZone);
+    Runnable task = () -> sendData(entry.getValue());
+
+    return new CronTask(task, trigger);
   }
 
   @Autowired

@@ -15,20 +15,18 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.Configuration.Exporter;
 import org.openlmis.integration.dhis2.domain.Configuration.Importer;
 import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
-
 
 
 /**
@@ -41,6 +39,7 @@ import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public final class ConfigurationDto extends BaseDto implements Importer, Exporter {
+
   private String name;
   private String targetUrl;
   private ConfigurationAuthenticationDetailsDto authenticationDetails;
@@ -61,6 +60,7 @@ public final class ConfigurationDto extends BaseDto implements Importer, Exporte
     this.authenticationDetails = authenticationDetails;
   }
 
+  @JsonIgnore
   @Override
   public void setAuthenticationDetails(ConfigurationAuthenticationDetails authenticationDetails) {
     this.authenticationDetails = new ConfigurationAuthenticationDetailsDto();

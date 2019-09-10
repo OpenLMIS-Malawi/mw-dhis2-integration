@@ -40,6 +40,7 @@ import org.openlmis.integration.dhis2.domain.BaseEntity;
 import org.openlmis.integration.dhis2.repository.ConfigurationRepository;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
+import org.openlmis.integration.dhis2.scheduler.DynamicTaskScheduler;
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,8 @@ public abstract class BaseWebIntegrationTest {
   static final String RAML_ASSERT_MESSAGE = "HTTP request/response should match RAML definition.";
 
   static final String MESSAGE_KEY = "messageKey";
+  static final String PAGE = "page";
+  static final String SIZE = "size";
   static final String ID = "id";
 
   RestAssuredClient restAssured;
@@ -124,6 +127,12 @@ public abstract class BaseWebIntegrationTest {
 
   @MockBean
   PayloadService payloadService;
+
+  @MockBean
+  PermissionService permissionService;
+
+  @MockBean
+  DynamicTaskScheduler scheduler;
 
   /**
    * Constructor for test.

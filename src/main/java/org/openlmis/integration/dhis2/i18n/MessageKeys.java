@@ -42,6 +42,7 @@ public abstract class MessageKeys {
   private static final String NOT_FOUND = "notFound";
   private static final String MISMATCH = "mismatch";
   private static final String MISSING = "missing";
+  private static final String REQUIRED = "required";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
@@ -50,23 +51,27 @@ public abstract class MessageKeys {
 
   public static final String ERROR_PERMISSION_MISSING = join(ERROR_PREFIX, PERMISSION, MISSING);
 
+  public static final String ERROR_CONFIGURATION_NOT_FOUND =
+      join(ERROR_PREFIX, CONFIGURATION, NOT_FOUND);
   public static final String ERROR_CONFIGURATION_NAME_DUPLICATED =
       join(ERROR_PREFIX, CONFIGURATION, NAME, DUPLICATED);
   public static final String ERROR_CONFIGURATION_TARGET_URL_DUPLICATED =
       join(ERROR_PREFIX, CONFIGURATION, TARGET_URL, DUPLICATED);
+  public static final String ERROR_CONFIGURATION_ID_MISMATCH =
+      join(ERROR_PREFIX, CONFIGURATION, ID, MISMATCH);
 
+  public static final String ERROR_INTEGRATION_NOT_FOUND =
+      join(ERROR_PREFIX, INTEGRATION, NOT_FOUND);
   public static final String ERROR_INTEGRATION_NAME_DUPLICATED =
       join(ERROR_PREFIX, INTEGRATION, NAME, DUPLICATED);
   public static final String ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED =
       join(ERROR_PREFIX, INTEGRATION, PROGRAM_ID, DUPLICATED);
+  public static final String ERROR_INTEGRATION_CONFIGURATION_REQUIRED =
+      join(ERROR_PREFIX, INTEGRATION, CONFIGURATION, REQUIRED);
+  public static final String ERROR_INTEGRATION_ID_MISMATCH =
+      join(ERROR_PREFIX, INTEGRATION, ID, MISMATCH);
 
   public static final String ERROR_EXECUTION_NOT_FOUND = join(ERROR_PREFIX, EXECUTION, NOT_FOUND);
-
-  public static final String ERROR_CONFIGURATION_NOT_FOUND = join(ERROR_PREFIX, CONFIGURATION,
-      NOT_FOUND);
-
-  public static final String ERROR_CONFIGURATION_ID_MISMATCH = join(ERROR_PREFIX, CONFIGURATION,
-      ID, MISMATCH);
 
   public static final String ERROR_JAVERS_EXISTING_ENTRY =
       join(ERROR_PREFIX, JAVERS, "entryAlreadyExists");

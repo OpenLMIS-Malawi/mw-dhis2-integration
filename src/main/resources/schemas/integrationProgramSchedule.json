@@ -16,15 +16,16 @@
             "type": "string",
             "name": "cronExpression"
         },
-        "configurationId": {
-            "type": "string",
-            "name": "configurationId"
+        "configuration": {
+            "type": "object",
+            "name": "configuration",
+            "$ref": "integrationConfiguration.json"
         }
     },
     "required": [
         "name",
         "programId",
         "cronExpression",
-        "configurationId"
+        "configuration"
     ]
 }
