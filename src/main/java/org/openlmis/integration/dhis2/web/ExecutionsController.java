@@ -15,7 +15,7 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import static org.openlmis.integration.dhis2.web.IntegrationExecutionsController.RESOURCE_PATH;
+import static org.openlmis.integration.dhis2.web.ExecutionsController.RESOURCE_PATH;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @RestController
 @RequestMapping(RESOURCE_PATH)
-public class IntegrationExecutionsController extends BaseController {
+public class ExecutionsController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
   public static final String ID_URL = "/{id}";

@@ -16,21 +16,41 @@
             "type": "string",
             "name": "type"
         },
-        "username": {
-            "type": "string",
-            "name": "username"
+        "authenticationDetails": {
+            "type": "object",
+            "name": "authenticationDetails",
+            "items": {
+                "username": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "name": "username"
+                },
+                "password": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "name": "password"
+                },
+                "token": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "name": "token"
+                }
+            }
         },
-        "password": {
-            "type": "string",
-            "name": "password"
-        },
-        "token": {
-            "type": "string",
-            "name": "token"
+        "id": {
+            "type": ["string","null"],
+            "name": "id"
         }
     },
     "required": [
         "name",
-        "targetUrl"
+        "targetUrl",
+        "authenticationDetails"
     ]
 }

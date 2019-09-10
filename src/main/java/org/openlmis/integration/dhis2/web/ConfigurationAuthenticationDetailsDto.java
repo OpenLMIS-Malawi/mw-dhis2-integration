@@ -36,9 +36,9 @@ import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationType;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @ToString(callSuper = true)
-public final class ConfigurationAuthenticationDetailsDto extends BaseDto implements Importer,
+public final class ConfigurationAuthenticationDetailsDto implements Importer,
     Exporter {
   private ConfigurationAuthenticationType type;
   private String username;

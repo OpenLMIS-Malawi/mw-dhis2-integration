@@ -192,8 +192,8 @@ resourceTypes:
           401:
             body:
               application/json:
-  /integrationConfigurations:
-    displayName: integrationConfigurations
+  /integrationConfiguration:
+    displayName: integrationConfiguration
     get:
       is: [ secured, paginated, sorted ]
       description: Get all integration configuration.

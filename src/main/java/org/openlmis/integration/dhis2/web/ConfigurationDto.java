@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +24,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.codehaus.jackson.annotate.JsonSetter;
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.Configuration.Exporter;
 import org.openlmis.integration.dhis2.domain.Configuration.Importer;

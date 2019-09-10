@@ -33,8 +33,11 @@ public abstract class MessageKeys {
   private static final String TARGET_URL = "targetUrl";
   private static final String PROGRAM_ID = "programId";
 
+  private static final String ID = "id";
+
   private static final String DUPLICATED = "duplicated";
   private static final String NOT_FOUND = "notFound";
+  private static final String MISMATCH = "mismatch";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
@@ -49,6 +52,12 @@ public abstract class MessageKeys {
       join(ERROR_PREFIX, INTEGRATION, PROGRAM_ID, DUPLICATED);
 
   public static final String ERROR_EXECUTION_NOT_FOUND = join(ERROR_PREFIX, EXECUTION, NOT_FOUND);
+
+  public static final String ERROR_CONFIGURATION_NOT_FOUND = join(ERROR_PREFIX, CONFIGURATION,
+      NOT_FOUND);
+
+  public static final String ERROR_CONFIGURATION_ID_MISMATCH = join(ERROR_PREFIX, CONFIGURATION,
+      ID, MISMATCH);
 
   public static final String ERROR_JAVERS_EXISTING_ENTRY =
       join(ERROR_PREFIX, JAVERS, "entryAlreadyExists");

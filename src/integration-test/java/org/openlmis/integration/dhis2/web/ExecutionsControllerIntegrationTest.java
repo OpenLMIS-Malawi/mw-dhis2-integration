@@ -37,10 +37,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class IntegrationExecutionsControllerIntegrationTest extends BaseWebIntegrationTest {
+public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = IntegrationExecutionsController.RESOURCE_PATH;
-  private static final String ID_URL = RESOURCE_URL + IntegrationExecutionsController.ID_URL;
+  private static final String RESOURCE_URL = ExecutionsController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + ExecutionsController.ID_URL;
   private static final String PROGRAM_ID = "programId";
   private static final String PERIOD_ID = "periodId";
   private static final String FACILITY_ID = "facilityId";
