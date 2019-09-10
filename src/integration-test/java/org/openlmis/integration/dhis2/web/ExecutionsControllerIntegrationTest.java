@@ -105,6 +105,17 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
   }
 
   @Test
+  public void shouldReturnUnauthorizedForAllExecutionEndpointIfUserIsNotAuthorized() {
+    restAssured.given()
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(),RamlMatchers.hasNoViolations());
+  }
+
+  @Test
   public void shouldReturnGivenExecution() {
     given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
 
@@ -122,7 +133,7 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
   }
 
   @Test
-  public void shouldReturnUnauthorizedForGetSpecifiedRequestEndpointIfUserIsNotAuthorized() {
+  public void shouldReturnUnauthorizedForGetSpecifiedExecutionIfUserIsNotAuthorized() {
     given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
 
     restAssured
@@ -137,16 +148,7 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-  @Test
-  public void shouldReturnUnauthorizedForAllExecutionEndpointIfUserIsNotAuthorized() {
-    restAssured.given()
-        .when()
-        .get(RESOURCE_URL)
-        .then()
-        .statusCode(HttpStatus.SC_UNAUTHORIZED);
 
-    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(),RamlMatchers.hasNoViolations());
-  }
 
   private ManualIntegrationDto generateRequestBody() {
     ManualIntegrationDto dto = new ManualIntegrationDto();
