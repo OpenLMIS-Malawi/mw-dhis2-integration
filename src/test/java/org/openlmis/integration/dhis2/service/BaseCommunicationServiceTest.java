@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -65,7 +65,7 @@ import org.springframework.web.client.RestTemplate;
 public abstract class BaseCommunicationServiceTest<T> {
 
   private static final String TOKEN = UUID.randomUUID().toString();
-  protected static final String TOKEN_HEADER = "Bearer " + TOKEN;
+  private static final String TOKEN_HEADER = "Bearer " + TOKEN;
 
   private static final String URI_QUERY_NAME = "name";
   private static final String URI_QUERY_VALUE = "value";
@@ -87,8 +87,6 @@ public abstract class BaseCommunicationServiceTest<T> {
 
   @Captor
   protected ArgumentCaptor<HttpEntity> entityCaptor;
-
-  private boolean checkAuth = true;
 
   private BaseCommunicationService<T> service;
 
@@ -168,18 +166,12 @@ public abstract class BaseCommunicationServiceTest<T> {
     return service;
   }
 
-  protected void disableAuthCheck() {
-    checkAuth = false;
-  }
-
   private void mockAuth() {
     when(authService.obtainAccessToken()).thenReturn(TOKEN);
   }
 
   private void checkAuth() {
-    if (checkAuth) {
-      verify(authService, atLeastOnce()).obtainAccessToken();
-    }
+    verify(authService, atLeastOnce()).obtainAccessToken();
   }
 
   protected T mockResponseEntityAndGetDto() {
@@ -240,6 +232,17 @@ public abstract class BaseCommunicationServiceTest<T> {
         .thenReturn(response);
   }
 
+  protected <E> void mockResultResponseEntity(E result) {
+    ResultDto<E> dto = new ResultDto<>();
+    dto.setResult(result);
+
+    ResponseEntity<ResultDto> response = mock(ResponseEntity.class);
+    doReturn(dto).when(response).getBody();
+
+    when(restTemplate.exchange(any(URI.class), any(HttpMethod.class), any(HttpEntity.class),
+        any(Class.class))).thenReturn(response);
+  }
+
   protected void mockRequestFail(HttpStatus statusCode) {
     mockRequestFail(new HttpClientErrorException(statusCode));
   }
@@ -250,15 +253,25 @@ public abstract class BaseCommunicationServiceTest<T> {
         .thenThrow(exception);
   }
 
-  protected void mockPostRequestFail(Exception exception) {
-    when(restTemplate.postForEntity(any(URI.class), any(), any()))
-        .thenThrow(exception);
-  }
-
   protected RequestSummary verifyRequest() {
     verify(restTemplate, atLeastOnce()).exchange(
         uriCaptor.capture(), methodCaptor.capture(), entityCaptor.capture(),
         eq(getService().getResultClass())
+    );
+
+    return new RequestSummary(
+        uriCaptor.getValue(), methodCaptor.getValue(), entityCaptor.getValue()
+    );
+  }
+
+  protected RequestSummary verifyArrayRequest() {
+    return verifyArrayRequest(getService().getArrayResultClass());
+  }
+
+  protected <E> RequestSummary verifyArrayRequest(Class<E[]> type) {
+    verify(restTemplate, atLeastOnce()).exchange(
+        uriCaptor.capture(), methodCaptor.capture(), entityCaptor.capture(),
+        eq(type)
     );
 
     return new RequestSummary(
@@ -277,16 +290,19 @@ public abstract class BaseCommunicationServiceTest<T> {
     );
   }
 
-  protected RequestSummary verifyPostRequest() {
-    verify(restTemplate)
-        .postForEntity(uriCaptor.capture(), entityCaptor.capture(), any());
+  protected RequestSummary verifyResultRequest() {
+    verify(restTemplate, atLeastOnce()).exchange(
+        uriCaptor.capture(), methodCaptor.capture(), entityCaptor.capture(),
+        any(Class.class)
+    );
 
     return new RequestSummary(
-        uriCaptor.getValue(), HttpMethod.POST, entityCaptor.getValue()
+        uriCaptor.getValue(), methodCaptor.getValue(), entityCaptor.getValue()
     );
   }
 
   protected static final class RequestSummary {
+
     private String uri;
     private List<NameValuePair> queryParams;
 
@@ -297,16 +313,11 @@ public abstract class BaseCommunicationServiceTest<T> {
       this.uri = uri.toString();
       this.method = method;
       this.entity = entity;
-      this.queryParams = URLEncodedUtils.parse(uri, Charset.forName("UTF-8"));
+      this.queryParams = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
     }
 
     public RequestSummary isGetRequest() {
       assertThat(method, is(HttpMethod.GET));
-      return this;
-    }
-
-    public RequestSummary isPostRequest() {
-      assertThat(method, is(HttpMethod.POST));
       return this;
     }
 
@@ -321,11 +332,6 @@ public abstract class BaseCommunicationServiceTest<T> {
 
     public RequestSummary hasEmptyBody() {
       assertThat(entity.getBody(), is(nullValue()));
-      return this;
-    }
-
-    public RequestSummary hasBody(Object body) {
-      assertThat(entity.getBody(), is(body));
       return this;
     }
 

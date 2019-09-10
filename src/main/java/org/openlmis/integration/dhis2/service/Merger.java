@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.service;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,15 +26,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.commons.collections.CollectionUtils;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 
 @Getter(AccessLevel.PACKAGE)
 // we keep implementation classes inside this one to give a single access point by ofXXX methods.
 @SuppressWarnings("PMD.TooManyMethods")
-abstract class Merger<T> {
-
+public abstract class Merger<T> {
   private List<T> elements;
   private Supplier<T> defaultValue;
 
@@ -41,7 +42,12 @@ abstract class Merger<T> {
     this.defaultValue = () -> null;
   }
 
-  static <E> Merger<PageDto<E>> ofPages(List<PageDto<E>> elements) {
+  public static <E> Merger<E[]> ofArrays(List<E[]> elements) {
+    return of(elements).orElseGet(() -> new ArraysMerger<>(elements));
+  }
+
+  public static <E> Merger<PageDto<E>> ofPages(
+      List<PageDto<E>> elements) {
     return of(elements).orElseGet(() -> new PageMerger<>(elements));
   }
 
@@ -57,7 +63,7 @@ abstract class Merger<T> {
     return Optional.empty();
   }
 
-  Merger<T> withDefaultValue(Supplier<T> defaultValue) {
+  public Merger<T> withDefaultValue(Supplier<T> defaultValue) {
     this.defaultValue = defaultValue;
     return this;
   }
@@ -89,6 +95,26 @@ abstract class Merger<T> {
     }
   }
 
+
+  private static final class ArraysMerger<T> extends Merger<T[]> {
+
+    private ArraysMerger(List<T[]> elements) {
+      super(elements);
+    }
+
+    @Override
+    public T[] merge() {
+      return getElements()
+          .stream()
+          .filter(Objects::nonNull)
+          .flatMap(Arrays::stream)
+          .distinct()
+          .toArray(size -> {
+            Class<?> componentType = getElements().get(0).getClass().getComponentType();
+            return (T[]) Array.newInstance(componentType, size);
+          });
+    }
+  }
 
   private static final class PageMerger<T> extends Merger<PageDto<T>> {
 

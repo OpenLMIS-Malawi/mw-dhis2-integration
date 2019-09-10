@@ -15,23 +15,26 @@
 
 package org.openlmis.integration.dhis2.service.referencedata;
 
-import org.springframework.stereotype.Service;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.openlmis.integration.dhis2.web.BaseDto;
 
-@Service
-public class ProgramReferenceDataService extends BaseReferenceDataService<ProgramDto> {
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class RightDto extends BaseDto {
 
-  @Override
-  protected String getUrl() {
-    return "/api/programs/";
-  }
+  private String name;
+  private String type;
+  private String description;
+  private Set<RightDto> attachments;
 
-  @Override
-  protected Class<ProgramDto> getResultClass() {
-    return ProgramDto.class;
-  }
-
-  @Override
-  protected Class<ProgramDto[]> getArrayResultClass() {
-    return ProgramDto[].class;
-  }
 }

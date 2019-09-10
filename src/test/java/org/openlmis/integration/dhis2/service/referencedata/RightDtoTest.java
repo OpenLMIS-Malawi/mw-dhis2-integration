@@ -15,39 +15,31 @@
 
 package org.openlmis.integration.dhis2.service.referencedata;
 
-import java.time.LocalDate;
 import java.util.List;
-import org.openlmis.integration.dhis2.service.RequestParameters;
-import org.springframework.stereotype.Service;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.Test;
+import org.openlmis.integration.dhis2.ObjectGenerator;
+import org.openlmis.integration.dhis2.ToStringTestUtils;
 
-@Service
-public class PeriodReferenceDataService extends BaseReferenceDataService<ProcessingPeriodDto> {
+public class RightDtoTest {
 
-  @Override
-  protected String getUrl() {
-    return "/api/processingPeriods/";
+  @Test
+  public void equalsContract() {
+    List<RightDto> rights = ObjectGenerator.of(RightDto.class, 2);
+
+    EqualsVerifier
+        .forClass(RightDto.class)
+        .suppress(Warning.NONFINAL_FIELDS)
+        .suppress(Warning.STRICT_INHERITANCE)
+        .withRedefinedSuperclass()
+        .withPrefabValues(RightDto.class, rights.get(0), rights.get(1))
+        .verify();
   }
 
-  @Override
-  protected Class<ProcessingPeriodDto> getResultClass() {
-    return ProcessingPeriodDto.class;
-  }
-
-  @Override
-  protected Class<ProcessingPeriodDto[]> getArrayResultClass() {
-    return ProcessingPeriodDto[].class;
-  }
-
-  /**
-   * Retrieves periods from the reference data service by start and end dates.
-   */
-  public List<ProcessingPeriodDto> search(LocalDate startDate, LocalDate endDate) {
-    RequestParameters parameters = RequestParameters
-        .init()
-        .set("startDate", startDate)
-        .set("endDate", endDate);
-
-    return getPage(parameters).getContent();
+  @Test
+  public void shouldImplementToString() {
+    ToStringTestUtils.verify(RightDto.class, new RightDto());
   }
 
 }

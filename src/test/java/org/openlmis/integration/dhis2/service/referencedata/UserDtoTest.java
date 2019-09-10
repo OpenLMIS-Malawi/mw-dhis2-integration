@@ -15,23 +15,25 @@
 
 package org.openlmis.integration.dhis2.service.referencedata;
 
-import org.springframework.stereotype.Service;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.Test;
+import org.openlmis.integration.dhis2.ToStringTestUtils;
 
-@Service
-public class ProgramReferenceDataService extends BaseReferenceDataService<ProgramDto> {
+public class UserDtoTest {
 
-  @Override
-  protected String getUrl() {
-    return "/api/programs/";
+  @Test
+  public void equalsContract() {
+    EqualsVerifier
+        .forClass(UserDto.class)
+        .suppress(Warning.NONFINAL_FIELDS)
+        .withRedefinedSuperclass()
+        .verify();
   }
 
-  @Override
-  protected Class<ProgramDto> getResultClass() {
-    return ProgramDto.class;
+  @Test
+  public void shouldImplementToString() {
+    ToStringTestUtils.verify(UserDto.class, new UserDto());
   }
 
-  @Override
-  protected Class<ProgramDto[]> getArrayResultClass() {
-    return ProgramDto[].class;
-  }
 }

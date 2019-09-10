@@ -15,39 +15,43 @@
 
 package org.openlmis.integration.dhis2.service.referencedata;
 
-import java.time.LocalDate;
 import java.util.List;
 import org.openlmis.integration.dhis2.service.RequestParameters;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PeriodReferenceDataService extends BaseReferenceDataService<ProcessingPeriodDto> {
+public class RightReferenceDataService extends BaseReferenceDataService<RightDto> {
 
   @Override
   protected String getUrl() {
-    return "/api/processingPeriods/";
+    return "/api/rights/";
   }
 
   @Override
-  protected Class<ProcessingPeriodDto> getResultClass() {
-    return ProcessingPeriodDto.class;
+  protected Class<RightDto> getResultClass() {
+    return RightDto.class;
   }
 
   @Override
-  protected Class<ProcessingPeriodDto[]> getArrayResultClass() {
-    return ProcessingPeriodDto[].class;
+  protected Class<RightDto[]> getArrayResultClass() {
+    return RightDto[].class;
   }
 
   /**
-   * Retrieves periods from the reference data service by start and end dates.
+   * Find a correct right by the provided name.
+   *
+   * @param name right name
+   * @return right related with the name or {@code null}.
    */
-  public List<ProcessingPeriodDto> search(LocalDate startDate, LocalDate endDate) {
+  public RightDto findRight(String name) {
     RequestParameters parameters = RequestParameters
         .init()
-        .set("startDate", startDate)
-        .set("endDate", endDate);
+        .set("name", name);
 
-    return getPage(parameters).getContent();
+    List<RightDto> rights = findAll("search", parameters);
+
+    return rights.isEmpty() ? null : rights.get(0);
   }
 
 }
+

@@ -24,6 +24,8 @@ public abstract class MessageKeys {
   private static final String SERVICE_PREFIX = "integration.dhis2";
   private static final String ERROR = "error";
 
+  private static final String USER = "user";
+  private static final String RIGHT = "right";
   private static final String CONFIGURATION = "configuration";
   private static final String INTEGRATION = "integration";
   private static final String EXECUTION = "execution";
@@ -40,6 +42,9 @@ public abstract class MessageKeys {
   private static final String MISMATCH = "mismatch";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
+
+  public static final String ERROR_USER_NOT_FOUND = join(ERROR_PREFIX, USER, NOT_FOUND);
+  public static final String ERROR_RIGHT_NOT_FOUND = join(ERROR_PREFIX, RIGHT, NOT_FOUND);
 
   public static final String ERROR_CONFIGURATION_NAME_DUPLICATED =
       join(ERROR_PREFIX, CONFIGURATION, NAME, DUPLICATED);

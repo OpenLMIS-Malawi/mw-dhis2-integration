@@ -13,25 +13,19 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.service.referencedata;
+package org.openlmis.integration.dhis2.service;
 
-import org.springframework.stereotype.Service;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Service
-public class ProgramReferenceDataService extends BaseReferenceDataService<ProgramDto> {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResultDto<T> {
 
-  @Override
-  protected String getUrl() {
-    return "/api/programs/";
-  }
+  T result;
 
-  @Override
-  protected Class<ProgramDto> getResultClass() {
-    return ProgramDto.class;
-  }
-
-  @Override
-  protected Class<ProgramDto[]> getArrayResultClass() {
-    return ProgramDto[].class;
-  }
 }

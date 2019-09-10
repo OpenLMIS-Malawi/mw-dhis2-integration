@@ -34,6 +34,11 @@ public class FacilityReferenceDataService extends BaseReferenceDataService<Facil
     return FacilityDto.class;
   }
 
+  @Override
+  protected Class<FacilityDto[]> getArrayResultClass() {
+    return FacilityDto[].class;
+  }
+
   /**
    * This method retrieves Facilities for given ids.
    *

@@ -16,6 +16,7 @@
 package org.openlmis.integration.dhis2.service;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
@@ -33,11 +34,16 @@ public class MergerTest {
 
   @Test
   public void shouldReturnNullIfArgumentIsNull() {
+    assertNull(Merger.ofArrays(null).merge());
     assertNull(Merger.ofPages(null).merge());
   }
 
   @Test
   public void shouldReturnDefaultValueIfArgumentIsNull() {
+    assertThat(
+        Merger.ofArrays(null).withDefaultValue(() -> new String[]{"a"}).merge(),
+        arrayContaining("a"));
+
     assertThat(
         Merger.ofPages(null).withDefaultValue(PageDto::new).merge(),
         hasProperty("content", hasSize(0)));
@@ -45,11 +51,16 @@ public class MergerTest {
 
   @Test
   public void shouldReturnNullIfArgumentListIsEmpty() {
+    assertNull(Merger.ofArrays(newArrayList()).merge());
     assertNull(Merger.ofPages(newArrayList()).merge());
   }
 
   @Test
   public void shouldReturnDefaultValueIfArgumentListIsEmpty() {
+    assertThat(
+        Merger.ofArrays(newArrayList()).withDefaultValue(() -> new String[]{"a"}).merge(),
+        arrayContaining("a"));
+
     assertThat(
         Merger.ofPages(newArrayList()).withDefaultValue(PageDto::new).merge(),
         hasProperty("content", hasSize(0)));
@@ -57,10 +68,24 @@ public class MergerTest {
 
   @Test
   public void shouldReturnElementIfArgumentListContainsOnlyOne() {
+    List<String[]> arrays = ImmutableList.of(new String[]{"a", "b"});
     List<PageDto<String>> pages = ImmutableList
         .of(new PageDto<>(new PageImpl<>(ImmutableList.of("a"))));
 
+    assertThat(Merger.ofArrays(arrays).merge(), is(arrays.get(0)));
     assertThat(Merger.ofPages(pages).merge(), is(pages.get(0)));
+  }
+
+  @Test
+  public void shouldMergeArrays() {
+    String[] array1 = new String[]{"a", "b"};
+    String[] array2 = new String[]{"b", "c"};
+    String[] array3 = new String[]{"c", "d"};
+    String[] merged = Merger.ofArrays(ImmutableList.of(array1, array2, array3)).merge();
+
+    assertThat(merged, is(notNullValue()));
+    assertThat(merged.length, is(4));
+    assertThat(merged, arrayContaining("a", "b", "c", "d"));
   }
 
   @Test

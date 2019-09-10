@@ -15,8 +15,14 @@
 
 package org.openlmis.integration.dhis2.service;
 
+import static org.openlmis.integration.dhis2.service.RequestHelper.createUri;
+import static org.openlmis.integration.dhis2.service.RequestHelper.splitRequest;
+
+import com.google.common.collect.Lists;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.Setter;
@@ -55,6 +61,8 @@ public abstract class BaseCommunicationService<T> {
 
   protected abstract Class<T> getResultClass();
 
+  protected abstract Class<T[]> getArrayResultClass();
+
   /**
    * Return one object from service.
    *
@@ -67,7 +75,7 @@ public abstract class BaseCommunicationService<T> {
 
     try {
       ResponseEntity<T> responseEntity = restTemplate.exchange(
-          RequestHelper.createUri(url, parameters), HttpMethod.GET, createEntity(),
+          createUri(url, parameters), HttpMethod.GET, createEntity(),
           getResultClass());
       return responseEntity.getBody();
     } catch (HttpStatusCodeException ex) {
@@ -82,6 +90,33 @@ public abstract class BaseCommunicationService<T> {
       } else {
         throw buildDataRetrievalException(ex);
       }
+    }
+  }
+
+  protected <P> P get(Class<P> type, String resourceUrl, RequestParameters parameters) {
+    String url = getServiceUrl() + getUrl() + resourceUrl;
+
+    HttpEntity<Object> entity = createEntity();
+    URI uri = createUri(url, parameters);
+    ResponseEntity<P> response = restTemplate.exchange(uri, HttpMethod.GET, entity, type);
+
+    return response.getBody();
+  }
+
+  protected List<T> findAll(String resourceUrl, RequestParameters parameters) {
+    return findAllWithMethod(resourceUrl, parameters);
+  }
+
+  private List<T> findAllWithMethod(String resourceUrl, RequestParameters uriParameters) {
+    String url = getServiceUrl() + getUrl() + resourceUrl;
+
+    try {
+      ResponseEntity<T[]> responseEntity = doListRequest(
+          url, uriParameters, getArrayResultClass());
+
+      return Lists.newArrayList(Arrays.asList(responseEntity.getBody()));
+    } catch (HttpStatusCodeException ex) {
+      throw buildDataRetrievalException(ex);
     }
   }
 
@@ -103,6 +138,24 @@ public abstract class BaseCommunicationService<T> {
     }
   }
 
+  private <E> ResponseEntity<E[]> doListRequest(String url, RequestParameters parameters,
+      Class<E[]> type) {
+    HttpEntity<Object> entity = RequestHelper
+        .createEntity(RequestHeaders.init().setAuth(authService.obtainAccessToken()));
+    List<E[]> arrays = new ArrayList<>();
+
+    for (URI uri : splitRequest(url, parameters, maxUrlLength)) {
+      arrays.add(restTemplate.exchange(uri, HttpMethod.GET, entity, type).getBody());
+    }
+
+    E[] body = Merger
+        .ofArrays(arrays)
+        .withDefaultValue(() -> (E[]) Array.newInstance(type.getComponentType(), 0))
+        .merge();
+
+    return new ResponseEntity<>(body, HttpStatus.OK);
+  }
+
   private <E> ResponseEntity<PageDto<E>> doPageRequest(String url, RequestParameters parameters,
       Class<E> type) {
     HttpEntity<Object> entity = createEntity();
@@ -110,7 +163,7 @@ public abstract class BaseCommunicationService<T> {
         new DynamicPageTypeReference<>(type);
     List<PageDto<E>> pages = new ArrayList<>();
 
-    for (URI uri : RequestHelper.splitRequest(url, parameters, maxUrlLength)) {
+    for (URI uri : splitRequest(url, parameters, maxUrlLength)) {
       pages.add(restTemplate.exchange(uri, HttpMethod.GET, entity, parameterizedType).getBody());
     }
 

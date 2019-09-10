@@ -13,25 +13,33 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.service.referencedata;
+package org.openlmis.integration.dhis2.util;
 
-import org.springframework.stereotype.Service;
+public class BooleanUtils {
 
-@Service
-public class ProgramReferenceDataService extends BaseReferenceDataService<ProgramDto> {
-
-  @Override
-  protected String getUrl() {
-    return "/api/programs/";
+  private BooleanUtils() {
+    throw new UnsupportedOperationException();
   }
 
-  @Override
-  protected Class<ProgramDto> getResultClass() {
-    return ProgramDto.class;
-  }
+  /**
+   * Tries to convert the given object value to {@link Boolean}.
+   *
+   * @param value any kind of object
+   * @return true if object can be mapped to true value; otherwise false.
+   */
+  public static Boolean toBoolean(Object value) {
+    if (value instanceof Boolean) {
+      return (Boolean) value;
+    }
 
-  @Override
-  protected Class<ProgramDto[]> getArrayResultClass() {
-    return ProgramDto[].class;
+    if (value instanceof String) {
+      return Boolean.parseBoolean((String) value);
+    }
+
+    if (value instanceof Number) {
+      return ((Number) value).longValue() > 0;
+    }
+
+    return false;
   }
 }
