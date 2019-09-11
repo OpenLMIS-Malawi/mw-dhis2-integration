@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlmis.integration.dhis2.ExecutionDataBuilder;
@@ -134,7 +133,8 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .get(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.SC_OK)
-        .body("content", hasSize(2));
+        .body("content", hasSize(2))
+        .body("content[0].programId", is(executionDto.getProgramId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -178,7 +178,8 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .get(ID_URL)
         .then()
         .statusCode(HttpStatus.SC_OK)
-        .body(ID, Matchers.is(executionDto.getId().toString()));
+        .body("id", is(executionDto.getId().toString()))
+        .body("programId", is(executionDto.getProgramId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
