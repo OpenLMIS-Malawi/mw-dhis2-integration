@@ -54,6 +54,9 @@ public class ConfigurationController extends BaseController {
   public static final String ID_URL = "/{id}";
 
   @Autowired
+  private PermissionService permissionService;
+
+  @Autowired
   private ConfigurationRepository configurationRepository;
 
   /**
@@ -65,6 +68,7 @@ public class ConfigurationController extends BaseController {
   @ResponseBody
   public ConfigurationDto createNewConfiguration(
       @RequestBody ConfigurationDto configurationDto) {
+    permissionService.canManageDhis2();
 
     ConfigurationAuthenticationDetailsDto confAuthDetailsDto =
         configurationDto.getAuthenticationDetails();
@@ -89,12 +93,16 @@ public class ConfigurationController extends BaseController {
   /**
    * Retrieves all configurations. Note that an empty collection rather than a 404 should be
    * returned if no configurations exist.
+   *
+   *  @param pageable define which page and how many records should be returned.
    */
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public Page<ConfigurationDto> getAllConfigurations(Pageable pageable) {
+    permissionService.canManageDhis2();
+
     Page<Configuration> page = configurationRepository.findAll(pageable);
     List<ConfigurationDto> content = page
         .getContent()
@@ -105,12 +113,14 @@ public class ConfigurationController extends BaseController {
   }
 
   /**
-   * Retrieves configuration.
+   * Retrieves configuration based on passed ID value.
    */
   @GetMapping(value = ID_URL)
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ConfigurationDto getSpecifiedConfiguration(@PathVariable("id") UUID id) {
+    permissionService.canManageDhis2();
+
     Configuration configuration = configurationRepository.findOne(id);
 
     if (configuration == null) {
@@ -120,7 +130,8 @@ public class ConfigurationController extends BaseController {
   }
 
   /**
-   * Update existing configuration.
+   * Update existing configuration with the given ID value or create a new configuration with the
+   * given ID value.
    */
 
   @PutMapping(value = ID_URL)
@@ -128,6 +139,7 @@ public class ConfigurationController extends BaseController {
   @ResponseBody
   public ConfigurationDto updateExistingConfiguration(@PathVariable("id") UUID id,
       @RequestBody ConfigurationDto configurationDto) {
+    permissionService.canManageDhis2();
 
     if (null != configurationDto.getId() && !Objects.equals(configurationDto.getId(), id)) {
       throw new ValidationMessageException(MessageKeys.ERROR_CONFIGURATION_ID_MISMATCH);

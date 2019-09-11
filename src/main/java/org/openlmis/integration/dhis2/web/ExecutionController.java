@@ -15,7 +15,7 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import static org.openlmis.integration.dhis2.web.ExecutionsController.RESOURCE_PATH;
+import static org.openlmis.integration.dhis2.web.ExecutionController.RESOURCE_PATH;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,10 +49,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @RestController
 @RequestMapping(RESOURCE_PATH)
-public class ExecutionsController extends BaseController {
+public class ExecutionController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
   public static final String ID_URL = "/{id}";
+
+  @Autowired
+  private PermissionService permissionService;
 
   @Autowired
   private PayloadService payloadService;
@@ -69,19 +72,25 @@ public class ExecutionsController extends BaseController {
   /**
    * This method is used to manual trigger Integration.
    *
-   * @return returning some data - not precized yet
    */
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public ManualIntegrationDto manualIntegration(
+  public ManualIntegrationDto runManualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
+    permissionService.canManageDhis2();
 
     Integration integration = integrationRepository.findByProgramId(
         manualIntegrationDto.getProgramId());
+    if (null == integration) {
+      throw new NotFoundException(MessageKeys.ERROR_INTEGRATION_NOT_FOUND);
+    }
 
     ProcessingPeriodDto period = periodReferenceDataService
         .findOne(manualIntegrationDto.getPeriodId());
+    if (null == period) {
+      throw new NotFoundException(MessageKeys.ERROR_PERIOD_NOT_FOUND);
+    }
 
     PayloadRequest payloadRequest = PayloadRequest.forManualExecution(integration,
         manualIntegrationDto.getFacilityId(), period);
@@ -94,11 +103,15 @@ public class ExecutionsController extends BaseController {
   /**
    * Retrieves all historical executions. Note that an empty collection rather than a 404 should be
    * returned if no historical executions exist.
+   *
+   * @param pageable define which page and how many records should be returned.
    */
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public Page<ExecutionDto> getAllHistoricalExecutions(Pageable pageable) {
+    permissionService.canManageDhis2();
+
     Page<Execution> page = executionRepository.findAll(pageable);
     List<ExecutionDto> content = page
         .getContent()
@@ -109,14 +122,15 @@ public class ExecutionsController extends BaseController {
   }
 
   /**
-   * Retrieves the historical execution.
+   * Retrieves the historical execution based on passed ID value.
    */
   @GetMapping(value = ID_URL)
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ExecutionDto getSpecifiedHisoricalExecution(@PathVariable("id") UUID id) {
-    Execution execution = executionRepository.findOne(id);
+  public ExecutionDto getSpecifiedHistoricalExecution(@PathVariable("id") UUID id) {
+    permissionService.canManageDhis2();
 
+    Execution execution = executionRepository.findOne(id);
     if (execution == null) {
       throw new NotFoundException(MessageKeys.ERROR_EXECUTION_NOT_FOUND);
     }

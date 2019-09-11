@@ -156,6 +156,10 @@ resourceTypes:
         401:
           body:
             application/json:
+        403:
+          body:
+            application/json:
+              schema: localizedErrorResponse
     post:
       is: [ secured ]
       description: Start migration to a chosen program.
@@ -170,6 +174,10 @@ resourceTypes:
         401:
           body:
             application/json:
+        403:
+          body:
+            application/json:
+              schema: localizedErrorResponse
     /{id}:
       uriParameters:
         id:
@@ -192,6 +200,10 @@ resourceTypes:
           401:
             body:
               application/json:
+          403:
+            body:
+              application/json:
+                schema: localizedErrorResponse
   /integrationConfiguration:
     displayName: integrationConfiguration
     get:
@@ -205,6 +217,10 @@ resourceTypes:
         401:
           body:
             application/json:
+        403:
+          body:
+            application/json:
+              schema: localizedErrorResponse
     post:
       is: [ secured ]
       description: Add integration configuration.
@@ -219,6 +235,10 @@ resourceTypes:
         401:
           body:
             application/json:
+        403:
+          body:
+            application/json:
+              schema: localizedErrorResponse
     
     /{id}:
       uriParameters:
@@ -241,7 +261,11 @@ resourceTypes:
                 schema: localizedErrorResponse
           401:
             body:
-              application/json:    
+              application/json:
+          403:
+            body:
+              application/json:
+                schema: localizedErrorResponse
       put:
         is: [ secured ]
         description: Change integration parameters.
@@ -257,13 +281,17 @@ resourceTypes:
             body:
               application/json:
                 schema: localizedErrorResponse
+          401:
+            body:
+              application/json:
+          403:
+            body:
+              application/json:
+                schema: localizedErrorResponse
           404:
             body:
               application/json:
                 schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
   /integrationProgramSchedules:
     displayName: integrationProgramSchedules
     get:

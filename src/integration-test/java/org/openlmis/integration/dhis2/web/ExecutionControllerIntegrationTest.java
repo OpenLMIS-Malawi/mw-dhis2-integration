@@ -19,7 +19,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
+
+import com.google.common.collect.Lists;
 
 import guru.nidi.ramltester.junit.RamlMatchers;
 
@@ -28,19 +32,24 @@ import java.util.UUID;
 
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.openlmis.integration.dhis2.ExecutionDataBuilder;
+import org.openlmis.integration.dhis2.IntegrationDataBuilder;
 import org.openlmis.integration.dhis2.domain.Execution;
+import org.openlmis.integration.dhis2.domain.Integration;
+import org.openlmis.integration.dhis2.i18n.MessageKeys;
+import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest {
+public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = ExecutionsController.RESOURCE_PATH;
-  private static final String ID_URL = RESOURCE_URL + ExecutionsController.ID_URL;
+  private static final String RESOURCE_URL = ExecutionController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + ExecutionController.ID_URL;
   private static final String PROGRAM_ID = "programId";
   private static final String PERIOD_ID = "periodId";
   private static final String FACILITY_ID = "facilityId";
@@ -51,6 +60,32 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
   private ExecutionDto executionDto = ExecutionDto.newInstance(execution);
 
   private ManualIntegrationDto manualIntegrationDto = generateRequestBody();
+
+  private ProcessingPeriodDto period =  new ProcessingPeriodDto();
+
+  private Integration integration = new IntegrationDataBuilder().build();
+
+  /** Set up sample data.
+   */
+
+  @Before
+  public void setUp() {
+
+    given(executionRepository
+        .findAll(any(Pageable.class)))
+        .willReturn(new PageImpl<>(Lists.newArrayList(execution, execution1)));
+
+    given(integrationRepository
+        .findByProgramId(manualIntegrationDto.getProgramId()))
+        .willReturn(integration);
+
+    given(periodReferenceDataService
+        .findOne(manualIntegrationDto.getPeriodId()))
+        .willReturn(period);
+
+    willDoNothing().given(permissionService).canManageDhis2();
+  }
+
 
   @Test
   public void shouldCreateRequest() {
@@ -116,6 +151,22 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
   }
 
   @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForGetAllEntries() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
   public void shouldReturnGivenExecution() {
     given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
 
@@ -148,7 +199,45 @@ public class ExecutionsControllerIntegrationTest extends BaseWebIntegrationTest 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
+  @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForGetExecutionById() {
+    disablePermission();
 
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenExecutionWithIdDoesNotExistForGetExecutionById() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(null);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(org.springframework.http.HttpStatus.NOT_FOUND.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_EXECUTION_NOT_FOUND));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  private void disablePermission() {
+    willThrow(new MissingPermissionException("permission"))
+        .given(permissionService)
+        .canManageDhis2();
+  }
 
   private ManualIntegrationDto generateRequestBody() {
     ManualIntegrationDto dto = new ManualIntegrationDto();

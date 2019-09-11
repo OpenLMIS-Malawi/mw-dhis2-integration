@@ -30,6 +30,7 @@ public abstract class MessageKeys {
   private static final String CONFIGURATION = "configuration";
   private static final String INTEGRATION = "integration";
   private static final String EXECUTION = "execution";
+  private static final String PERIOD = "period";
   private static final String JAVERS = "javers";
 
   private static final String NAME = "name";
@@ -70,6 +71,8 @@ public abstract class MessageKeys {
       join(ERROR_PREFIX, INTEGRATION, CONFIGURATION, REQUIRED);
   public static final String ERROR_INTEGRATION_ID_MISMATCH =
       join(ERROR_PREFIX, INTEGRATION, ID, MISMATCH);
+
+  public static final String ERROR_PERIOD_NOT_FOUND = join(ERROR_PREFIX, PERIOD, NOT_FOUND);
 
   public static final String ERROR_EXECUTION_NOT_FOUND = join(ERROR_PREFIX, EXECUTION, NOT_FOUND);
 

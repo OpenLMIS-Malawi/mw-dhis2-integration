@@ -42,6 +42,7 @@ import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.scheduler.DynamicTaskScheduler;
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -133,6 +134,9 @@ public abstract class BaseWebIntegrationTest {
 
   @MockBean
   DynamicTaskScheduler scheduler;
+
+  @MockBean
+  PeriodReferenceDataService periodReferenceDataService;
 
   /**
    * Constructor for test.
