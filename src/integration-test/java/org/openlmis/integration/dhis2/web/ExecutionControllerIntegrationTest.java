@@ -49,9 +49,6 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = ExecutionController.RESOURCE_PATH;
   private static final String ID_URL = RESOURCE_URL + ExecutionController.ID_URL;
-  private static final String PROGRAM_ID = "programId";
-  private static final String PERIOD_ID = "periodId";
-  private static final String FACILITY_ID = "facilityId";
 
   private Execution execution = new ExecutionDataBuilder().buildAsAutomatic();
   private Execution execution1 = new ExecutionDataBuilder().buildAsManual();
@@ -97,10 +94,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .when()
         .post(RESOURCE_URL)
         .then()
-        .statusCode(HttpStatus.SC_CREATED)
-        .body(PROGRAM_ID, is(manualIntegrationDto.getProgramId().toString()))
-        .body(PERIOD_ID, is(manualIntegrationDto.getPeriodId().toString()))
-        .body(FACILITY_ID, is(manualIntegrationDto.getFacilityId().toString()));
+        .statusCode(HttpStatus.SC_ACCEPTED);
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }

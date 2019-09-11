@@ -167,10 +167,7 @@ resourceTypes:
         application/json:
           schema: manualIntegrationExecution
       responses:
-        201:
-          body:
-            application/json:
-              schema: manualIntegrationExecution
+        202:
         401:
           body:
             application/json:

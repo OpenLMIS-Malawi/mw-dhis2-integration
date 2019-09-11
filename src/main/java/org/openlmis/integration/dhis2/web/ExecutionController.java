@@ -75,8 +75,8 @@ public class ExecutionController extends BaseController {
    */
 
   @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public ManualIntegrationDto runManualIntegration(
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public void runManualIntegration(
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
     permissionService.canManageDhis2();
 
@@ -97,7 +97,6 @@ public class ExecutionController extends BaseController {
 
     payloadService.postPayload(payloadRequest);
 
-    return manualIntegrationDto;
   }
 
   /**
