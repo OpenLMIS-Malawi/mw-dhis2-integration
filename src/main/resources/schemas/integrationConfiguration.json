@@ -1,56 +1,91 @@
 {
-    "type": "object",
-    "$schema": "http://json-schema.org/draft-04/schema",
-    "title": "value",
-    "description": "Integration configuration",
-    "properties": {
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "value",
+  "description": "Integration configuration",
+  "allOf": [
+    {
+      "properties": {
         "name": {
-            "type": "string",
-            "name": "name"
+          "type": "string",
+          "name": "name"
         },
         "targetUrl": {
-            "type": "string",
-            "name": "targetUrl"
+          "type": "string",
+          "name": "targetUrl"
+        }
+      },
+      "required": [
+        "name",
+        "targetUrl"
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "authenticationDetails": {
+              "type": "null",
+              "name": "authenticationDetails"
+            }
+          }
         },
-        "type": {
-            "type": "string",
-            "name": "type"
-        },
-        "authenticationDetails": {
-            "type": "object",
-            "name": "authenticationDetails",
-            "items": {
+        {
+          "properties": {
+            "authenticationDetails": {
+              "type": "object",
+              "name": "authenticationDetails",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "name": "type",
+                  "enum": [
+                    "BASIC"
+                  ]
+                },
                 "username": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "name": "username"
+                  "type": "string",
+                  "name": "username"
                 },
                 "password": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "name": "password"
+                  "type": "string",
+                  "name": "password"
+                }
+              },
+              "required": [
+                "type",
+                "username",
+                "password"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "authenticationDetails": {
+              "type": "object",
+              "name": "authenticationDetails",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "name": "type",
+                  "enum": [
+                    "BEARER"
+                  ]
                 },
                 "token": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "name": "token"
+                  "type": "string",
+                  "name": "token"
                 }
+              },
+              "required": [
+                "type",
+                "token"
+              ]
             }
-        },
-        "id": {
-            "type": ["string","null"],
-            "name": "id"
+          }
         }
-    },
-    "required": [
-        "name",
-        "targetUrl",
-        "authenticationDetails"
-    ]
+      ]
+    }
+  ]
 }
