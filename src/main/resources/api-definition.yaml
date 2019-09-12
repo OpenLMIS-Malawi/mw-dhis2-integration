@@ -201,8 +201,8 @@ resourceTypes:
             body:
               application/json:
                 schema: localizedErrorResponse
-  /integrationConfiguration:
-    displayName: integrationConfiguration
+  /integrationConfigurations:
+    displayName: integrationConfigurations
     get:
       is: [ secured, paginated, sorted ]
       description: Get all integration configuration.

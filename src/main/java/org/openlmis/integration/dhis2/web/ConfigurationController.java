@@ -15,7 +15,7 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import static org.openlmis.integration.dhis2.web.ConfigurationsController.RESOURCE_PATH;
+import static org.openlmis.integration.dhis2.web.ConfigurationController.RESOURCE_PATH;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,9 +48,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @RestController
 @RequestMapping(RESOURCE_PATH)
-public class ConfigurationsController extends BaseController {
+public class ConfigurationController extends BaseController {
 
-  public static final String RESOURCE_PATH = API_PATH + "/integrationConfiguration";
+  public static final String RESOURCE_PATH = API_PATH + "/integrationConfigurations";
   public static final String ID_URL = "/{id}";
 
   @Autowired
@@ -73,7 +73,7 @@ public class ConfigurationsController extends BaseController {
     ConfigurationAuthenticationDetailsDto confAuthDetailsDto =
         configurationDto.getAuthenticationDetails();
 
-    ConfigurationAuthenticationDetails confAuthDetails = new ConfigurationAuthenticationDetails();
+    ConfigurationAuthenticationDetails confAuthDetails = null;
 
     if (confAuthDetailsDto.getType() != null) {
       if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BEARER)) {

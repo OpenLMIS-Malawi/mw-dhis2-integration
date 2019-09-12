@@ -42,10 +42,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationTest {
+public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = ConfigurationsController.RESOURCE_PATH;
-  private static final String ID_URL = RESOURCE_URL + ConfigurationsController.ID_URL;
+  private static final String RESOURCE_URL = ConfigurationController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + ConfigurationController.ID_URL;
 
   private Configuration configuration =
       new ConfigurationDataBuilder().withCredentials(UUID.randomUUID().toString()).build();
@@ -64,7 +64,7 @@ public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationT
 
   }
 
-  // GET /integrationConfiguration
+  // GET /integrationConfigurations
 
   @Test
   public void shouldReturnPageOfExecutions() {
@@ -111,7 +111,7 @@ public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationT
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-  // POST /integrationConfiguration
+  // POST /integrationConfigurations
 
   @Test
   public void shouldCreateConfiguration() {
@@ -162,7 +162,7 @@ public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationT
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-  // GET /integrationConfiguration/{id}
+  // GET /integrationConfigurations/{id}
 
   @Test
   public void shouldReturnGivenConfiguration() {
@@ -198,7 +198,7 @@ public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationT
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-  // PUT /integrationConfiguration/{id}
+  // PUT /integrationConfigurations/{id}
 
   @Test
   public void shouldUpdateConfiguration() {
