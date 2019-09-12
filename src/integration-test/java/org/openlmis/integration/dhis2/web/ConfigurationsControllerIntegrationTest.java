@@ -15,10 +15,13 @@
 
 package org.openlmis.integration.dhis2.web;
 
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 
 import guru.nidi.ramltester.junit.RamlMatchers;
@@ -28,6 +31,7 @@ import java.util.UUID;
 
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.openlmis.integration.dhis2.ConfigurationDataBuilder;
 import org.openlmis.integration.dhis2.domain.Configuration;
@@ -38,14 +42,76 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
-public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTest {
+public class ConfigurationsControllerIntegrationTest extends BaseWebIntegrationTest {
 
-  private static final String RESOURCE_URL = ConfigurationController.RESOURCE_PATH;
-  private static final String ID_URL = RESOURCE_URL + ConfigurationController.ID_URL;
+  private static final String RESOURCE_URL = ConfigurationsController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + ConfigurationsController.ID_URL;
 
   private Configuration configuration =
       new ConfigurationDataBuilder().withCredentials(UUID.randomUUID().toString()).build();
   private ConfigurationDto configurationDto = ConfigurationDto.newInstance(configuration);
+
+  /** Set up sample data.
+   *
+   */
+
+  @Before
+  public void setUp() {
+    given(configurationRepository.findAll(any(Pageable.class)))
+        .willReturn(new PageImpl<>(Collections.singletonList(configuration)));
+
+    given(configurationRepository.findOne(configurationDto.getId())).willReturn(configuration);
+
+  }
+
+  // GET /integrationConfiguration
+
+  @Test
+  public void shouldReturnPageOfExecutions() {
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .queryParam("page", pageable.getPageNumber())
+        .queryParam("size", pageable.getPageSize())
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body("content", hasSize(1))
+        .body("content.id", hasItems(configurationDto.getId().toString()));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForAllConfigurationsEndpointIfUserIsNotAuthorized() {
+    restAssured.given()
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForGetAllEntries() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .when()
+        .get(RESOURCE_URL)
+        .then()
+        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  // POST /integrationConfiguration
 
   @Test
   public void shouldCreateConfiguration() {
@@ -58,8 +124,9 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .when()
         .post(RESOURCE_URL)
         .then()
-        .statusCode(HttpStatus.SC_CREATED);
-
+        .statusCode(HttpStatus.SC_CREATED)
+        .body("id", is(not(configurationDto.getId())))
+        .body("name",is(configurationDto.getName()));
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
@@ -77,36 +144,25 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-
   @Test
-  public void shouldReturnPageOfExecutions() {
-    given(configurationRepository.findAll(any(Pageable.class)))
-        .willReturn(new PageImpl<>(Collections.singletonList(configuration)));
+  public void shouldReturnForbiddenWhenUserHasNotRightForCreateConfiguration() {
+    disablePermission();
 
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
-        .queryParam("page", pageable.getPageNumber())
-        .queryParam("size", pageable.getPageSize())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .when()
-        .get(RESOURCE_URL)
+        .body(configurationDto)
+        .post(RESOURCE_URL)
         .then()
-        .statusCode(HttpStatus.SC_OK)
-        .body("content", hasSize(1));
+        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
-  @Test
-  public void shouldReturnUnauthorizedForAllConfigurationsEndpointIfUserIsNotAuthorized() {
-    restAssured.given()
-        .when()
-        .get(RESOURCE_URL)
-        .then()
-        .statusCode(HttpStatus.SC_UNAUTHORIZED);
-
-    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
-  }
+  // GET /integrationConfiguration/{id}
 
   @Test
   public void shouldReturnGivenConfiguration() {
@@ -137,14 +193,17 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .get(ID_URL)
         .then()
         .statusCode(HttpStatus.SC_NOT_FOUND)
-        .body(MESSAGE_KEY, Matchers.is(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND));
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
+  // PUT /integrationConfiguration/{id}
+
   @Test
   public void shouldUpdateConfiguration() {
-    given(configurationRepository.findOne(configurationDto.getId())).willReturn(configuration);
+    String name = "new-name";
+    configurationDto.setName(name);
 
     restAssured
         .given()
@@ -156,26 +215,27 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .put(ID_URL)
         .then()
         .statusCode(HttpStatus.SC_OK)
-        .body(ID, Matchers.is(configurationDto.getId().toString()));
+        .body("id", is(configurationDto.getId().toString()))
+        .body("name", is(name));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
   @Test
-  public void shouldReturnNotFoundMessageIfConfigurationDoesNotExistForUpdateConfiguration() {
-    given(configurationRepository.findOne(configurationDto.getId())).willReturn(null);
+  public void shouldCreateNewInstanceWithGivenIdIfItDoesNotExist() {
+    given(configurationRepository.findOne(configuration.getId())).willReturn(null);
 
     restAssured
         .given()
         .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .pathParam(ID, configurationDto.getId().toString())
-        .body(configurationDto)
+        .pathParam(ID, configurationDto.getId())
         .when()
+        .body(configurationDto)
         .put(ID_URL)
         .then()
-        .statusCode(HttpStatus.SC_NOT_FOUND)
-        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND));
+        .statusCode(org.springframework.http.HttpStatus.OK.value())
+        .body("id", is(configurationDto.getId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -210,6 +270,31 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .statusCode(HttpStatus.SC_UNAUTHORIZED);
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForUpdateConfiguration() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .pathParam(ID, configurationDto.getId())
+        .when()
+        .body(configurationDto)
+        .put(ID_URL)
+        .then()
+        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  private void disablePermission() {
+    willThrow(new MissingPermissionException("permission"))
+        .given(permissionService)
+        .canManageDhis2();
   }
 
 }

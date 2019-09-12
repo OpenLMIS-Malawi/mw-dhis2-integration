@@ -82,36 +82,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
     willDoNothing().given(permissionService).canManageDhis2();
   }
 
-
-  @Test
-  public void shouldCreateRequest() {
-
-    restAssured
-        .given()
-        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .body(manualIntegrationDto)
-        .when()
-        .post(RESOURCE_URL)
-        .then()
-        .statusCode(HttpStatus.SC_ACCEPTED);
-
-    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
-  }
-
-  @Test
-  public void shouldReturnUnauthorizedForCreateRequestEndpointIfUserIsNotAuthorized() {
-    restAssured
-        .given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .body(manualIntegrationDto)
-        .when()
-        .post(RESOURCE_URL)
-        .then()
-        .statusCode(HttpStatus.SC_UNAUTHORIZED);
-
-    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
-  }
+  // GET /integrationExecutions
 
   @Test
   public void shouldReturnPageOfExecutions() {
@@ -159,6 +130,40 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
+
+  // POST /integrationExecutions
+
+  @Test
+  public void shouldCreateRequest() {
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .body(manualIntegrationDto)
+        .when()
+        .post(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_ACCEPTED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForCreateRequestEndpointIfUserIsNotAuthorized() {
+    restAssured
+        .given()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .body(manualIntegrationDto)
+        .when()
+        .post(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  // GET /integrationExecutions/{id}
 
   @Test
   public void shouldReturnGivenExecution() {

@@ -15,7 +15,7 @@
 
 package org.openlmis.integration.dhis2.web;
 
-import static org.openlmis.integration.dhis2.web.ConfigurationController.RESOURCE_PATH;
+import static org.openlmis.integration.dhis2.web.ConfigurationsController.RESOURCE_PATH;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional
 @RestController
 @RequestMapping(RESOURCE_PATH)
-public class ConfigurationController extends BaseController {
+public class ConfigurationsController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationConfiguration";
   public static final String ID_URL = "/{id}";
@@ -72,14 +72,17 @@ public class ConfigurationController extends BaseController {
 
     ConfigurationAuthenticationDetailsDto confAuthDetailsDto =
         configurationDto.getAuthenticationDetails();
-    ConfigurationAuthenticationDetails confAuthDetails = null;
 
-    if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BEARER)) {
-      confAuthDetails = new ConfigurationAuthenticationDetails(confAuthDetailsDto.getToken());
-    }
-    if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BASIC)) {
-      confAuthDetails = new ConfigurationAuthenticationDetails(confAuthDetailsDto.getUsername(),
-              confAuthDetailsDto.getPassword());
+    ConfigurationAuthenticationDetails confAuthDetails = new ConfigurationAuthenticationDetails();
+
+    if (confAuthDetailsDto.getType() != null) {
+      if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BEARER)) {
+        confAuthDetails = new ConfigurationAuthenticationDetails(confAuthDetailsDto.getToken());
+      }
+      if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BASIC)) {
+        confAuthDetails = new ConfigurationAuthenticationDetails(confAuthDetailsDto.getUsername(),
+            confAuthDetailsDto.getPassword());
+      }
     }
 
     Configuration configuration = new Configuration(configurationDto.getName(),
@@ -147,8 +150,10 @@ public class ConfigurationController extends BaseController {
     Configuration configuration = configurationRepository.findOne(id);
 
     if (null == configuration) {
-      throw new NotFoundException(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND);
+      configuration = new Configuration();
+      configuration.setId(id);
     }
+
     configuration.updateFrom(configurationDto);
     configurationRepository.saveAndFlush(configuration);
 
