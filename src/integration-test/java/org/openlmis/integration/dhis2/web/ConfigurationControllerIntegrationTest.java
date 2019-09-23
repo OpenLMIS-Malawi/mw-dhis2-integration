@@ -291,6 +291,54 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
+  @Test
+  public void shouldDeleteConfiguration() {
+    given(configurationRepository.exists(configurationDto.getId())).willReturn(true);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, configurationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnNotFoundMessageIfConfigurationDoesNotExistForDeleteConfiguration() {
+    given(configurationRepository.exists(configurationDto.getId())).willReturn(false);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, configurationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_NOT_FOUND)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForDeleteConfigurationEndpointIfUserIsNotAuthorized() {
+    disablePermission();
+    
+    restAssured
+        .given()
+        .pathParam(ID, configurationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
   private void disablePermission() {
     willThrow(new MissingPermissionException("permission"))
         .given(permissionService)

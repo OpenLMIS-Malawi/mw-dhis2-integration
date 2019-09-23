@@ -35,6 +35,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -158,6 +159,22 @@ public class ConfigurationController extends BaseController {
     configurationRepository.saveAndFlush(configuration);
 
     return configurationDto;
+  }
+
+  /**
+   * Delete chosen configuration.
+   *
+   * @param id UUID of configuration item which we want to delete.
+   */
+  @DeleteMapping(value = ID_URL)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteConfiguration(@PathVariable("id") UUID id) {
+    permissionService.canManageDhis2();
+
+    if (!configurationRepository.exists(id)) {
+      throw new NotFoundException(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND);
+    }
+    configurationRepository.delete(id);
   }
 
 }

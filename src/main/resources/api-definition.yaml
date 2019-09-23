@@ -289,6 +289,20 @@ resourceTypes:
             body:
               application/json:
                 schema: localizedErrorResponse
+      delete:
+        is: [ secured ]
+        description: "[AVOID USING] Completely removes Configuration. This action is not
+              recoverable."
+        responses:
+          204:
+          404:
+            body:
+              application/json:
+                schema: localizedErrorResponse
+          401:
+            body:
+              application/json:
+
   /integrationProgramSchedules:
     displayName: integrationProgramSchedules
     get:
@@ -376,3 +390,16 @@ resourceTypes:
             body:
               application/json:
                 schema: localizedErrorResponse
+      delete:
+        is: [ secured ]
+        description: "[AVOID USING] Completely removes Program Schedule. This action is not
+        recoverable."
+        responses:
+          204:
+          404:
+            body:
+              application/json:
+                schema: localizedErrorResponse
+          401:
+            body:
+              application/json:
