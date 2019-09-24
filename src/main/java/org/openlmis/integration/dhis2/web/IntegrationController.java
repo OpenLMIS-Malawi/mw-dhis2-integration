@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -154,5 +155,20 @@ public class IntegrationController extends BaseController {
     return IntegrationDto.newInstance(integration);
   }
 
+  /**
+   * Delete chosen integration.
+   *
+   * @param id UUID of integration item which we want to delete.
+   */
+  @DeleteMapping(value = ID_URL)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteIntegration(@PathVariable("id") UUID id) {
+    permissionService.canManageDhis2();
 
+    if (!integrationRepository.exists(id)) {
+      throw new NotFoundException(MessageKeys.ERROR_INTEGRATION_NOT_FOUND);
+    }
+    integrationRepository.delete(id);
+    scheduler.refresh();
+  }
 }

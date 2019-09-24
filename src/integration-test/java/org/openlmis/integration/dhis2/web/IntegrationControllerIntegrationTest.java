@@ -344,6 +344,56 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
+  // DELETE /integrationProgramSchedules/{id}
+
+  @Test
+  public void shouldDeleteIntegration() {
+    given(integrationRepository.exists(integrationDto.getId())).willReturn(true);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, integrationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(org.apache.http.HttpStatus.SC_NO_CONTENT);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnNotFoundMessageIfIntegrationDoesNotExistForDeleteIntegration() {
+    given(integrationRepository.exists(integrationDto.getId())).willReturn(false);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, integrationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(org.apache.http.HttpStatus.SC_NOT_FOUND)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_INTEGRATION_NOT_FOUND));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForDeleteIntegrationEndpointIfUserIsNotAuthorized() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .pathParam(ID, integrationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(org.apache.http.HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
   private void disablePermission() {
     willThrow(new MissingPermissionException("permission"))
         .given(permissionService)

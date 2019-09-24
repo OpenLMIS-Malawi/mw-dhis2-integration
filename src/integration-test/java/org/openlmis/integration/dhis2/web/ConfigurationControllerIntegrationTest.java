@@ -291,6 +291,8 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
 
+  // DELETE /integrationConfigurations/{id}
+
   @Test
   public void shouldDeleteConfiguration() {
     given(configurationRepository.exists(configurationDto.getId())).willReturn(true);
@@ -327,7 +329,7 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
   @Test
   public void shouldReturnUnauthorizedForDeleteConfigurationEndpointIfUserIsNotAuthorized() {
     disablePermission();
-    
+
     restAssured
         .given()
         .pathParam(ID, configurationDto.getId().toString())
