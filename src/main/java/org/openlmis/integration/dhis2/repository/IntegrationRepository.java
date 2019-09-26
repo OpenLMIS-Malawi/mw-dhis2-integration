@@ -47,5 +47,4 @@ public interface IntegrationRepository
       nativeQuery = true)
   Page<Integration> findAllWithoutSnapshots(Pageable pageable);
 
-  Integration findByProgramId(UUID programId);
 }

@@ -80,8 +80,8 @@ public class ExecutionController extends BaseController {
       @RequestBody ManualIntegrationDto manualIntegrationDto) {
     permissionService.canManageDhis2();
 
-    Integration integration = integrationRepository.findByProgramId(
-        manualIntegrationDto.getProgramId());
+    Integration integration = integrationRepository
+        .findOne(manualIntegrationDto.getIntegrationId());
     if (null == integration) {
       throw new NotFoundException(MessageKeys.ERROR_INTEGRATION_NOT_FOUND);
     }

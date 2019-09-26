@@ -72,7 +72,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .willReturn(new PageImpl<>(Lists.newArrayList(execution, execution1)));
 
     given(integrationRepository
-        .findByProgramId(manualIntegrationDto.getProgramId()))
+        .findOne(manualIntegrationDto.getIntegrationId()))
         .willReturn(integration);
 
     given(periodReferenceDataService
@@ -241,7 +241,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private ManualIntegrationDto generateRequestBody() {
     ManualIntegrationDto dto = new ManualIntegrationDto();
-    dto.setProgramId(UUID.randomUUID());
+    dto.setIntegrationId(UUID.randomUUID());
     dto.setPeriodId(UUID.randomUUID());
     dto.setFacilityId(UUID.randomUUID());
     return dto;
