@@ -54,7 +54,7 @@ public class AuditLogInitializerIntegrationTest {
   };
 
   private static final String[] INTEGRATION_FIELDS = {
-      "id", "name", "programId", "cronExpression", "configurationId"
+      "id", "programId", "cronExpression", "configurationId"
   };
 
   private static final String INSERT_CONFIGURATION_SQL = String.format(
@@ -138,10 +138,9 @@ public class AuditLogInitializerIntegrationTest {
     entityManager
         .createNativeQuery(INSERT_INTEGRATION_SQL)
         .setParameter(1, id)
-        .setParameter(2, "test-integration")
-        .setParameter(3, UUID.randomUUID())
-        .setParameter(4, "0/30 * * * * ")
-        .setParameter(5, configurationId)
+        .setParameter(2, UUID.randomUUID())
+        .setParameter(3, "0/30 * * * * ")
+        .setParameter(4, configurationId)
         .executeUpdate();
   }
 }

@@ -4,10 +4,6 @@
     "title": "value",
     "description": "Associate Program with the Schedule",
     "properties": {
-        "name": {
-            "type": "string",
-            "name": "name"
-        },
         "programId": {
             "type": "string",
             "name": "programId"
@@ -23,7 +19,6 @@
         }
     },
     "required": [
-        "name",
         "programId",
         "cronExpression",
         "configuration"

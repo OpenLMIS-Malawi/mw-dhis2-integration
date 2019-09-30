@@ -51,7 +51,7 @@ public class IntegrationTest {
   @Test
   public void shouldUpdateFromImporter() {
     // given
-    TestIntegration data = new TestIntegration(UUID.randomUUID(), "test",
+    TestIntegration data = new TestIntegration(UUID.randomUUID(),
         UUID.randomUUID(), "cron", null);
     Integration integration = new Integration();
     integration.setId(UUID.randomUUID());
@@ -62,7 +62,6 @@ public class IntegrationTest {
     // then
     assertThat(integration)
         .hasFieldOrPropertyWithValue("id", integration.getId())
-        .hasFieldOrPropertyWithValue("name", data.getName())
         .hasFieldOrPropertyWithValue("programId", data.getProgramId())
         .hasFieldOrPropertyWithValue("cronExpression", data.getCronExpression());
   }
@@ -71,7 +70,7 @@ public class IntegrationTest {
   public void shouldExportData() {
     // given
     Configuration configuration = new Configuration();
-    TestIntegration data = new TestIntegration(UUID.randomUUID(), "test",
+    TestIntegration data = new TestIntegration(UUID.randomUUID(),
         UUID.randomUUID(), "cron", configuration);
 
     Integration integration = new Integration();
@@ -93,7 +92,6 @@ public class IntegrationTest {
   @AllArgsConstructor
   private static final class TestIntegration implements Integration.Importer, Integration.Exporter {
     private UUID id;
-    private String name;
     private UUID programId;
     private String cronExpression;
     private Configuration configuration;

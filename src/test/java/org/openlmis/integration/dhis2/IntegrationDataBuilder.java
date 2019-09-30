@@ -16,24 +16,15 @@
 package org.openlmis.integration.dhis2;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.Integration;
 
 public class IntegrationDataBuilder {
 
-  private static AtomicInteger instanceNumber = new AtomicInteger(0);
-
   private UUID id = UUID.randomUUID();
-  private String name = "test-integration-" + instanceNumber.incrementAndGet();
   private UUID programId = UUID.randomUUID();
   private String cronExpression = "0/30 * * * *";
   private Configuration configuration = new ConfigurationDataBuilder().build();
-
-  public IntegrationDataBuilder withName(String name) {
-    this.name = name;
-    return this;
-  }
 
   public IntegrationDataBuilder withProgramId(UUID programId) {
     this.programId = programId;
@@ -51,7 +42,7 @@ public class IntegrationDataBuilder {
   }
 
   public Integration buildAsNew() {
-    return new Integration(name, programId, cronExpression, configuration);
+    return new Integration(programId, cronExpression, configuration);
   }
 
   /**

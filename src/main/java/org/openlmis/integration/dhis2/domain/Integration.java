@@ -40,10 +40,6 @@ import org.javers.core.metamodel.annotation.TypeName;
 public class Integration extends BaseEntity {
 
   @Getter
-  @Column(nullable = false, unique = true, columnDefinition = TEXT_COLUMN_DEFINITION)
-  private String name;
-
-  @Getter
   @Type(type = UUID_TYPE)
   @Column(nullable = false, unique = true)
   private UUID programId;
@@ -65,7 +61,6 @@ public class Integration extends BaseEntity {
    * Update this from another.
    */
   public void updateFrom(Importer importer) {
-    this.name = importer.getName();
     this.programId = importer.getProgramId();
     this.cronExpression = importer.getCronExpression();
   }
@@ -75,15 +70,12 @@ public class Integration extends BaseEntity {
    */
   public void export(Exporter exporter) {
     exporter.setId(getId());
-    exporter.setName(name);
     exporter.setProgramId(programId);
     exporter.setCronExpression(cronExpression);
     exporter.setConfiguration(configuration);
   }
 
   public interface Importer extends BaseImporter {
-
-    String getName();
 
     UUID getProgramId();
 
@@ -92,8 +84,6 @@ public class Integration extends BaseEntity {
   }
 
   public interface Exporter extends BaseExporter {
-
-    void setName(String name);
 
     void setProgramId(UUID programId);
 

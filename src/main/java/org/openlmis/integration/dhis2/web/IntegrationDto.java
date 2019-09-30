@@ -44,7 +44,6 @@ import org.openlmis.integration.dhis2.exception.ValidationMessageException;
 @ToString(callSuper = true)
 public final class IntegrationDto extends BaseDto implements Importer, Exporter {
 
-  private String name;
   private UUID programId;
   private String cronExpression;
   private ConfigurationDto configuration;

@@ -50,13 +50,6 @@ public class IntegrationRepositoryIntegrationTest
   }
 
   @Test(expected = DataIntegrityViolationException.class)
-  public void shouldNotAllowToHaveSeveralIntegrationsWithSameName() {
-    repository.save(new IntegrationDataBuilder().withName("test").buildAsNew());
-    repository.save(new IntegrationDataBuilder().withName("TEST").buildAsNew());
-    repository.saveAndFlush(new IntegrationDataBuilder().withName("TeSt").buildAsNew());
-  }
-
-  @Test(expected = DataIntegrityViolationException.class)
   public void shouldNotAllowToHaveSeveralIntegrationsWithSameTargetUrl() {
     UUID programId = UUID.randomUUID();
 

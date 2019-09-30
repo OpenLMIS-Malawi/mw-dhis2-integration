@@ -128,8 +128,7 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
         .post(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.CREATED.value())
-        .body("id", is(not(integrationDto.getId())))
-        .body("name", is(integrationDto.getName()));
+        .body("id", is(not(integrationDto.getId())));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -196,8 +195,7 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
         .get(ID_URL)
         .then()
         .statusCode(HttpStatus.OK.value())
-        .body("id", is(integrationDto.getId().toString()))
-        .body("name", is(integrationDto.getName()));
+        .body("id", is(integrationDto.getId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -253,8 +251,8 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
 
   @Test
   public void shouldUpdateIntegration() {
-    String name = "new-name";
-    integrationDto.setName(name);
+    String cronExpression = "0 59 23 1 * *";
+    integrationDto.setCronExpression(cronExpression);
 
     restAssured
         .given()
@@ -267,7 +265,7 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
         .then()
         .statusCode(HttpStatus.OK.value())
         .body("id", is(integrationDto.getId().toString()))
-        .body("name", is(name));
+        .body("cronExpression", is(cronExpression));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
