@@ -18,12 +18,14 @@ package org.openlmis.integration.dhis2;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
+@Getter
 @Setter
-@Component
+@Configuration
 @ConfigurationProperties("dhis2")
 public class Dhis2Configuration {
 
@@ -46,6 +48,7 @@ public class Dhis2Configuration {
     return measureReport.group.measureScoreSystem;
   }
 
+  @Getter
   @Setter
   public static final class Measure {
 
@@ -53,12 +56,13 @@ public class Dhis2Configuration {
 
   }
 
+  @Getter
   @Setter
   public static final class MeasureReport {
 
     private Group group = new Group();
 
-
+    @Getter
     @Setter
     public static final class Group {
 
