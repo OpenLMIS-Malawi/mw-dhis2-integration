@@ -44,6 +44,7 @@ public abstract class MessageKeys {
   private static final String MISMATCH = "mismatch";
   private static final String MISSING = "missing";
   private static final String REQUIRED = "required";
+  private static final String USED = "used";
 
   private static final String ERROR_PREFIX = join(SERVICE_PREFIX, ERROR);
 
@@ -60,6 +61,8 @@ public abstract class MessageKeys {
       join(ERROR_PREFIX, CONFIGURATION, TARGET_URL, DUPLICATED);
   public static final String ERROR_CONFIGURATION_ID_MISMATCH =
       join(ERROR_PREFIX, CONFIGURATION, ID, MISMATCH);
+  public static final String ERROR_CONFIGURATION_USED =
+      join(ERROR_PREFIX, CONFIGURATION, USED);
 
   public static final String ERROR_INTEGRATION_NOT_FOUND =
       join(ERROR_PREFIX, INTEGRATION, NOT_FOUND);

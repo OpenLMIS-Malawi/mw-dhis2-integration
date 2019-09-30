@@ -295,13 +295,17 @@ resourceTypes:
               recoverable."
         responses:
           204:
-          404:
+          400:
             body:
               application/json:
                 schema: localizedErrorResponse
           401:
             body:
               application/json:
+          404:
+            body:
+              application/json:
+                schema: localizedErrorResponse
 
   /integrationProgramSchedules:
     displayName: integrationProgramSchedules

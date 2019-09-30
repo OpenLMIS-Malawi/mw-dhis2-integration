@@ -29,6 +29,7 @@ import org.openlmis.integration.dhis2.exception.NotFoundException;
 import org.openlmis.integration.dhis2.exception.ValidationMessageException;
 import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.repository.ConfigurationRepository;
+import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -59,6 +60,9 @@ public class ConfigurationController extends BaseController {
 
   @Autowired
   private ConfigurationRepository configurationRepository;
+
+  @Autowired
+  private IntegrationRepository integrationRepository;
 
   /**
    * This method is used to add new Configuration.
@@ -173,6 +177,9 @@ public class ConfigurationController extends BaseController {
 
     if (!configurationRepository.exists(id)) {
       throw new NotFoundException(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND);
+    }
+    if (integrationRepository.existsByConfiguration_Id(id)) {
+      throw new ValidationMessageException(MessageKeys.ERROR_CONFIGURATION_USED);
     }
     configurationRepository.delete(id);
   }

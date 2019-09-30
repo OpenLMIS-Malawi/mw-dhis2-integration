@@ -327,6 +327,25 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
   }
 
   @Test
+  public void shouldReturnUsedMessageIfConfigurationIsUsedInDeleteConfiguration() {
+    given(configurationRepository.exists(configurationDto.getId())).willReturn(true);
+    given(integrationRepository.existsByConfiguration_Id(configurationDto.getId()))
+        .willReturn(true);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, configurationDto.getId().toString())
+        .when()
+        .delete(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_BAD_REQUEST)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CONFIGURATION_USED));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
   public void shouldReturnUnauthorizedForDeleteConfigurationEndpointIfUserIsNotAuthorized() {
     disablePermission();
 
