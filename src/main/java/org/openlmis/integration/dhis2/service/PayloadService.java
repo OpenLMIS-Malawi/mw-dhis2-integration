@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -53,7 +54,7 @@ public class PayloadService {
    * Method is responsible for sending payload to Interop layer. Response is a status (202, 500 or
    * 503), message and notificationsChannel.
    */
-
+  @Async
   public void postPayload(PayloadRequest payloadRequest) {
     ProgramDto program = programReferenceDataService.findOne(payloadRequest.getProgramId());
 
