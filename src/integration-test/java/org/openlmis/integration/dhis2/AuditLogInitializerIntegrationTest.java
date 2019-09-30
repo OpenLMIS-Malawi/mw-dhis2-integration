@@ -54,7 +54,7 @@ public class AuditLogInitializerIntegrationTest {
   };
 
   private static final String[] INTEGRATION_FIELDS = {
-      "id", "programId", "cronExpression", "configurationId"
+      "id", "programId", "cronExpression", "description", "configurationId"
   };
 
   private static final String INSERT_CONFIGURATION_SQL = String.format(
@@ -140,7 +140,8 @@ public class AuditLogInitializerIntegrationTest {
         .setParameter(1, id)
         .setParameter(2, UUID.randomUUID())
         .setParameter(3, "0/30 * * * * ")
-        .setParameter(4, configurationId)
+        .setParameter(4, "test-description")
+        .setParameter(5, configurationId)
         .executeUpdate();
   }
 }

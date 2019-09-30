@@ -16,6 +16,7 @@
 package org.openlmis.integration.dhis2;
 
 import java.time.Clock;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.openlmis.integration.dhis2.domain.Execution;
@@ -25,10 +26,13 @@ import org.openlmis.integration.dhis2.domain.Integration;
 public class ExecutionDataBuilder {
 
   private UUID id = UUID.randomUUID();
+  private Integration integration = new IntegrationDataBuilder().build();
   private UUID facilityId = UUID.randomUUID();
   private UUID processingPeriodId = UUID.randomUUID();
+  private String description = "test-description";
   private Clock startDate = Clock.systemUTC();
   private Clock endDate = Clock.systemUTC();
+  private ExecutionResponse response = new ExecutionResponseDataBuilder().buildAsNew();
 
   public ExecutionDataBuilder withFacilityId(UUID facilityId) {
     this.facilityId = facilityId;
@@ -47,6 +51,11 @@ public class ExecutionDataBuilder {
 
   public ExecutionDataBuilder withEndDate(Clock endDate) {
     this.endDate = endDate;
+    return this;
+  }
+
+  public ExecutionDataBuilder withoutResponse() {
+    this.response = null;
     return this;
   }
 
@@ -74,11 +83,9 @@ public class ExecutionDataBuilder {
    */
 
   public Execution buildAsNewAutomatic() {
-    Integration integration = new IntegrationDataBuilder().build();
-    Execution execution = Execution.forAutomaticExecution(
-        integration, processingPeriodId, startDate);
-    ExecutionResponse executionResponse = new ExecutionResponseDataBuilder().buildAsNew();
-    execution.markAsDone(executionResponse,endDate);
+    Execution execution = Execution
+        .forAutomaticExecution(integration, processingPeriodId, startDate);
+    Optional.ofNullable(response).ifPresent(item -> execution.markAsDone(item, endDate));
 
     return execution;
   }
@@ -88,11 +95,9 @@ public class ExecutionDataBuilder {
    */
 
   public Execution buildAsNewManual() {
-    Integration integration = new IntegrationDataBuilder().build();
-    Execution execution = Execution.forManualExecution(
-        integration, facilityId, processingPeriodId, startDate);
-    ExecutionResponse executionResponse = new ExecutionResponseDataBuilder().buildAsNew();
-    execution.markAsDone(executionResponse,endDate);
+    Execution execution = Execution
+        .forManualExecution(integration, facilityId, processingPeriodId, description, startDate);
+    Optional.ofNullable(response).ifPresent(item -> execution.markAsDone(item, endDate));
 
     return execution;
   }

@@ -46,6 +46,7 @@ public final class IntegrationDto extends BaseDto implements Importer, Exporter 
 
   private UUID programId;
   private String cronExpression;
+  private String description;
   private ConfigurationDto configuration;
 
   /**

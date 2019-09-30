@@ -35,16 +35,18 @@ public class PayloadRequest {
   @Getter
   private final ProcessingPeriodDto period;
 
+  private String description;
+
   private final boolean manualExecution;
 
   public static PayloadRequest forAutomaticExecution(Integration integration,
       ProcessingPeriodDto period) {
-    return new PayloadRequest(integration, null, period, false);
+    return new PayloadRequest(integration, null, period, null, false);
   }
 
   public static PayloadRequest forManualExecution(Integration integration, UUID facilityId,
-      ProcessingPeriodDto period) {
-    return new PayloadRequest(integration, facilityId, period, true);
+      ProcessingPeriodDto period, String description) {
+    return new PayloadRequest(integration, facilityId, period, description, true);
   }
 
   public UUID getProgramId() {
@@ -53,7 +55,8 @@ public class PayloadRequest {
 
   Execution createExecution(Clock clock) {
     if (manualExecution) {
-      return Execution.forManualExecution(integration, facilityId, period.getId(), clock);
+      return Execution.forManualExecution(integration, facilityId, period.getId(),
+          description, clock);
     } else {
       return Execution.forAutomaticExecution(integration, period.getId(), clock);
     }

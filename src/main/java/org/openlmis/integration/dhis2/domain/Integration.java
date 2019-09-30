@@ -48,6 +48,10 @@ public class Integration extends BaseEntity {
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String cronExpression;
 
+  @Getter
+  @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
+  private String description;
+
   @Setter
   @ManyToOne
   @JoinColumn(name = "configurationId", nullable = false)
@@ -63,6 +67,7 @@ public class Integration extends BaseEntity {
   public void updateFrom(Importer importer) {
     this.programId = importer.getProgramId();
     this.cronExpression = importer.getCronExpression();
+    this.description = importer.getDescription();
   }
 
   /**
@@ -72,6 +77,7 @@ public class Integration extends BaseEntity {
     exporter.setId(getId());
     exporter.setProgramId(programId);
     exporter.setCronExpression(cronExpression);
+    exporter.setDescription(description);
     exporter.setConfiguration(configuration);
   }
 
@@ -81,6 +87,8 @@ public class Integration extends BaseEntity {
 
     String getCronExpression();
 
+    String getDescription();
+
   }
 
   public interface Exporter extends BaseExporter {
@@ -88,6 +96,8 @@ public class Integration extends BaseEntity {
     void setProgramId(UUID programId);
 
     void setCronExpression(String cronExpression);
+
+    void setDescription(String description);
 
     void setConfiguration(Configuration configuration);
   }

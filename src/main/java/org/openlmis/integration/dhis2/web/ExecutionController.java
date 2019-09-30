@@ -93,7 +93,7 @@ public class ExecutionController extends BaseController {
     }
 
     PayloadRequest payloadRequest = PayloadRequest.forManualExecution(integration,
-        manualIntegrationDto.getFacilityId(), period);
+        manualIntegrationDto.getFacilityId(), period, manualIntegrationDto.getDescription());
 
     payloadService.postPayload(payloadRequest);
 

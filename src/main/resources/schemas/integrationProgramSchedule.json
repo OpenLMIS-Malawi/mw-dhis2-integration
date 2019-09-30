@@ -12,6 +12,10 @@
             "type": "string",
             "name": "cronExpression"
         },
+        "description": {
+            "type": ["null", "string"],
+            "name": "description"
+        },
         "configuration": {
             "type": "object",
             "name": "configuration",

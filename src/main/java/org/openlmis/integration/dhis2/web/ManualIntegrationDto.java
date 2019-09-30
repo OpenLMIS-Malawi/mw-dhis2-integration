@@ -38,5 +38,6 @@ public final class ManualIntegrationDto {
   private UUID integrationId;
   private UUID periodId;
   private UUID facilityId;
+  private String description;
 
 }

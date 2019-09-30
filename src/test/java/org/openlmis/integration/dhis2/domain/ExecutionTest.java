@@ -40,6 +40,7 @@ public class ExecutionTest {
   private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private static final UUID PROCESSING_PERIOD_ID = UUID.randomUUID();
+  private static final String DESCRIPTION = "test-description";
   private static final ZonedDateTime START_DATE = ZonedDateTime.now(CLOCK);
   private static final ZonedDateTime END_DATE = ZonedDateTime.now(CLOCK);
   private static final ExecutionResponse RESPONSE = new ExecutionResponse();
@@ -86,7 +87,7 @@ public class ExecutionTest {
   public void shouldCreateInstanceForManualExecution() {
     // when
     Execution execution = Execution.forManualExecution(INTEGRATION, null,
-        PROCESSING_PERIOD_ID, CLOCK);
+        PROCESSING_PERIOD_ID, DESCRIPTION, CLOCK);
 
     // then
     TestExecution exporter = new TestExecution();
@@ -183,6 +184,7 @@ public class ExecutionTest {
     private UUID programId;
     private UUID facilityId;
     private UUID processingPeriodId;
+    private String description;
     private String targetUrl;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;

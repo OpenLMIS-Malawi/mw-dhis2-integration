@@ -24,6 +24,7 @@ public class IntegrationDataBuilder {
   private UUID id = UUID.randomUUID();
   private UUID programId = UUID.randomUUID();
   private String cronExpression = "0/30 * * * *";
+  private String description = "test-description";
   private Configuration configuration = new ConfigurationDataBuilder().build();
 
   public IntegrationDataBuilder withProgramId(UUID programId) {
@@ -42,7 +43,7 @@ public class IntegrationDataBuilder {
   }
 
   public Integration buildAsNew() {
-    return new Integration(programId, cronExpression, configuration);
+    return new Integration(programId, cronExpression, description, configuration);
   }
 
   /**

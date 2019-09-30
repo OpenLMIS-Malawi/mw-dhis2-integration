@@ -45,6 +45,7 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   private UUID programId;
   private UUID facilityId;
   private UUID processingPeriodId;
+  private String description;
   private String targetUrl;
   private String startDate;
   private String endDate;

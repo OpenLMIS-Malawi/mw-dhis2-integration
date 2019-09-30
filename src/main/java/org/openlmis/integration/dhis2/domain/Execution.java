@@ -54,6 +54,9 @@ public class Execution extends BaseEntity {
   @Column(nullable = false)
   private UUID processingPeriodId;
 
+  @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
+  private String description;
+
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String targetUrl;
 
@@ -67,16 +70,20 @@ public class Execution extends BaseEntity {
       orphanRemoval = true, fetch = FetchType.EAGER)
   private ExecutionResponse response;
 
+  /**
+   * Creates a new automatic execution.
+   */
   public static Execution forAutomaticExecution(Integration integration, UUID processingPeriodId,
       Clock clock) {
     return new Execution(false, integration.getProgramId(), null, processingPeriodId,
-        integration.getTargetUrl(), ZonedDateTime.now(clock), null, null);
+        integration.getDescription(), integration.getTargetUrl(),
+        ZonedDateTime.now(clock), null, null);
   }
 
   public static Execution forManualExecution(Integration integration, UUID facilityId,
-      UUID processingPeriodId, Clock clock) {
+      UUID processingPeriodId, String description, Clock clock) {
     return new Execution(true, integration.getProgramId(), facilityId, processingPeriodId,
-        integration.getTargetUrl(), ZonedDateTime.now(clock), null, null);
+        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, null);
   }
 
   /**
@@ -98,6 +105,7 @@ public class Execution extends BaseEntity {
     exporter.setProgramId(programId);
     exporter.setFacilityId(facilityId);
     exporter.setProcessingPeriodId(processingPeriodId);
+    exporter.setDescription(description);
     exporter.setTargetUrl(targetUrl);
     exporter.setStartDate(startDate);
 
@@ -119,6 +127,8 @@ public class Execution extends BaseEntity {
     void setFacilityId(UUID facilityId);
 
     void setProcessingPeriodId(UUID processingPeriodId);
+
+    void setDescription(String description);
 
     void setTargetUrl(String targetUrl);
 
