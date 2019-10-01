@@ -29,6 +29,8 @@ import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.TypeName;
 
 @Entity
@@ -78,6 +80,21 @@ public final class ConfigurationAuthenticationDetails {
     this.username = username;
     this.password = password;
     this.token = token;
+  }
+
+  /**
+   * Convert the given {@link ConfigurationAuthenticationDetails} into {@link String} that can be
+   * used as Authorization Header.
+   */
+  public String asAuthorizationHeader() {
+    switch (type) {
+      case BASIC:
+        return type.name() + Base64.encodeBase64String((username + ":" + password).getBytes());
+      case BEARER:
+        return type.name() + token;
+      default:
+        return StringUtils.EMPTY;
+    }
   }
 
   void setConfiguration(Configuration configuration) {

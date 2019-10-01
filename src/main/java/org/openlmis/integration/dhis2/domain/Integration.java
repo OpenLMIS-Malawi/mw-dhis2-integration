@@ -52,6 +52,7 @@ public class Integration extends BaseEntity {
   @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
   private String description;
 
+  @Getter
   @Setter
   @ManyToOne
   @JoinColumn(name = "configurationId", nullable = false)

@@ -26,9 +26,13 @@ import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceData
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -71,12 +75,21 @@ public class PayloadService {
   }
 
   private ExecutionResponse sendPayload(PayloadRequest request, Payload payload) {
-    ResponseEntity<String> response = restTemplate
-        .postForEntity(request.getTargetUrl(), payload, String.class);
-    ZonedDateTime responseTime = ZonedDateTime.now(clock);
-    int status = response.getStatusCodeValue();
+    try {
+      RequestHeaders headers = RequestHeaders
+          .init()
+          .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader());
+      HttpEntity<Payload> entity = RequestHelper.createEntity(headers, payload);
 
-    return new ExecutionResponse(responseTime, status, response.getBody());
+      ResponseEntity<String> response = restTemplate
+          .exchange(request.getTargetUrl(), HttpMethod.POST, entity, String.class);
+
+      return new ExecutionResponse(ZonedDateTime.now(clock), response.getStatusCodeValue(),
+          response.getBody());
+    } catch (RestClientResponseException exp) {
+      return new ExecutionResponse(ZonedDateTime.now(clock), exp.getRawStatusCode(),
+          exp.getResponseBodyAsString());
+    }
   }
 
   private Payload createPayload(PayloadRequest request, ProgramDto program) {

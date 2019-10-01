@@ -43,6 +43,7 @@ public final class Configuration extends BaseEntity {
   @Column(nullable = false, unique = true, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String targetUrl;
 
+  @Getter
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "configuration",
       orphanRemoval = true, fetch = FetchType.EAGER)
   private ConfigurationAuthenticationDetails authenticationDetails;

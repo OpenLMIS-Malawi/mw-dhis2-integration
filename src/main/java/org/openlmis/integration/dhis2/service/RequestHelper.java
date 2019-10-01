@@ -57,7 +57,11 @@ public final class RequestHelper {
    * Creates an {@link HttpEntity} with the given headers.
    */
   static <E> HttpEntity<E> createEntity(RequestHeaders headers) {
-    return new HttpEntity<>(headers.toHeaders());
+    return createEntity(headers, null);
+  }
+
+  static <E> HttpEntity<E> createEntity(RequestHeaders headers, E payload) {
+    return new HttpEntity<>(payload, headers.toHeaders());
   }
 
   /**

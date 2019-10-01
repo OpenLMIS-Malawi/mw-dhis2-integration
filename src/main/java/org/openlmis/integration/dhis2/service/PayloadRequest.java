@@ -16,10 +16,13 @@
 package org.openlmis.integration.dhis2.service;
 
 import java.time.Clock;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.openlmis.integration.dhis2.domain.Configuration;
+import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
@@ -64,5 +67,14 @@ public class PayloadRequest {
 
   public String getTargetUrl() {
     return integration.getTargetUrl();
+  }
+
+  String getAuthorizationHeader() {
+    return Optional
+        .ofNullable(integration)
+        .map(Integration::getConfiguration)
+        .map(Configuration::getAuthenticationDetails)
+        .map(ConfigurationAuthenticationDetails::asAuthorizationHeader)
+        .orElse(null);
   }
 }
