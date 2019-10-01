@@ -18,6 +18,7 @@ package org.openlmis.integration.dhis2.domain;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -68,6 +69,7 @@ public class Execution extends BaseEntity {
   private ZonedDateTime endDate;
 
   @Getter
+  @Basic(fetch = FetchType.LAZY)
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String requestBody;
 
