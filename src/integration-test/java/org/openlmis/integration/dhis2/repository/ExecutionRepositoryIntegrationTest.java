@@ -38,6 +38,7 @@ public class ExecutionRepositoryIntegrationTest
   private static final Integration INTEGRATION = new IntegrationDataBuilder().build();
   private static final UUID PROCESSING_PERIOD_ID = UUID.randomUUID();
   private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+  private static final String REQUEST_BODY = "{}";
 
   @Autowired
   private ExecutionRepository repository;
@@ -52,7 +53,7 @@ public class ExecutionRepositoryIntegrationTest
 
   @Override
   Execution generateInstance() {
-    return Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    return Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, REQUEST_BODY, CLOCK);
   }
 
   @Test

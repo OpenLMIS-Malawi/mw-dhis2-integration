@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import org.openlmis.integration.dhis2.domain.Execution;
@@ -29,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -50,6 +53,9 @@ public class PayloadService {
   private PayloadBuilder payloadBuilder;
 
   @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
   private Clock clock;
 
   private RestTemplate restTemplate = new RestTemplate();
@@ -62,11 +68,19 @@ public class PayloadService {
   public void postPayload(PayloadRequest payloadRequest) {
     ProgramDto program = programReferenceDataService.findOne(payloadRequest.getProgramId());
 
-    Execution execution = payloadRequest.createExecution(clock);
+    String payloadAsJson;
+
+    try {
+      Payload payload = createPayload(payloadRequest, program);
+      payloadAsJson = objectMapper.writeValueAsString(payload);
+    } catch (JsonProcessingException exp) {
+      throw new IllegalStateException(exp);
+    }
+
+    Execution execution = payloadRequest.createExecution(payloadAsJson, clock);
     executionRepository.saveAndFlush(execution);
 
-    Payload payload = createPayload(payloadRequest, program);
-    ExecutionResponse response = sendPayload(payloadRequest, payload);
+    ExecutionResponse response = sendPayload(payloadRequest, payloadAsJson);
 
     execution.markAsDone(response, clock);
     executionRepository.saveAndFlush(execution);
@@ -74,12 +88,13 @@ public class PayloadService {
     LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
   }
 
-  private ExecutionResponse sendPayload(PayloadRequest request, Payload payload) {
+  private ExecutionResponse sendPayload(PayloadRequest request, String body) {
     try {
       RequestHeaders headers = RequestHeaders
           .init()
-          .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader());
-      HttpEntity<Payload> entity = RequestHelper.createEntity(headers, payload);
+          .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader())
+          .set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+      HttpEntity<String> entity = RequestHelper.createEntity(headers, body);
 
       ResponseEntity<String> response = restTemplate
           .exchange(request.getTargetUrl(), HttpMethod.POST, entity, String.class);

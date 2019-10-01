@@ -201,6 +201,25 @@ resourceTypes:
             body:
               application/json:
                 schema: localizedErrorResponse
+      /request:
+        get:
+          is: [ secured ]
+          description: Get execution request.
+          responses:
+            200:
+              body:
+                application/json:
+            404:
+              body:
+                application/json:
+                  schema: localizedErrorResponse
+            401:
+              body:
+                application/json:
+            403:
+              body:
+                application/json:
+                  schema: localizedErrorResponse
   /integrationConfigurations:
     displayName: integrationConfigurations
     get:

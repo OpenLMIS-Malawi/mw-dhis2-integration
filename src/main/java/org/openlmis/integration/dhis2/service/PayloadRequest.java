@@ -56,12 +56,12 @@ public class PayloadRequest {
     return integration.getProgramId();
   }
 
-  Execution createExecution(Clock clock) {
+  Execution createExecution(String requestBody, Clock clock) {
     if (manualExecution) {
       return Execution.forManualExecution(integration, facilityId, period.getId(),
-          description, clock);
+          description, requestBody, clock);
     } else {
-      return Execution.forAutomaticExecution(integration, period.getId(), clock);
+      return Execution.forAutomaticExecution(integration, period.getId(), requestBody, clock);
     }
   }
 

@@ -41,6 +41,7 @@ public class ExecutionTest {
 
   private static final UUID PROCESSING_PERIOD_ID = UUID.randomUUID();
   private static final String DESCRIPTION = "test-description";
+  private static final String REQUEST_BODY = "{}";
   private static final ZonedDateTime START_DATE = ZonedDateTime.now(CLOCK);
   private static final ZonedDateTime END_DATE = ZonedDateTime.now(CLOCK);
   private static final ExecutionResponse RESPONSE = new ExecutionResponse();
@@ -66,7 +67,8 @@ public class ExecutionTest {
   @Test
   public void shouldCreateInstanceForAutomaticExecution() {
     // when
-    Execution execution = Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    Execution execution = Execution
+        .forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, REQUEST_BODY, CLOCK);
 
     // then
     TestExecution exporter = new TestExecution();
@@ -87,7 +89,7 @@ public class ExecutionTest {
   public void shouldCreateInstanceForManualExecution() {
     // when
     Execution execution = Execution.forManualExecution(INTEGRATION, null,
-        PROCESSING_PERIOD_ID, DESCRIPTION, CLOCK);
+        PROCESSING_PERIOD_ID, DESCRIPTION, REQUEST_BODY, CLOCK);
 
     // then
     TestExecution exporter = new TestExecution();
@@ -107,7 +109,8 @@ public class ExecutionTest {
   @Test
   public void shouldMarkAsDone() {
     // given
-    Execution execution = Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    Execution execution = Execution
+        .forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, REQUEST_BODY, CLOCK);
     execution.setId(UUID.randomUUID());
 
     TestExecutionResponse expectedResponse = new TestExecutionResponse();
@@ -127,7 +130,8 @@ public class ExecutionTest {
   @Test
   public void shouldExportWithoutResponse() {
     // given
-    Execution execution = Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    Execution execution = Execution
+        .forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, REQUEST_BODY, CLOCK);
     execution.setId(UUID.randomUUID());
 
     // when
@@ -149,7 +153,8 @@ public class ExecutionTest {
   @Test
   public void shouldExportWithResponse() {
     // given
-    Execution execution = Execution.forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    Execution execution = Execution
+        .forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, REQUEST_BODY, CLOCK);
     execution.setId(UUID.randomUUID());
     execution.markAsDone(RESPONSE, CLOCK);
 

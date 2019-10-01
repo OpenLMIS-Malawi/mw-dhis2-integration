@@ -24,12 +24,10 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 
 import com.google.common.collect.Lists;
-
 import guru.nidi.ramltester.junit.RamlMatchers;
-
 import java.util.Arrays;
 import java.util.UUID;
-
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +39,6 @@ import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("PMD.TooManyMethods")
@@ -49,6 +46,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = ExecutionController.RESOURCE_PATH;
   private static final String ID_URL = RESOURCE_URL + ExecutionController.ID_URL;
+  private static final String REQUEST_URL = RESOURCE_URL + ExecutionController.REQUEST_URL;
 
   private Execution execution = new ExecutionDataBuilder().buildAsAutomatic();
   private Execution execution1 = new ExecutionDataBuilder().buildAsManual();
@@ -125,7 +123,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .when()
         .get(RESOURCE_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .statusCode(HttpStatus.SC_FORBIDDEN)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
@@ -210,7 +208,7 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .when()
         .get(ID_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .statusCode(HttpStatus.SC_FORBIDDEN)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
@@ -227,7 +225,76 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .when()
         .get(ID_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.NOT_FOUND.value())
+        .statusCode(HttpStatus.SC_NOT_FOUND)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_EXECUTION_NOT_FOUND));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  // GET /integrationExecutions/{id}/request
+
+  @Test
+  public void shouldReturnGivenExecutionRequest() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(REQUEST_URL)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body(is(execution.getRequestBody()));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForGetExecutionRequestIfUserIsNotAuthorized() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(REQUEST_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForGetExecutionRequest() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(REQUEST_URL)
+        .then()
+        .statusCode(HttpStatus.SC_FORBIDDEN)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenExecutionWithIdDoesNotExistForGetExecutionRequest() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(null);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(REQUEST_URL)
+        .then()
+        .statusCode(HttpStatus.SC_NOT_FOUND)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_EXECUTION_NOT_FOUND));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());

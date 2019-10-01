@@ -35,13 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,6 +53,7 @@ public class ExecutionController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
   public static final String ID_URL = "/{id}";
+  public static final String REQUEST_URL = ID_URL + "/request";
 
   @Autowired
   private PermissionService permissionService;
@@ -106,8 +107,6 @@ public class ExecutionController extends BaseController {
    * @param pageable define which page and how many records should be returned.
    */
   @GetMapping
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
   public Page<ExecutionDto> getAllHistoricalExecutions(Pageable pageable) {
     permissionService.canManageDhis2();
 
@@ -123,9 +122,7 @@ public class ExecutionController extends BaseController {
   /**
    * Retrieves the historical execution based on passed ID value.
    */
-  @GetMapping(value = ID_URL)
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
+  @GetMapping(ID_URL)
   public ExecutionDto getSpecifiedHistoricalExecution(@PathVariable("id") UUID id) {
     permissionService.canManageDhis2();
 
@@ -134,5 +131,20 @@ public class ExecutionController extends BaseController {
       throw new NotFoundException(MessageKeys.ERROR_EXECUTION_NOT_FOUND);
     }
     return ExecutionDto.newInstance(execution);
+  }
+
+  /**
+   * Retrieves the request that has been used with the given execution.
+   */
+  @GetMapping(value = REQUEST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+  public String getExecutionRequest(@PathVariable("id") UUID id) {
+    permissionService.canManageDhis2();
+
+    Execution execution = executionRepository.findOne(id);
+    if (execution == null) {
+      throw new NotFoundException(MessageKeys.ERROR_EXECUTION_NOT_FOUND);
+    }
+
+    return execution.getRequestBody();
   }
 }

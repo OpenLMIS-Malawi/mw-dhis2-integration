@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
@@ -66,6 +67,10 @@ public class Execution extends BaseEntity {
   @Column(columnDefinition = TIMESTAMP_COLUMN_DEFINITION)
   private ZonedDateTime endDate;
 
+  @Getter
+  @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
+  private String requestBody;
+
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "execution",
       orphanRemoval = true, fetch = FetchType.EAGER)
   private ExecutionResponse response;
@@ -74,16 +79,16 @@ public class Execution extends BaseEntity {
    * Creates a new automatic execution.
    */
   public static Execution forAutomaticExecution(Integration integration, UUID processingPeriodId,
-      Clock clock) {
+      String requestBody, Clock clock) {
     return new Execution(false, integration.getProgramId(), null, processingPeriodId,
         integration.getDescription(), integration.getTargetUrl(),
-        ZonedDateTime.now(clock), null, null);
+        ZonedDateTime.now(clock), null, requestBody, null);
   }
 
   public static Execution forManualExecution(Integration integration, UUID facilityId,
-      UUID processingPeriodId, String description, Clock clock) {
+      UUID processingPeriodId, String description, String requestBody, Clock clock) {
     return new Execution(true, integration.getProgramId(), facilityId, processingPeriodId,
-        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, null);
+        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, requestBody, null);
   }
 
   /**
