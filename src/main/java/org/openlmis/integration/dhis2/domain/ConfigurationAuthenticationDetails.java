@@ -30,7 +30,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.TypeName;
 
 @Entity
@@ -41,6 +40,8 @@ import org.javers.core.metamodel.annotation.TypeName;
 @ToString(exclude = "configuration")
 @SuppressWarnings("PMD.UnusedPrivateField")
 public final class ConfigurationAuthenticationDetails {
+
+  private static final String AUTHORIZATION_HEADER_FORMAT = "%s %s";
 
   @Id
   private UUID id;
@@ -87,14 +88,17 @@ public final class ConfigurationAuthenticationDetails {
    * used as Authorization Header.
    */
   public String asAuthorizationHeader() {
-    switch (type) {
-      case BASIC:
-        return type.name() + Base64.encodeBase64String((username + ":" + password).getBytes());
-      case BEARER:
-        return type.name() + token;
-      default:
-        return StringUtils.EMPTY;
+    String value;
+
+    if (type == ConfigurationAuthenticationType.BASIC) {
+      value = Base64.encodeBase64String((username + ":" + password).getBytes());
+    } else if (type == ConfigurationAuthenticationType.BEARER) {
+      value = token;
+    } else {
+      throw new IllegalStateException("Unknown type: " + type);
     }
+
+    return String.format(AUTHORIZATION_HEADER_FORMAT, type.name(), value);
   }
 
   void setConfiguration(Configuration configuration) {

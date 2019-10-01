@@ -46,7 +46,10 @@ public class ConfigurationAuthenticationDetailsTest {
   @Test
   public void shouldImplementToString() {
     ConfigurationAuthenticationDetails details = new ConfigurationAuthenticationDetails();
-    ToStringTestUtils.verify(ConfigurationAuthenticationDetails.class, details, "configuration");
+    ToStringTestUtils.verify(
+        ConfigurationAuthenticationDetails.class,
+        details,
+        "configuration", "AUTHORIZATION_HEADER_FORMAT");
   }
 
   @Test
@@ -83,6 +86,41 @@ public class ConfigurationAuthenticationDetailsTest {
 
     // then
     assertThat(exporter).isEqualToIgnoringGivenFields(data, "id");
+  }
+
+  @Test
+  public void shouldConvertToAuthorizationHeaderForBasic() {
+    // given
+    ConfigurationAuthenticationDetails details = new ConfigurationAuthenticationDetails(
+        "user", "pass");
+
+    // when
+    String header = details.asAuthorizationHeader();
+
+    // then
+    assertThat(header).isEqualTo("BASIC dXNlcjpwYXNz");
+  }
+
+  @Test
+  public void shouldConvertToAuthorizationHeaderForBearer() {
+    // given
+    String token = "442f8efd-9121-404a-8aa6-bdca6ec75597";
+    ConfigurationAuthenticationDetails details = new ConfigurationAuthenticationDetails(token);
+
+    // when
+    String header = details.asAuthorizationHeader();
+
+    // then
+    assertThat(header).isEqualTo("BEARER 442f8efd-9121-404a-8aa6-bdca6ec75597");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldNotConvertToAuthorizationHeaderForUnknownType() {
+    // given
+    ConfigurationAuthenticationDetails details = new ConfigurationAuthenticationDetails();
+
+    // when
+    details.asAuthorizationHeader();
   }
 
   @Getter
