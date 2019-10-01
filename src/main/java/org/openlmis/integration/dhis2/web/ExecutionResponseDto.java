@@ -37,7 +37,7 @@ import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 @ToString(callSuper = true)
 public final class ExecutionResponseDto implements ExecutionResponse.Exporter {
 
-  private String responseDate;
+  private ZonedDateTime responseDate;
   private int statusCode;
   private String body;
 
@@ -51,8 +51,4 @@ public final class ExecutionResponseDto implements ExecutionResponse.Exporter {
     return dto;
   }
 
-  @Override
-  public void setResponseDate(ZonedDateTime responseDate) {
-    this.responseDate = responseDate.toString();
-  }
 }

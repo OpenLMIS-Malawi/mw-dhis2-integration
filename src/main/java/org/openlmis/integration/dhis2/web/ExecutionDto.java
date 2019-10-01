@@ -47,8 +47,8 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   private UUID processingPeriodId;
   private String description;
   private String targetUrl;
-  private String startDate;
-  private String endDate;
+  private ZonedDateTime startDate;
+  private ZonedDateTime endDate;
   private ExecutionResponseDto response;
 
   /**
@@ -71,16 +71,5 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   public void setResponse(ExecutionResponseDto executionResponseDto) {
     this.response = executionResponseDto;
   }
-
-  @Override
-  public void setStartDate(ZonedDateTime startDate) {
-    this.startDate = startDate.toString();
-  }
-
-  @Override
-  public void setEndDate(ZonedDateTime endDate) {
-    this.endDate = endDate.toString();
-  }
-
 
 }
