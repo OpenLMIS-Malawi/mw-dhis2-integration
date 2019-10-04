@@ -119,7 +119,7 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
    * Place for init tasks.
    */
   private void sendData(List<Integration> integrations) {
-    LocalDate now = LocalDate.now(clock);
+    LocalDate now = LocalDate.now(clock).minusMonths(1);
     LocalDate startDate = now.with(TemporalAdjusters.firstDayOfMonth());
     LocalDate endDate = now.with(TemporalAdjusters.lastDayOfMonth());
 
