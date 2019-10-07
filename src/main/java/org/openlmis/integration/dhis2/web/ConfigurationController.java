@@ -17,7 +17,6 @@ package org.openlmis.integration.dhis2.web;
 
 import static org.openlmis.integration.dhis2.web.ConfigurationController.RESOURCE_PATH;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
