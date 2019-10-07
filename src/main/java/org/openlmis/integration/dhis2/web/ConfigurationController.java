@@ -17,6 +17,8 @@ package org.openlmis.integration.dhis2.web;
 
 import static org.openlmis.integration.dhis2.web.ConfigurationController.RESOURCE_PATH;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -72,13 +74,19 @@ public class ConfigurationController extends BaseController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ConfigurationDto createNewConfiguration(
-      @RequestBody ConfigurationDto configurationDto) {
+      @RequestBody ConfigurationDto configurationDto) throws MalformedURLException {
     permissionService.canManageDhis2();
 
     ConfigurationAuthenticationDetailsDto confAuthDetailsDto =
         configurationDto.getAuthenticationDetails();
 
     ConfigurationAuthenticationDetails confAuthDetails = null;
+
+    try {
+      new URL(configurationDto.getTargetUrl()).toURI();
+    } catch (Exception e) {
+      throw new ValidationMessageException(MessageKeys.ERROR_TARGET_URL_INVALID);
+    }
 
     if (confAuthDetailsDto.getType() != null) {
       if (confAuthDetailsDto.getType().equals(ConfigurationAuthenticationType.BEARER)) {

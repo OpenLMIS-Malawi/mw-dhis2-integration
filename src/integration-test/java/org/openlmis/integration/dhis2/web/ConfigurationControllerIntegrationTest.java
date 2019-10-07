@@ -105,7 +105,7 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .when()
         .get(RESOURCE_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .statusCode(HttpStatus.SC_FORBIDDEN)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
@@ -156,8 +156,25 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .body(configurationDto)
         .post(RESOURCE_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .statusCode(HttpStatus.SC_FORBIDDEN)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnBadRequestIfTargetUrlIsInvalidForCreateConfiguration() {
+    configurationDto.setTargetUrl("wrongUrl");
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .body(configurationDto)
+        .when()
+        .post(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.SC_BAD_REQUEST)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_TARGET_URL_INVALID));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
@@ -234,7 +251,7 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .body(configurationDto)
         .put(ID_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.OK.value())
+        .statusCode(HttpStatus.SC_OK)
         .body("id", is(configurationDto.getId().toString()));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
@@ -285,7 +302,7 @@ public class ConfigurationControllerIntegrationTest extends BaseWebIntegrationTe
         .body(configurationDto)
         .put(ID_URL)
         .then()
-        .statusCode(org.springframework.http.HttpStatus.FORBIDDEN.value())
+        .statusCode(HttpStatus.SC_FORBIDDEN)
         .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());

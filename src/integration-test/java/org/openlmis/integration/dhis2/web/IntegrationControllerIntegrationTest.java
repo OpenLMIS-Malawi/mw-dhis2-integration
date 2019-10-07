@@ -152,6 +152,24 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
   }
 
   @Test
+  public void shouldReturnBadRequestIfCronExpressionIsInvalidForCreateIntegration() {
+    integrationDto.setCronExpression("* * *");
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .body(integrationDto)
+        .when()
+        .post(RESOURCE_URL)
+        .then()
+        .statusCode(HttpStatus.BAD_REQUEST.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CRON_EXPRESSION_INVALID));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
   public void shouldReturnUnauthorizedWhenTokenWasNotProvidedForCreateIntegration() {
     restAssured
         .given()
@@ -307,6 +325,26 @@ public class IntegrationControllerIntegrationTest extends BaseWebIntegrationTest
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
+
+  @Test
+  public void shouldReturnBadRequestIfCronExpressionIsInvalidForUpdateIntegration() {
+    integrationDto.setCronExpression("* * *");
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .pathParam(ID, integrationDto.getId())
+        .when()
+        .body(integrationDto)
+        .put(ID_URL)
+        .then()
+        .statusCode(HttpStatus.BAD_REQUEST.value())
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_CRON_EXPRESSION_INVALID));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
 
   @Test
   public void shouldReturnUnauthorizedWhenTokenWasNotProvidedForUpdateIntegration() {

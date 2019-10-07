@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,6 +94,7 @@ public class IntegrationController extends BaseController {
     if (null == configuration) {
       throw new ValidationMessageException(MessageKeys.ERROR_CONFIGURATION_NOT_FOUND);
     }
+    validateCronExpression(dto.getCronExpression());
 
     Integration integration = new Integration();
     integration.updateFrom(dto);
@@ -132,6 +134,7 @@ public class IntegrationController extends BaseController {
     if (null != dto.getId() && !Objects.equals(dto.getId(), id)) {
       throw new ValidationMessageException(MessageKeys.ERROR_INTEGRATION_ID_MISMATCH);
     }
+    validateCronExpression(dto.getCronExpression());
 
     Configuration configuration = configurationRepository.findOne(dto.getConfigurationId());
 
@@ -171,4 +174,20 @@ public class IntegrationController extends BaseController {
     integrationRepository.delete(id);
     scheduler.refresh();
   }
+
+  private void validateCronExpression(String cronExpression) {
+    if (null == cronExpression) {
+      throw new ValidationMessageException(MessageKeys.ERROR_CRON_EXPRESSION_MISSING);
+    }
+
+    try {
+      // the following constructor tries to parse the passed cron expression
+      // and throws an IllegalArgumentException exception if it cannot be parsed.
+      new CronSequenceGenerator(cronExpression);
+    } catch (IllegalArgumentException exp) {
+      throw new ValidationMessageException(exp,
+          MessageKeys.ERROR_CRON_EXPRESSION_INVALID, cronExpression);
+    }
+  }
+
 }

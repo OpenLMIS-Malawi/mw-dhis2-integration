@@ -23,7 +23,7 @@ public class IntegrationDataBuilder {
 
   private UUID id = UUID.randomUUID();
   private UUID programId = UUID.randomUUID();
-  private String cronExpression = "0/30 * * * *";
+  private String cronExpression = "0/30 * * * * *";
   private String description = "test-description";
   private Configuration configuration = new ConfigurationDataBuilder().build();
 

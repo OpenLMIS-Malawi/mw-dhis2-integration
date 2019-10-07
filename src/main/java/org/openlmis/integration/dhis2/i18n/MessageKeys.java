@@ -36,6 +36,7 @@ public abstract class MessageKeys {
   private static final String NAME = "name";
   private static final String TARGET_URL = "targetUrl";
   private static final String PROGRAM_ID = "programId";
+  private static final String CRON_EXPRESSION = "cronExpression";
 
   private static final String ID = "id";
 
@@ -43,6 +44,7 @@ public abstract class MessageKeys {
   private static final String NOT_FOUND = "notFound";
   private static final String MISMATCH = "mismatch";
   private static final String MISSING = "missing";
+  private static final String INVALID = "invalid";
   private static final String REQUIRED = "required";
   private static final String USED = "used";
 
@@ -74,6 +76,14 @@ public abstract class MessageKeys {
       join(ERROR_PREFIX, INTEGRATION, CONFIGURATION, REQUIRED);
   public static final String ERROR_INTEGRATION_ID_MISMATCH =
       join(ERROR_PREFIX, INTEGRATION, ID, MISMATCH);
+
+  public static final String ERROR_CRON_EXPRESSION_MISSING =
+      join(ERROR_PREFIX, CRON_EXPRESSION, MISSING);
+  public static final String ERROR_CRON_EXPRESSION_INVALID =
+      join(ERROR_PREFIX, CRON_EXPRESSION, INVALID);
+
+  public static final String ERROR_TARGET_URL_INVALID =
+      join(ERROR_PREFIX, TARGET_URL, INVALID);
 
   public static final String ERROR_PERIOD_NOT_FOUND = join(ERROR_PREFIX, PERIOD, NOT_FOUND);
 
