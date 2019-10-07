@@ -74,7 +74,7 @@ public class ConfigurationController extends BaseController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ConfigurationDto createNewConfiguration(
-      @RequestBody ConfigurationDto configurationDto) throws MalformedURLException {
+      @RequestBody ConfigurationDto configurationDto) {
     permissionService.canManageDhis2();
 
     ConfigurationAuthenticationDetailsDto confAuthDetailsDto =
@@ -85,7 +85,7 @@ public class ConfigurationController extends BaseController {
     try {
       new URL(configurationDto.getTargetUrl()).toURI();
     } catch (Exception e) {
-      throw new ValidationMessageException(MessageKeys.ERROR_TARGET_URL_INVALID);
+      throw new ValidationMessageException(e, MessageKeys.ERROR_TARGET_URL_INVALID);
     }
 
     if (confAuthDetailsDto.getType() != null) {
