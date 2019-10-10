@@ -49,6 +49,7 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   private String targetUrl;
   private ZonedDateTime startDate;
   private ZonedDateTime endDate;
+  private UUID userId;
   private ExecutionResponseDto response;
 
   /**

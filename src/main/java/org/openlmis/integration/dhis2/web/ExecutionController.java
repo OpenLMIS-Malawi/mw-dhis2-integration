@@ -70,6 +70,8 @@ public class ExecutionController extends BaseController {
   @Autowired
   private ExecutionRepository executionRepository;
 
+  @Autowired
+  private AuthenticationHelper authenticationHelper;
   /**
    * This method is used to manual trigger Integration.
    *
@@ -92,9 +94,11 @@ public class ExecutionController extends BaseController {
     if (null == period) {
       throw new NotFoundException(MessageKeys.ERROR_PERIOD_NOT_FOUND);
     }
+    UUID userId = authenticationHelper.getCurrentUser().getId();
 
     PayloadRequest payloadRequest = PayloadRequest.forManualExecution(integration,
-        manualIntegrationDto.getFacilityId(), period, manualIntegrationDto.getDescription());
+        manualIntegrationDto.getFacilityId(), period,
+        manualIntegrationDto.getDescription(), userId);
 
     payloadService.postPayload(payloadRequest);
 

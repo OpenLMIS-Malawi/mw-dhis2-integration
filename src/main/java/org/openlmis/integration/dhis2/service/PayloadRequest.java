@@ -21,6 +21,8 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 import org.openlmis.integration.dhis2.domain.Execution;
@@ -42,24 +44,29 @@ public class PayloadRequest {
 
   private final boolean manualExecution;
 
+  @Getter
+  private final UUID userId;
+
   public static PayloadRequest forAutomaticExecution(Integration integration,
       ProcessingPeriodDto period) {
-    return new PayloadRequest(integration, null, period, null, false);
+    return new PayloadRequest(integration, null, period, null, false,
+        null);
   }
 
   public static PayloadRequest forManualExecution(Integration integration, UUID facilityId,
-      ProcessingPeriodDto period, String description) {
-    return new PayloadRequest(integration, facilityId, period, description, true);
+      ProcessingPeriodDto period, String description, UUID userId) {
+    return new PayloadRequest(integration, facilityId, period, description, true,
+        userId);
   }
 
   public UUID getProgramId() {
     return integration.getProgramId();
   }
 
-  Execution createExecution(String requestBody, Clock clock) {
+  Execution createExecution(String requestBody, Clock clock, UUID userId) {
     if (manualExecution) {
       return Execution.forManualExecution(integration, facilityId, period.getId(),
-          description, requestBody, clock);
+          description, requestBody, userId, clock);
     } else {
       return Execution.forAutomaticExecution(integration, period.getId(), requestBody, clock);
     }

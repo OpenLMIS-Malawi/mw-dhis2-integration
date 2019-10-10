@@ -77,7 +77,8 @@ public class PayloadService {
       throw new IllegalStateException(exp);
     }
 
-    Execution execution = payloadRequest.createExecution(payloadAsJson, clock);
+    Execution execution = payloadRequest.createExecution(payloadAsJson, clock,
+        payloadRequest.getUserId());
     executionRepository.saveAndFlush(execution);
 
     ExecutionResponse response = sendPayload(payloadRequest, payloadAsJson);

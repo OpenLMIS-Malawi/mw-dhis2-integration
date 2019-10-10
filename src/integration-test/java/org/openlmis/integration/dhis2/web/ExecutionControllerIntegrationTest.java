@@ -37,6 +37,7 @@ import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
+import org.openlmis.integration.dhis2.service.referencedata.UserDto;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -59,6 +60,8 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private Integration integration = new IntegrationDataBuilder().build();
 
+  private UserDto userDto = new UserDto();
+
   /** Set up sample data.
    */
 
@@ -76,6 +79,8 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
     given(periodReferenceDataService
         .findOne(manualIntegrationDto.getPeriodId()))
         .willReturn(period);
+
+    given(authenticationHelper.getCurrentUser()).willReturn(userDto);
 
     willDoNothing().given(permissionService).canManageDhis2();
   }

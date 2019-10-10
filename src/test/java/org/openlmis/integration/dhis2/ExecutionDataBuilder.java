@@ -33,6 +33,7 @@ public class ExecutionDataBuilder {
   private Clock startDate = Clock.systemUTC();
   private Clock endDate = Clock.systemUTC();
   private String requestBody = "{}";
+  private UUID userId = UUID.randomUUID();
   private ExecutionResponse response = new ExecutionResponseDataBuilder().buildAsNew();
 
   public ExecutionDataBuilder withFacilityId(UUID facilityId) {
@@ -59,7 +60,6 @@ public class ExecutionDataBuilder {
     this.response = null;
     return this;
   }
-
 
   /**
    * Builds new instance of Execution (with id field) as Automatic execution.
@@ -98,7 +98,7 @@ public class ExecutionDataBuilder {
   public Execution buildAsNewManual() {
     Execution execution = Execution
         .forManualExecution(integration, facilityId, processingPeriodId, description,
-            requestBody, startDate);
+            requestBody, userId, startDate);
     Optional.ofNullable(response).ifPresent(item -> execution.markAsDone(item, endDate));
 
     return execution;

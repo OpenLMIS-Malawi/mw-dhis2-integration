@@ -73,6 +73,10 @@ public class Execution extends BaseEntity {
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String requestBody;
 
+  @Type(type = UUID_TYPE)
+  @Column
+  private UUID userId;
+
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "execution",
       orphanRemoval = true, fetch = FetchType.EAGER)
   private ExecutionResponse response;
@@ -84,13 +88,18 @@ public class Execution extends BaseEntity {
       String requestBody, Clock clock) {
     return new Execution(false, integration.getProgramId(), null, processingPeriodId,
         integration.getDescription(), integration.getTargetUrl(),
-        ZonedDateTime.now(clock), null, requestBody, null);
+        ZonedDateTime.now(clock), null, requestBody, null, null);
   }
 
+  /**
+   * Creates a new manual execution.
+   */
+
   public static Execution forManualExecution(Integration integration, UUID facilityId,
-      UUID processingPeriodId, String description, String requestBody, Clock clock) {
+      UUID processingPeriodId, String description, String requestBody, UUID userId, Clock clock) {
     return new Execution(true, integration.getProgramId(), facilityId, processingPeriodId,
-        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, requestBody, null);
+        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, requestBody,
+        userId, null);
   }
 
   /**
@@ -123,6 +132,10 @@ public class Execution extends BaseEntity {
     if (null != response) {
       exporter.setResponse(response);
     }
+
+    if (null != userId) {
+      exporter.setUserId(userId);
+    }
   }
 
   public interface Exporter extends BaseExporter {
@@ -144,6 +157,8 @@ public class Execution extends BaseEntity {
     void setEndDate(ZonedDateTime endDate);
 
     void setResponse(ExecutionResponse response);
+
+    void setUserId(UUID userId);
 
   }
 }

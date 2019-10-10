@@ -138,6 +138,9 @@ public abstract class BaseWebIntegrationTest {
   @MockBean
   PeriodReferenceDataService periodReferenceDataService;
 
+  @MockBean
+  AuthenticationHelper authenticationHelper;
+
   /**
    * Constructor for test.
    */

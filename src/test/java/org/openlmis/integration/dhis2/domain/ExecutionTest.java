@@ -45,6 +45,7 @@ public class ExecutionTest {
   private static final ZonedDateTime START_DATE = ZonedDateTime.now(CLOCK);
   private static final ZonedDateTime END_DATE = ZonedDateTime.now(CLOCK);
   private static final ExecutionResponse RESPONSE = new ExecutionResponse();
+  private static final UUID USER_ID = UUID.randomUUID();
 
   @Test
   public void equalsContract() {
@@ -83,13 +84,14 @@ public class ExecutionTest {
     assertThat(exporter.getStartDate()).isEqualTo(START_DATE);
     assertThat(exporter.getEndDate()).isNull();
     assertThat(exporter.getResponse()).isNull();
+    assertThat(exporter.getUserId()).isNull();
   }
 
   @Test
   public void shouldCreateInstanceForManualExecution() {
     // when
     Execution execution = Execution.forManualExecution(INTEGRATION, null,
-        PROCESSING_PERIOD_ID, DESCRIPTION, REQUEST_BODY, CLOCK);
+        PROCESSING_PERIOD_ID, DESCRIPTION, REQUEST_BODY, USER_ID, CLOCK);
 
     // then
     TestExecution exporter = new TestExecution();
@@ -104,6 +106,7 @@ public class ExecutionTest {
     assertThat(exporter.getStartDate()).isEqualTo(START_DATE);
     assertThat(exporter.getEndDate()).isNull();
     assertThat(exporter.getResponse()).isNull();
+    assertThat(exporter.getUserId()).isEqualTo(USER_ID);
   }
 
   @Test
@@ -148,6 +151,7 @@ public class ExecutionTest {
     assertThat(exporter.getStartDate()).isEqualTo(START_DATE);
     assertThat(exporter.getEndDate()).isNull();
     assertThat(exporter.getResponse()).isNull();
+    assertThat(exporter.getUserId()).isNull();
   }
 
   @Test
@@ -175,6 +179,7 @@ public class ExecutionTest {
     assertThat(exporter.getStartDate()).isEqualTo(START_DATE);
     assertThat(exporter.getEndDate()).isEqualTo(END_DATE);
     assertThat(exporter.getResponse()).isEqualTo(expectedResponse);
+    assertThat(exporter.getUserId()).isNull();
   }
 
   @Getter
@@ -193,6 +198,7 @@ public class ExecutionTest {
     private String targetUrl;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
+    private UUID userId;
     private TestExecutionResponse response;
 
     @Override
