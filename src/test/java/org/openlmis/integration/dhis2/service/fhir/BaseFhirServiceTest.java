@@ -17,6 +17,7 @@ package org.openlmis.integration.dhis2.service.fhir;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 
 import ca.uhn.fhir.rest.api.CacheControlDirective;
@@ -90,7 +91,7 @@ public abstract class BaseFhirServiceTest<T extends IBaseResource> {
     given(search.forResource(any(Class.class))).willReturn(query);
 
     given(query.cacheControl(cacheControl)).willReturn(query);
-    given(query.count(10)).willReturn(query);
+    given(query.count(anyInt())).willReturn(query);
     given(query.returnBundle(Bundle.class)).willReturn(query);
   }
 

@@ -15,29 +15,17 @@
 
 package org.openlmis.integration.dhis2.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
-import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
 
+public class PayloadTest {
 
-/**
- * Model of ValuesDto DTO.
- */
-@Getter
-@EqualsAndHashCode
-@JsonIgnoreProperties(ignoreUnknown = true)
-final class PayloadFacility {
-
-  @JsonProperty("facility-code")
-  private final String facilityCode;
-
-  private final Set<PayloadFacilityValue> values;
-
-  PayloadFacility(String facilityCode, Set<PayloadFacilityValue> values) {
-    this.facilityCode = facilityCode;
-    this.values = Collections.unmodifiableSet(values);
+  @Test
+  public void equalsContract() {
+    EqualsVerifier
+        .forClass(Payload.class)
+        .verify();
   }
+
+
 }

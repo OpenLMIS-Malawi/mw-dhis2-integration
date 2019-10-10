@@ -16,15 +16,17 @@
 package org.openlmis.integration.dhis2.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Model of ValuesDto DTO.
  */
 @Getter
-@AllArgsConstructor
-class PayloadFacilityValue {
+@EqualsAndHashCode
+@RequiredArgsConstructor
+final class PayloadFacilityValue {
 
   @JsonProperty("product-code")
   private final String productCode;

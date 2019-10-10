@@ -28,9 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.assertj.core.api.Condition;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.util.Lists;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.IdType;
@@ -57,6 +59,7 @@ import org.openlmis.integration.dhis2.service.referencedata.FacilityDto;
 import org.openlmis.integration.dhis2.service.referencedata.FacilityReferenceDataService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+@SuppressWarnings("PMD.TooManyMethods")
 public class PayloadBuilderTest {
 
   private static final String SERVICE_URL = "http://localhost";
@@ -83,6 +86,9 @@ public class PayloadBuilderTest {
 
   private static final String programNameCodeText = "programName";
   private static final String measureScoreSystem = "openlmisProgramName";
+
+  private static final String DESCRIPTION = "Stock indicators for May 2019 period";
+  private static final String REPORTING_PERIOD = "201905";
 
   @Rule
   public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -125,11 +131,11 @@ public class PayloadBuilderTest {
   @Test
   public void shouldBuildPayload() {
     // when
-    Payload payload = builder.build(PROGRAM, START_DATE, END_DATE, null);
+    Payload payload = builder.build(START_DATE, END_DATE, null, null);
 
     // then
-    assertThat(payload.getDescription()).isEqualTo("Stock indicators for May 2019 period");
-    assertThat(payload.getReportingPeriod()).isEqualTo("201905");
+    assertThat(payload.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(payload.getReportingPeriod()).isEqualTo(REPORTING_PERIOD);
 
     Set<PayloadFacility> allFacilityData = payload.getFacilities();
     assertThat(allFacilityData).isNotEmpty();
@@ -142,8 +148,47 @@ public class PayloadBuilderTest {
         .containsKeys(facilities.get(0).getCode(), facilities.get(1).getCode())
         .doesNotContainKeys(facilities.get(2).getCode());
 
-    assertPayloadFacility(facilityData.get(facilities.get(0).getCode()));
-    assertPayloadFacility(facilityData.get(facilities.get(1).getCode()));
+    assertPayloadFacility(facilityData.get(facilities.get(0).getCode()), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_1, ANOTHER_PRODUCT_CODE, ANOTHER_PRODUCT_VALUE)
+    ));
+
+    assertPayloadFacility(facilityData.get(facilities.get(1).getCode()), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_1, ANOTHER_PRODUCT_CODE, ANOTHER_PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_2, PRODUCT_CODE, PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_2, ANOTHER_PRODUCT_CODE, ANOTHER_PRODUCT_VALUE)
+    ));
+  }
+
+  @Test
+  public void shouldBuildPayloadForSingleProgram() {
+    // when
+    Payload payload = builder.build(START_DATE, END_DATE, PROGRAM, null);
+
+    // then
+    assertThat(payload.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(payload.getReportingPeriod()).isEqualTo(REPORTING_PERIOD);
+
+    Set<PayloadFacility> allFacilityData = payload.getFacilities();
+    assertThat(allFacilityData).isNotEmpty();
+
+    Map<String, Set<PayloadFacilityValue>> facilityData = allFacilityData
+        .stream()
+        .collect(Collectors.toMap(PayloadFacility::getFacilityCode, PayloadFacility::getValues));
+
+    assertThat(facilityData)
+        .containsKeys(facilities.get(0).getCode(), facilities.get(1).getCode())
+        .doesNotContainKeys(facilities.get(2).getCode());
+
+    assertPayloadFacility(facilityData.get(facilities.get(0).getCode()), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE)
+    ));
+
+    assertPayloadFacility(facilityData.get(facilities.get(1).getCode()), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_2, PRODUCT_CODE, PRODUCT_VALUE)
+    ));
   }
 
   @Test
@@ -154,11 +199,11 @@ public class PayloadBuilderTest {
     String facilityCode = facility.getCode();
 
     // when
-    Payload payload = builder.build(PROGRAM, START_DATE, END_DATE, facilityId);
+    Payload payload = builder.build(START_DATE, END_DATE, null, facilityId);
 
     // then
-    assertThat(payload.getDescription()).isEqualTo("Stock indicators for May 2019 period");
-    assertThat(payload.getReportingPeriod()).isEqualTo("201905");
+    assertThat(payload.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(payload.getReportingPeriod()).isEqualTo(REPORTING_PERIOD);
 
     Set<PayloadFacility> allFacilityData = payload.getFacilities();
     assertThat(allFacilityData)
@@ -170,23 +215,56 @@ public class PayloadBuilderTest {
         .collect(Collectors.toMap(PayloadFacility::getFacilityCode, PayloadFacility::getValues));
 
     assertThat(facilityData).containsKey(facilityCode);
-    assertPayloadFacility(facilityData.get(facilityCode));
+    assertPayloadFacility(facilityData.get(facilityCode), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE),
+        new ProductDetails(MEASURE_SUFFIX_1, ANOTHER_PRODUCT_CODE, ANOTHER_PRODUCT_VALUE)
+    ));
   }
 
-  private void assertPayloadFacility(Set<PayloadFacilityValue> values) {
-    assertThat(values).isNotEmpty();
+  @Test
+  public void shouldBuildPayloadForSingleProgramAndFacility() {
+    // given
+    FacilityDto facility = facilities.get(0);
+    UUID facilityId = facility.getId();
+    String facilityCode = facility.getCode();
 
-    for (PayloadFacilityValue value : values) {
-      assertThat(value.getProductCode()).is(new Condition<String>() {
-        @Override
-        public boolean matches(String value) {
-          return value.endsWith(MEASURE_SUFFIX_1) || value.endsWith(MEASURE_SUFFIX_2);
+    // when
+    Payload payload = builder.build(START_DATE, END_DATE, PROGRAM, facilityId);
+
+    // then
+    assertThat(payload.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(payload.getReportingPeriod()).isEqualTo(REPORTING_PERIOD);
+
+    Set<PayloadFacility> allFacilityData = payload.getFacilities();
+    assertThat(allFacilityData)
+        .isNotEmpty()
+        .hasSize(1);
+
+    Map<String, Set<PayloadFacilityValue>> facilityData = allFacilityData
+        .stream()
+        .collect(Collectors.toMap(PayloadFacility::getFacilityCode, PayloadFacility::getValues));
+
+    assertThat(facilityData).containsKey(facilityCode);
+    assertPayloadFacility(facilityData.get(facilityCode), Lists.newArrayList(
+        new ProductDetails(MEASURE_SUFFIX_1, PRODUCT_CODE, PRODUCT_VALUE)
+    ));
+  }
+
+  private void assertPayloadFacility(Set<PayloadFacilityValue> values,
+      List<ProductDetails> productDetails) {
+    assertThat(values).hasSize(productDetails.size());
+
+    for (int i = productDetails.size() - 1; i >= 0; --i) {
+      ProductDetails product = productDetails.get(i);
+
+      for (PayloadFacilityValue value : values) {
+        if (product.match(value)) {
+          productDetails.remove(i);
         }
-      });
-
-      assertThat(value.getProductCode()).startsWith(PRODUCT_CODE + "-");
-      assertThat(value.getValue().longValue()).isEqualTo(PRODUCT_VALUE);
+      }
     }
+
+    assertThat(productDetails).as("Can't match products: " + productDetails).isEmpty();
   }
 
   private void prepareFhirResources() {
@@ -305,4 +383,28 @@ public class PayloadBuilderTest {
     return report;
   }
 
+  @RequiredArgsConstructor
+  private static final class ProductDetails {
+
+    private final String measureSuffix;
+    private final String productCode;
+    private final long productValue;
+
+    boolean match(PayloadFacilityValue value) {
+      return value.getProductCode().startsWith(productCode + "-")
+          && value.getProductCode().endsWith(measureSuffix)
+          && value.getValue().longValue() == productValue;
+    }
+
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+          .append("measureSuffix", measureSuffix)
+          .append("productCode", productCode)
+          .append("productValue", productValue)
+          .toString();
+    }
+  }
+
 }
+

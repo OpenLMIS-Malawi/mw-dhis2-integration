@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 
@@ -29,8 +30,9 @@ import lombok.Getter;
  */
 
 @Getter
+@EqualsAndHashCode
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Payload {
+final class Payload {
   private static final DateTimeFormatter DESCRIPTION_FORMATTER = DateTimeFormatter
       .ofPattern("MMMM yyyy");
   private static final DateTimeFormatter REPORTING_PERIOD_FORMATTER = DateTimeFormatter

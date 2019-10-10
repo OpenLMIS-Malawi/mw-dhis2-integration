@@ -79,7 +79,7 @@ abstract class BaseFhirService<T extends IBaseResource> implements InitializingB
         .search()
         .forResource(resourceClass)
         .cacheControl(cacheControl)
-        .count(10)
+        .count(100)
         .returnBundle(Bundle.class);
   }
 

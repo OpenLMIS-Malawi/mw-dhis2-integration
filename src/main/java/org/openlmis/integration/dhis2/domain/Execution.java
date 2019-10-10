@@ -30,6 +30,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 
@@ -41,15 +42,15 @@ import org.hibernate.annotations.Type;
 @ToString(callSuper = true)
 public class Execution extends BaseEntity {
 
+  private static final String EMPTY_JSON = "{}";
+
   @Column(nullable = false)
   private boolean manualExecution;
 
   @Type(type = UUID_TYPE)
-  @Column(nullable = false)
   private UUID programId;
 
   @Type(type = UUID_TYPE)
-  @Column(nullable = false)
   private UUID facilityId;
 
   @Type(type = UUID_TYPE)
@@ -69,8 +70,9 @@ public class Execution extends BaseEntity {
   private ZonedDateTime endDate;
 
   @Getter
+  @Setter
   @Basic(fetch = FetchType.LAZY)
-  @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
+  @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
   private String requestBody;
 
   @Type(type = UUID_TYPE)
@@ -85,10 +87,10 @@ public class Execution extends BaseEntity {
    * Creates a new automatic execution.
    */
   public static Execution forAutomaticExecution(Integration integration, UUID processingPeriodId,
-      String requestBody, Clock clock) {
+      Clock clock) {
     return new Execution(false, integration.getProgramId(), null, processingPeriodId,
         integration.getDescription(), integration.getTargetUrl(),
-        ZonedDateTime.now(clock), null, requestBody, null, null);
+        ZonedDateTime.now(clock), null, EMPTY_JSON, null, null);
   }
 
   /**
@@ -96,10 +98,10 @@ public class Execution extends BaseEntity {
    */
 
   public static Execution forManualExecution(Integration integration, UUID facilityId,
-      UUID processingPeriodId, String description, String requestBody, UUID userId, Clock clock) {
+      UUID processingPeriodId, String description, UUID userId, Clock clock) {
     return new Execution(true, integration.getProgramId(), facilityId, processingPeriodId,
-        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null, requestBody,
-        userId, null);
+        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null,
+        EMPTY_JSON, userId, null);
   }
 
   /**

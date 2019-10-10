@@ -15,7 +15,6 @@
 
 package org.openlmis.integration.dhis2.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -23,7 +22,6 @@ import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
-import org.openlmis.integration.dhis2.service.referencedata.ProgramDto;
 import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,35 +64,63 @@ public class PayloadService {
    */
   @Async
   public void postPayload(PayloadRequest payloadRequest) {
-    ProgramDto program = programReferenceDataService.findOne(payloadRequest.getProgramId());
+    Execution execution = createExecution(payloadRequest);
+    String requestBody = createRequestBody(payloadRequest, execution);
+    ExecutionResponse response = sendRequestBody(payloadRequest, execution, requestBody);
+    LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
+  }
 
-    String payloadAsJson;
-
-    try {
-      Payload payload = createPayload(payloadRequest, program);
-      payloadAsJson = objectMapper.writeValueAsString(payload);
-    } catch (JsonProcessingException exp) {
-      throw new IllegalStateException(exp);
-    }
-
-    Execution execution = payloadRequest.createExecution(payloadAsJson, clock,
-        payloadRequest.getUserId());
+  private Execution createExecution(PayloadRequest payloadRequest) {
+    Execution execution = payloadRequest.createExecution(clock);
     executionRepository.saveAndFlush(execution);
 
-    ExecutionResponse response = sendPayload(payloadRequest, payloadAsJson);
+    return execution;
+  }
+
+  private String createRequestBody(PayloadRequest payloadRequest, Execution execution) {
+    try {
+      Payload payload = createPayload(payloadRequest);
+      String requestBody = objectMapper.writeValueAsString(payload);
+
+      execution.setRequestBody(requestBody);
+      executionRepository.saveAndFlush(execution);
+
+      return requestBody;
+    } catch (Exception exp) {
+      throw new IllegalStateException(exp);
+    }
+  }
+
+  private Payload createPayload(PayloadRequest request) {
+    String programName = getProgramName(request);
+    ProcessingPeriodDto period = request.getPeriod();
+
+    return payloadBuilder
+        .build(period.getStartDate(), period.getEndDate(), programName, request.getFacilityId());
+  }
+
+  private String getProgramName(PayloadRequest request) {
+    if (null == request.getProgramId()) {
+      return null;
+    }
+
+    return programReferenceDataService
+        .findOne(request.getProgramId())
+        .getName();
+  }
+
+  private ExecutionResponse sendRequestBody(PayloadRequest payloadRequest, Execution execution,
+      String requestBody) {
+    ExecutionResponse response = sendPayload(payloadRequest, requestBody);
 
     execution.markAsDone(response, clock);
     executionRepository.saveAndFlush(execution);
-
-    LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
+    return response;
   }
 
   private ExecutionResponse sendPayload(PayloadRequest request, String body) {
     try {
-      RequestHeaders headers = RequestHeaders
-          .init()
-          .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader())
-          .set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+      RequestHeaders headers = setHeaders(request);
       HttpEntity<String> entity = RequestHelper.createEntity(headers, body);
 
       ResponseEntity<String> response = restTemplate
@@ -108,12 +134,11 @@ public class PayloadService {
     }
   }
 
-  private Payload createPayload(PayloadRequest request, ProgramDto program) {
-    ProcessingPeriodDto period = request.getPeriod();
-
-    return payloadBuilder.build(program.getName(), period.getStartDate(), period.getEndDate(),
-        request.getFacilityId()
-    );
+  private RequestHeaders setHeaders(PayloadRequest request) {
+    return RequestHeaders
+        .init()
+        .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader())
+        .set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
   }
 
 }

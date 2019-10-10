@@ -68,8 +68,8 @@ public abstract class MessageKeys {
 
   public static final String ERROR_INTEGRATION_NOT_FOUND =
       join(ERROR_PREFIX, INTEGRATION, NOT_FOUND);
-  public static final String ERROR_INTEGRATION_NAME_DUPLICATED =
-      join(ERROR_PREFIX, INTEGRATION, NAME, DUPLICATED);
+  public static final String ERROR_INTEGRATION_DUPLICATED =
+      join(ERROR_PREFIX, INTEGRATION, DUPLICATED);
   public static final String ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED =
       join(ERROR_PREFIX, INTEGRATION, PROGRAM_ID, DUPLICATED);
   public static final String ERROR_INTEGRATION_CONFIGURATION_REQUIRED =

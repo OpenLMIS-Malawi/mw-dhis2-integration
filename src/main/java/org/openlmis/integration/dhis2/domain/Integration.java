@@ -41,7 +41,6 @@ public class Integration extends BaseEntity {
 
   @Getter
   @Type(type = UUID_TYPE)
-  @Column(nullable = false, unique = true)
   private UUID programId;
 
   @Getter

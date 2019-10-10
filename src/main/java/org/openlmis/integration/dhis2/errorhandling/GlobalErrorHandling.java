@@ -15,12 +15,16 @@
 
 package org.openlmis.integration.dhis2.errorhandling;
 
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED;
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_CONFIGURATION_TARGET_URL_DUPLICATED;
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_INTEGRATION_DUPLICATED;
+import static org.openlmis.integration.dhis2.i18n.MessageKeys.ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.hibernate.exception.ConstraintViolationException;
 import org.openlmis.integration.dhis2.exception.NotFoundException;
 import org.openlmis.integration.dhis2.exception.ValidationMessageException;
-import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.util.Message;
 import org.openlmis.integration.dhis2.web.MissingPermissionException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,15 +44,13 @@ public class GlobalErrorHandling extends AbstractErrorHandling {
   private static final Map<String, String> CONSTRAINT_MAP = new HashMap<>();
 
   static {
-    CONSTRAINT_MAP.put(
-        "configuration_name_unique", MessageKeys.ERROR_CONFIGURATION_NAME_DUPLICATED);
-    CONSTRAINT_MAP.put(
-        "configuration_target_url_unique", MessageKeys.ERROR_CONFIGURATION_TARGET_URL_DUPLICATED);
+    CONSTRAINT_MAP.put("configuration_name_unique", ERROR_CONFIGURATION_NAME_DUPLICATED);
+    CONSTRAINT_MAP
+        .put("configuration_target_url_unique", ERROR_CONFIGURATION_TARGET_URL_DUPLICATED);
 
-    CONSTRAINT_MAP.put(
-        "integration_name_unique", MessageKeys.ERROR_INTEGRATION_NAME_DUPLICATED);
-    CONSTRAINT_MAP.put(
-        "integration_program_id_unique", MessageKeys.ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED);
+    CONSTRAINT_MAP
+        .put("integration_programid_configurationid_unq", ERROR_INTEGRATION_PROGRAM_ID_DUPLICATED);
+    CONSTRAINT_MAP.put("integration_configurationid_unq", ERROR_INTEGRATION_DUPLICATED);
   }
 
   @ExceptionHandler(NotFoundException.class)

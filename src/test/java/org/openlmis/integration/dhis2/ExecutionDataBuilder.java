@@ -32,7 +32,6 @@ public class ExecutionDataBuilder {
   private String description = "test-description";
   private Clock startDate = Clock.systemUTC();
   private Clock endDate = Clock.systemUTC();
-  private String requestBody = "{}";
   private UUID userId = UUID.randomUUID();
   private ExecutionResponse response = new ExecutionResponseDataBuilder().buildAsNew();
 
@@ -85,7 +84,7 @@ public class ExecutionDataBuilder {
 
   public Execution buildAsNewAutomatic() {
     Execution execution = Execution
-        .forAutomaticExecution(integration, processingPeriodId, requestBody, startDate);
+        .forAutomaticExecution(integration, processingPeriodId, startDate);
     Optional.ofNullable(response).ifPresent(item -> execution.markAsDone(item, endDate));
 
     return execution;
@@ -98,7 +97,7 @@ public class ExecutionDataBuilder {
   public Execution buildAsNewManual() {
     Execution execution = Execution
         .forManualExecution(integration, facilityId, processingPeriodId, description,
-            requestBody, userId, startDate);
+            userId, startDate);
     Optional.ofNullable(response).ifPresent(item -> execution.markAsDone(item, endDate));
 
     return execution;

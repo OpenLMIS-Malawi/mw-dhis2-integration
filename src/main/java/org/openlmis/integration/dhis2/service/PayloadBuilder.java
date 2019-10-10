@@ -61,7 +61,7 @@ class PayloadBuilder {
   @Value("${service.url}")
   private String serviceUrl;
 
-  Payload build(String programName, LocalDate startDate, LocalDate endDate, UUID facilityId) {
+  Payload build(LocalDate startDate, LocalDate endDate, String programName, UUID facilityId) {
     Map<String, Measure> measures = getMeasures();
     Set<MeasureReport> measureReports = getMeasureReports(
         measures.values(), startDate, endDate, facilityId, programName);
@@ -100,7 +100,7 @@ class PayloadBuilder {
         .getMeasureReports(measures, startDate, endDate, locationId)
         .stream()
         .filter(MeasureReport::hasGroup)
-        .filter(report -> matchProgram(report, programName))
+        .filter(report -> null == programName || matchProgram(report, programName))
         .collect(Collectors.toSet());
   }
 

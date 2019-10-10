@@ -131,10 +131,14 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   }
 
   private void sendData(Integration integration, ProcessingPeriodDto period) {
-    LOGGER.info(
-        "Send data for program {} for {} period",
-        integration.getProgramId(), period.getName()
-    );
+    if (null == integration.getProgramId()) {
+      LOGGER.info("Send data for all programs for {} period", period.getName());
+    } else {
+      LOGGER.info(
+          "Send data for program {} for {} period",
+          integration.getProgramId(), period.getName()
+      );
+    }
 
     PayloadRequest request = PayloadRequest.forAutomaticExecution(integration, period);
     payloadService.postPayload(request);
