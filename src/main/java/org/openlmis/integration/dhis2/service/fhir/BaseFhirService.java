@@ -18,8 +18,10 @@ package org.openlmis.integration.dhis2.service.fhir;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.CacheControlDirective;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
 import ca.uhn.fhir.rest.gclient.IQuery;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -30,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 abstract class BaseFhirService<T extends IBaseResource> implements InitializingBean {
+
+  private static final int WAIT_TIME = (int) TimeUnit.MINUTES.toMillis(15);
 
   @Value("${fhir.url}")
   private String fhirUrl;
@@ -54,7 +58,14 @@ abstract class BaseFhirService<T extends IBaseResource> implements InitializingB
 
   @Override
   public void afterPropertiesSet() {
-    client = FhirContext.forR4().newRestfulGenericClient(fhirUrl);
+    FhirContext fhirContext = FhirContext.forR4();
+
+    IRestfulClientFactory clientFactory = fhirContext.getRestfulClientFactory();
+    clientFactory.setConnectTimeout(WAIT_TIME);
+    clientFactory.setConnectionRequestTimeout(WAIT_TIME);
+    clientFactory.setSocketTimeout(WAIT_TIME);
+
+    client = clientFactory.newGenericClient(fhirUrl);
 
     if (loggingEnable) {
       client.registerInterceptor(new LoggingInterceptor(loggingVerbose));
