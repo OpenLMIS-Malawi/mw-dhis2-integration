@@ -22,6 +22,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -30,7 +32,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 
@@ -57,6 +58,9 @@ public class Execution extends BaseEntity {
   @Column(nullable = false)
   private UUID processingPeriodId;
 
+  @Enumerated(EnumType.STRING)
+  private ExecutionStatus status;
+
   @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
   private String description;
 
@@ -70,7 +74,6 @@ public class Execution extends BaseEntity {
   private ZonedDateTime endDate;
 
   @Getter
-  @Setter
   @Basic(fetch = FetchType.LAZY)
   @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
   private String requestBody;
@@ -89,7 +92,7 @@ public class Execution extends BaseEntity {
   public static Execution forAutomaticExecution(Integration integration, UUID processingPeriodId,
       Clock clock) {
     return new Execution(false, integration.getProgramId(), null, processingPeriodId,
-        integration.getDescription(), integration.getTargetUrl(),
+        ExecutionStatus.STARTED, integration.getDescription(), integration.getTargetUrl(),
         ZonedDateTime.now(clock), null, EMPTY_JSON, null, null);
   }
 
@@ -100,8 +103,13 @@ public class Execution extends BaseEntity {
   public static Execution forManualExecution(Integration integration, UUID facilityId,
       UUID processingPeriodId, String description, UUID userId, Clock clock) {
     return new Execution(true, integration.getProgramId(), facilityId, processingPeriodId,
-        description, integration.getTargetUrl(), ZonedDateTime.now(clock), null,
-        EMPTY_JSON, userId, null);
+        ExecutionStatus.STARTED, description, integration.getTargetUrl(),
+        ZonedDateTime.now(clock), null, EMPTY_JSON, userId, null);
+  }
+
+  public void setRequestBody(String requestBody) {
+    this.requestBody = requestBody;
+    this.status = ExecutionStatus.PENDING;
   }
 
   /**
@@ -112,6 +120,7 @@ public class Execution extends BaseEntity {
     this.response.setExecution(this);
 
     this.endDate = ZonedDateTime.now(clock);
+    this.status = response.isSuccess() ? ExecutionStatus.SUCCESS : ExecutionStatus.ERROR;
   }
 
   /**
@@ -123,6 +132,7 @@ public class Execution extends BaseEntity {
     exporter.setProgramId(programId);
     exporter.setFacilityId(facilityId);
     exporter.setProcessingPeriodId(processingPeriodId);
+    exporter.setStatus(status);
     exporter.setDescription(description);
     exporter.setTargetUrl(targetUrl);
     exporter.setStartDate(startDate);
@@ -149,6 +159,8 @@ public class Execution extends BaseEntity {
     void setFacilityId(UUID facilityId);
 
     void setProcessingPeriodId(UUID processingPeriodId);
+
+    void setStatus(ExecutionStatus status);
 
     void setDescription(String description);
 

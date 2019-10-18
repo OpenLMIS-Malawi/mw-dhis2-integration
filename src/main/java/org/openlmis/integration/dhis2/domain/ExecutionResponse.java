@@ -29,6 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 @Entity
 @Table(name = "execution_responses")
@@ -74,6 +75,14 @@ public final class ExecutionResponse {
       this.id = null;
       this.execution = null;
     }
+  }
+
+  boolean isSuccess() {
+    HttpStatus status = HttpStatus.valueOf(statusCode);
+
+    return status.is1xxInformational()
+        || status.is2xxSuccessful()
+        || status.is3xxRedirection();
   }
 
   /**

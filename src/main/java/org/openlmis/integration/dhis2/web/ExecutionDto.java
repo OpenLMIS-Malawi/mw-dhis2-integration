@@ -28,6 +28,7 @@ import lombok.ToString;
 import org.codehaus.jackson.annotate.JsonSetter;
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.ExecutionResponse;
+import org.openlmis.integration.dhis2.domain.ExecutionStatus;
 
 
 /**
@@ -45,6 +46,7 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   private UUID programId;
   private UUID facilityId;
   private UUID processingPeriodId;
+  private ExecutionStatus status;
   private String description;
   private String targetUrl;
   private ZonedDateTime startDate;

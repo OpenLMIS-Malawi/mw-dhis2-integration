@@ -33,7 +33,7 @@ public class ExecutionDataBuilder {
   private Clock startDate = Clock.systemUTC();
   private Clock endDate = Clock.systemUTC();
   private UUID userId = UUID.randomUUID();
-  private ExecutionResponse response = new ExecutionResponseDataBuilder().buildAsNew();
+  private ExecutionResponse response = new ExecutionResponseDataBuilder().build();
 
   public ExecutionDataBuilder withFacilityId(UUID facilityId) {
     this.facilityId = facilityId;

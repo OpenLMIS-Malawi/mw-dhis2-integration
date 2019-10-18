@@ -31,6 +31,7 @@ import lombok.ToString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
+import org.openlmis.integration.dhis2.ExecutionResponseDataBuilder;
 import org.openlmis.integration.dhis2.IntegrationDataBuilder;
 import org.openlmis.integration.dhis2.ToStringTestUtils;
 
@@ -43,7 +44,9 @@ public class ExecutionTest {
   private static final String DESCRIPTION = "test-description";
   private static final ZonedDateTime START_DATE = ZonedDateTime.now(CLOCK);
   private static final ZonedDateTime END_DATE = ZonedDateTime.now(CLOCK);
-  private static final ExecutionResponse RESPONSE = new ExecutionResponse();
+  private static final ExecutionResponse RESPONSE = new ExecutionResponseDataBuilder()
+      .withStatusCode(200)
+      .build();
   private static final UUID USER_ID = UUID.randomUUID();
 
   @Test
@@ -101,11 +104,31 @@ public class ExecutionTest {
     assertThat(exporter.getProgramId()).isEqualTo(INTEGRATION.getProgramId());
     assertThat(exporter.getFacilityId()).isNull();
     assertThat(exporter.getProcessingPeriodId()).isEqualTo(PROCESSING_PERIOD_ID);
+    assertThat(exporter.getStatus()).isEqualTo(ExecutionStatus.STARTED);
     assertThat(exporter.getTargetUrl()).isEqualToIgnoringCase(INTEGRATION.getTargetUrl());
     assertThat(exporter.getStartDate()).isEqualTo(START_DATE);
     assertThat(exporter.getEndDate()).isNull();
     assertThat(exporter.getResponse()).isNull();
     assertThat(exporter.getUserId()).isEqualTo(USER_ID);
+  }
+
+  @Test
+  public void shouldSetRequestBody() {
+    // given
+    Execution execution = Execution
+        .forAutomaticExecution(INTEGRATION, PROCESSING_PERIOD_ID, CLOCK);
+    execution.setId(UUID.randomUUID());
+    String requestBody = "{}";
+
+    // when
+    execution.setRequestBody(requestBody);
+
+    // then
+    TestExecution exporter = new TestExecution();
+    execution.export(exporter);
+
+    assertThat(execution.getRequestBody()).isEqualTo(requestBody);
+    assertThat(exporter.getStatus()).isEqualTo(ExecutionStatus.PENDING);
   }
 
   @Test
@@ -127,6 +150,7 @@ public class ExecutionTest {
 
     assertThat(exporter.getEndDate()).isEqualTo(ZonedDateTime.now(CLOCK));
     assertThat(exporter.getResponse()).isEqualTo(expectedResponse);
+    assertThat(exporter.getStatus()).isEqualTo(ExecutionStatus.SUCCESS);
   }
 
   @Test
@@ -193,6 +217,7 @@ public class ExecutionTest {
     private UUID programId;
     private UUID facilityId;
     private UUID processingPeriodId;
+    private ExecutionStatus status;
     private String description;
     private String targetUrl;
     private ZonedDateTime startDate;

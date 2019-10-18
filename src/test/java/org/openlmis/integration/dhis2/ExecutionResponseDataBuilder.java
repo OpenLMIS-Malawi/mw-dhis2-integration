@@ -47,8 +47,8 @@ public class ExecutionResponseDataBuilder {
    * Builds new instance of Execution as a new object (without id field).
    */
 
-  public ExecutionResponse buildAsNew() {
-    return new ExecutionResponse(responseDate,statusCode,body);
+  public ExecutionResponse build() {
+    return new ExecutionResponse(responseDate, statusCode, body);
   }
 
 }

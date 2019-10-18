@@ -13,32 +13,8 @@
  * http://www.gnu.org/licenses.  For additional information contact info@OpenLMIS.org.
  */
 
-package org.openlmis.integration.dhis2.web;
+package org.openlmis.integration.dhis2.domain;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
-import org.junit.Test;
-import org.openlmis.integration.dhis2.ExecutionResponseDataBuilder;
-import org.openlmis.integration.dhis2.ToStringTestUtils;
-
-public class ExecutionResponseDtoTest {
-
-  @Test
-  public void equalsContract() {
-    EqualsVerifier
-        .forClass(ExecutionResponseDto.class)
-        .withRedefinedSuperclass()
-        .suppress(Warning.NONFINAL_FIELDS) // DTO fields cannot be final
-        .verify();
-  }
-
-  @Test
-  public void shouldImplementToString() {
-    ExecutionResponseDto dto = ExecutionResponseDto.newInstance(
-        new ExecutionResponseDataBuilder().build()
-    );
-
-    ToStringTestUtils.verify(ExecutionResponseDto.class, dto);
-  }
+public enum ExecutionStatus {
+  STARTED, PENDING, SUCCESS, ERROR
 }
