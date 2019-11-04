@@ -26,6 +26,7 @@ import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceData
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -40,6 +41,9 @@ import org.springframework.web.client.RestTemplate;
 public class PayloadService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PayloadService.class);
+
+  @Value("${dhis2.enableAutoSend}")
+  private boolean enableAutoSend;
 
   @Autowired
   private ExecutionRepository executionRepository;
@@ -119,6 +123,11 @@ public class PayloadService {
   }
 
   private ExecutionResponse sendPayload(PayloadRequest request, String body) {
+    if (!enableAutoSend) {
+      return new ExecutionResponse(ZonedDateTime.now(clock), 200,
+          "Sending payload disabled, this is sample response");
+    }
+
     try {
       RequestHeaders headers = setHeaders(request);
       HttpEntity<String> entity = RequestHelper.createEntity(headers, body);
