@@ -31,6 +31,7 @@ import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -43,6 +44,9 @@ import org.springframework.stereotype.Service;
 public class DynamicTaskScheduler implements SchedulingConfigurer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicTaskScheduler.class);
+
+  @Value("${dhis2.enableAutoSend}")
+  private boolean enableAutoSend;
 
   @Autowired
   private PayloadService payloadService;
@@ -73,6 +77,10 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   }
 
   private void refresh(boolean initialization) {
+    if (!enableAutoSend) {
+      LOGGER.warn("Auto sending data is disabled");
+      return;
+    }
     List<CronTask> tasks = integrationRepository
         .findAll()
         .stream()
