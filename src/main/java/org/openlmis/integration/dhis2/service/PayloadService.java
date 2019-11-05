@@ -15,6 +15,8 @@
 
 package org.openlmis.integration.dhis2.service;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -119,7 +121,6 @@ public class PayloadService {
   }
 
   private ExecutionResponse sendPayload(PayloadRequest request, String body) {
-
     try {
       RequestHeaders headers = setHeaders(request);
       HttpEntity<String> entity = RequestHelper.createEntity(headers, body);
@@ -132,6 +133,9 @@ public class PayloadService {
     } catch (RestClientResponseException exp) {
       return new ExecutionResponse(ZonedDateTime.now(clock), exp.getRawStatusCode(),
           exp.getResponseBodyAsString());
+    } catch (Exception exp) {
+      return new ExecutionResponse(ZonedDateTime.now(clock), INTERNAL_SERVER_ERROR.value(),
+          exp.getMessage());
     }
   }
 
