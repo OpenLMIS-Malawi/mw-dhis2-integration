@@ -36,12 +36,16 @@ import org.openlmis.integration.dhis2.service.fhir.MeasureFhirService;
 import org.openlmis.integration.dhis2.service.fhir.MeasureReportFhirService;
 import org.openlmis.integration.dhis2.service.referencedata.FacilityDto;
 import org.openlmis.integration.dhis2.service.referencedata.FacilityReferenceDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 class PayloadBuilder {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PayloadBuilder.class);
 
   @Autowired
   private Dhis2Configuration dhis2Configuration;
@@ -105,7 +109,8 @@ class PayloadBuilder {
   }
 
   private boolean matchProgram(MeasureReport report, String programName) {
-    return report
+    LOGGER.info("Checking if report {} is for program {}", report.getId(), programName);
+    boolean result = report
         .getGroup()
         .stream()
         .filter(item -> item.hasCode())
@@ -118,6 +123,14 @@ class PayloadBuilder {
         .filter(item -> dhis2Configuration.getMeasureScoreSystem()
             .equalsIgnoreCase(item.getMeasureScore().getSystem()))
         .allMatch(item -> item.getMeasureScore().getCode().equalsIgnoreCase(programName));
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "The report {} {} for program {}",
+          report.getId(), result ? "is" : "is not", programName);
+    }
+
+    return result;
   }
 
   private Map<String, FacilityDto> getFacilities(Set<MeasureReport> measureReports) {
@@ -165,9 +178,11 @@ class PayloadBuilder {
 
     for (Entry<String, List<MeasureReport>> entry : reportsPerFacility.entrySet()) {
       String facilityCode = facilities.get(entry.getKey()).getCode();
+      LOGGER.debug("Creating payload for facility {}", facilityCode);
       Set<PayloadFacilityValue> values = createValues(entry.getValue(), measures);
 
       payloadFacilities.add(new PayloadFacility(facilityCode, values));
+      LOGGER.debug("Created payload for facility {}", facilityCode);
     }
 
     return payloadFacilities;
@@ -182,7 +197,9 @@ class PayloadBuilder {
       Measure measure = measures.get(measureId);
       String suffix = dhis2Configuration.getMeasureMapping(measure.getName());
 
+      LOGGER.debug("Creating product values for measure {}", measureId);
       values.addAll(getProductValues(report, suffix));
+      LOGGER.debug("Created product values for measure {}", measureId);
     }
 
     return values;
