@@ -38,6 +38,9 @@ import org.openlmis.integration.dhis2.service.referencedata.FacilityDto;
 import org.openlmis.integration.dhis2.service.referencedata.FacilityReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
+import org.slf4j.profiler.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,6 +49,7 @@ import org.springframework.stereotype.Component;
 class PayloadBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PayloadBuilder.class);
+  private static final XLogger X_LOGGER = XLoggerFactory.getXLogger(PayloadBuilder.class);
 
   @Autowired
   private Dhis2Configuration dhis2Configuration;
@@ -66,20 +70,37 @@ class PayloadBuilder {
   private String serviceUrl;
 
   Payload build(LocalDate startDate, LocalDate endDate, String programName, UUID facilityId) {
+    X_LOGGER.entry(startDate, endDate, programName, facilityId);
+
+    Profiler profiler = new Profiler("BUILD_PAYLOAD");
+    profiler.setLogger(X_LOGGER);
+
+    profiler.start("GET_MEASURES");
     Map<String, Measure> measures = getMeasures();
+
+    profiler.start("GET_MEASURE_REPORTS");
     Set<MeasureReport> measureReports = getMeasureReports(
         measures.values(), startDate, endDate, facilityId, programName);
 
+    profiler.start("GET_FACILITIES");
     Map<String, FacilityDto> facilities = getFacilities(measureReports);
 
+    profiler.start("GROUP_REPORTS_BY_REPORTER");
     Map<String, List<MeasureReport>> reportsPerFacility = measureReports
         .stream()
         .collect(Collectors.groupingBy(report -> report.getReporter().getReference()));
 
+    profiler.start("CREATE_PAYLOAD_PER_FACILITY");
     Set<PayloadFacility> payloadFacilities = createPayloadPerFacility(
         measures, reportsPerFacility, facilities);
 
-    return new Payload(payloadFacilities, startDate);
+    profiler.start("INIT_PAYLOAD");
+    Payload payload = new Payload(payloadFacilities, startDate);
+
+    profiler.stop().log();
+    X_LOGGER.exit(payload);
+
+    return payload;
   }
 
   private Map<String, Measure> getMeasures() {
