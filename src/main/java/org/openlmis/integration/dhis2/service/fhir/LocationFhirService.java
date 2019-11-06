@@ -29,6 +29,9 @@ public class LocationFhirService extends BaseFhirService<Location> {
     super(Location.class);
   }
 
+  /**
+   * Find a location with id.
+   */
   public Location getLocation(String id) {
     log().debug("Get location with id {}", id);
     Location resource = getResource(id);
