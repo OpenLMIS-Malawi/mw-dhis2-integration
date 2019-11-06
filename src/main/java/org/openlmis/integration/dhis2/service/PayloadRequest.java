@@ -22,6 +22,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.openlmis.integration.dhis2.domain.Configuration;
 import org.openlmis.integration.dhis2.domain.ConfigurationAuthenticationDetails;
 import org.openlmis.integration.dhis2.domain.Execution;
@@ -82,5 +84,19 @@ public class PayloadRequest {
         .map(Configuration::getAuthenticationDetails)
         .map(ConfigurationAuthenticationDetails::asAuthorizationHeader)
         .orElse(null);
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+        .append("integrationId", integration.getId())
+        .append("programId", getProgramId())
+        .append("targetUrl", getTargetUrl())
+        .append("facilityId", facilityId)
+        .append("periodName", period.getName())
+        .append("description", description)
+        .append("manualExecution", manualExecution)
+        .append("userId", userId)
+        .toString();
   }
 }

@@ -17,6 +17,7 @@ package org.openlmis.integration.dhis2.service;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -27,6 +28,9 @@ import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
+import org.slf4j.profiler.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +46,7 @@ import org.springframework.web.client.RestTemplate;
 public class PayloadService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PayloadService.class);
+  private static final XLogger X_LOGGER = XLoggerFactory.getXLogger(PayloadService.class);
 
   @Autowired
   private ExecutionRepository executionRepository;
@@ -66,31 +71,53 @@ public class PayloadService {
    */
   @Async
   public void postPayload(PayloadRequest payloadRequest) {
-    Execution execution = createExecution(payloadRequest);
-    String requestBody = createRequestBody(payloadRequest, execution);
-    ExecutionResponse response = sendRequestBody(payloadRequest, execution, requestBody);
-    LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
+    X_LOGGER.entry(payloadRequest);
+
+    Profiler profiler = new Profiler("POST_PAYLOAD");
+    profiler.setLogger(X_LOGGER);
+
+    try {
+      Execution execution = createExecution(payloadRequest, profiler);
+      String requestBody = createRequestBody(payloadRequest, execution, profiler);
+      ExecutionResponse response = sendRequestBody(payloadRequest, execution, requestBody, profiler);
+
+      LOGGER.info("Response status: {}; Message: {}", response.getStatusCode(), response.getBody());
+      X_LOGGER.exit();
+    } catch (Exception exp) {
+      IllegalStateException illegalStateException = new IllegalStateException(exp);
+
+      X_LOGGER.throwing(illegalStateException);
+      throw illegalStateException;
+    } finally {
+      profiler.stop().log();
+    }
   }
 
-  private Execution createExecution(PayloadRequest payloadRequest) {
+  private Execution createExecution(PayloadRequest payloadRequest, Profiler profiler) {
+    profiler.start("CREATE_EXECUTION");
     Execution execution = payloadRequest.createExecution(clock);
+
+    profiler.start("SAVE_TO_DB");
     executionRepository.saveAndFlush(execution);
 
     return execution;
   }
 
-  private String createRequestBody(PayloadRequest payloadRequest, Execution execution) {
-    try {
-      Payload payload = createPayload(payloadRequest);
-      String requestBody = objectMapper.writeValueAsString(payload);
+  private String createRequestBody(PayloadRequest payloadRequest, Execution execution,
+      Profiler profiler) throws JsonProcessingException {
+    profiler.start("CREATE_PAYLOAD");
+    Payload payload = createPayload(payloadRequest);
 
-      execution.setRequestBody(requestBody);
-      executionRepository.saveAndFlush(execution);
+    profiler.start("CONVERT_PAYLOAD_TO_JSON");
+    String requestBody = objectMapper.writeValueAsString(payload);
 
-      return requestBody;
-    } catch (Exception exp) {
-      throw new IllegalStateException(exp);
-    }
+    profiler.start("SET_REQUEST_BODY");
+    execution.setRequestBody(requestBody);
+
+    profiler.start("UPDATE_EXECUTION");
+    executionRepository.saveAndFlush(execution);
+
+    return requestBody;
   }
 
   private Payload createPayload(PayloadRequest request) {
@@ -112,11 +139,16 @@ public class PayloadService {
   }
 
   private ExecutionResponse sendRequestBody(PayloadRequest payloadRequest, Execution execution,
-      String requestBody) {
+      String requestBody, Profiler profiler) {
+    profiler.start("SEND_PAYLOAD");
     ExecutionResponse response = sendPayload(payloadRequest, requestBody);
 
+    profiler.start("MARK_AS_DONE");
     execution.markAsDone(response, clock);
+
+    profiler.start("UPDATE_EXECUTION");
     executionRepository.saveAndFlush(execution);
+
     return response;
   }
 
