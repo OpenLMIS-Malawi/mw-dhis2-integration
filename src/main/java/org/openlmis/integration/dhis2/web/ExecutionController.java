@@ -54,8 +54,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExecutionController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
-  public static final String ID_URL = "/{id}";
-  public static final String QUEUE_URL = "/queue";
+  private static final String ID_URL = "/{id}";
+  private static final String QUEUE_URL = "/queue";
   public static final String REQUEST_URL = ID_URL + "/request";
 
   @Autowired
@@ -139,20 +139,6 @@ public class ExecutionController extends BaseController {
         .stream()
         .map(PostPayloadTaskDto::newInstance)
         .collect(Collectors.toSet());
-  }
-
-  /**
-   * Retrieves the historical execution based on passed ID value.
-   */
-  @GetMapping(ID_URL)
-  public ExecutionDto getSpecifiedHistoricalExecution(@PathVariable("id") UUID id) {
-    permissionService.canManageDhis2();
-
-    Execution execution = executionRepository.findOne(id);
-    if (execution == null) {
-      throw new NotFoundException(MessageKeys.ERROR_EXECUTION_NOT_FOUND);
-    }
-    return ExecutionDto.newInstance(execution);
   }
 
   /**

@@ -206,25 +206,6 @@ resourceTypes:
           type: string
           required: true
           repeat: false
-      get:
-        is: [ secured ]
-        description: Get chosen execution.
-        responses:
-          200:
-            body:
-              application/json:
-                schema: integrationExecution
-          404:
-            body:
-              application/json:
-                schema: localizedErrorResponse
-          401:
-            body:
-              application/json:
-          403:
-            body:
-              application/json:
-                schema: localizedErrorResponse
       /request:
         get:
           is: [ secured ]
