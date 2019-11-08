@@ -18,6 +18,7 @@ package org.openlmis.integration.dhis2.web;
 import static org.openlmis.integration.dhis2.web.ExecutionController.RESOURCE_PATH;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.openlmis.integration.dhis2.domain.Execution;
@@ -28,6 +29,7 @@ import org.openlmis.integration.dhis2.repository.ExecutionRepository;
 import org.openlmis.integration.dhis2.repository.IntegrationRepository;
 import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
+import org.openlmis.integration.dhis2.service.PostPayloadTaskExecutor;
 import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
 import org.openlmis.integration.dhis2.util.Pagination;
@@ -53,6 +55,7 @@ public class ExecutionController extends BaseController {
 
   public static final String RESOURCE_PATH = API_PATH + "/integrationExecutions";
   public static final String ID_URL = "/{id}";
+  public static final String QUEUE_URL = "/queue";
   public static final String REQUEST_URL = ID_URL + "/request";
 
   @Autowired
@@ -72,15 +75,17 @@ public class ExecutionController extends BaseController {
 
   @Autowired
   private AuthenticationHelper authenticationHelper;
+
+  @Autowired
+  private PostPayloadTaskExecutor postPayloadTaskExecutor;
+
   /**
    * This method is used to manual trigger Integration.
    *
    */
-
   @PostMapping
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void runManualIntegration(
-      @RequestBody ManualIntegrationDto manualIntegrationDto) {
+  public void runManualIntegration(@RequestBody ManualIntegrationDto manualIntegrationDto) {
     permissionService.canManageDhis2();
 
     Integration integration = integrationRepository
@@ -121,6 +126,19 @@ public class ExecutionController extends BaseController {
         .map(ExecutionDto::newInstance)
         .collect(Collectors.toList());
     return Pagination.getPage(content, pageable, page.getTotalElements());
+  }
+
+  /**
+   * Retrieves executions from the execution queue.
+   */
+  @GetMapping(value = QUEUE_URL)
+  public Set<PostPayloadTaskDto> getExecutionsInQueue() {
+    permissionService.canManageDhis2();
+    return postPayloadTaskExecutor
+        .getQueueItems()
+        .stream()
+        .map(PostPayloadTaskDto::newInstance)
+        .collect(Collectors.toSet());
   }
 
   /**

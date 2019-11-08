@@ -15,8 +15,10 @@
 
 package org.openlmis.integration.dhis2.service;
 
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,18 @@ public class PostPayloadTaskExecutor extends ThreadPoolTaskExecutor {
   @Override
   protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
     return new PriorityBlockingQueue<>(queueCapacity);
+  }
+
+  /**
+   * Get the execution queue items.
+   */
+  public synchronized Set<PostPayloadTask> getQueueItems() {
+    return getThreadPoolExecutor()
+        .getQueue()
+        .stream()
+        .filter(runnable -> runnable instanceof PostPayloadTask)
+        .map(runnable -> (PostPayloadTask) runnable)
+        .collect(Collectors.toSet());
   }
 
 }

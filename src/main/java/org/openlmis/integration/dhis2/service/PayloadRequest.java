@@ -40,6 +40,7 @@ public class PayloadRequest {
   @Getter
   private final ProcessingPeriodDto period;
 
+  @Getter
   private String description;
 
   @Getter

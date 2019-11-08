@@ -20,6 +20,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -40,7 +41,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
+@SuppressWarnings("PMD.TooManyMethods")
+public class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostPayloadTask.class);
 
@@ -54,6 +56,9 @@ class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
   private final ZonedDateTime executionTime;
   private final PayloadRequest payloadRequest;
 
+  /**
+   * Creates a new instance.
+   */
   public PostPayloadTask(ProgramReferenceDataService programReferenceDataService,
       ExecutionRepository executionRepository, PayloadBuilder payloadBuilder,
       ObjectMapper objectMapper, Clock clock, RestTemplate restTemplate,
@@ -124,6 +129,16 @@ class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
         .append("manualExecution", payloadRequest.isManualExecution())
         .append("executionTime", executionTime)
         .toString();
+  }
+
+  /**
+   * Exports the current task state.
+   */
+  public void export(Exporter exporter) {
+    exporter.setExecutionTime(executionTime);
+    exporter.setProcessingPeriodId(payloadRequest.getPeriod().getId());
+    exporter.setUserId(payloadRequest.getUserId());
+    exporter.setDescription(payloadRequest.getDescription());
   }
 
   private Execution createExecution(PayloadRequest payloadRequest, Profiler profiler) {
@@ -213,5 +228,17 @@ class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
         .init()
         .set(HttpHeaders.AUTHORIZATION, request.getAuthorizationHeader())
         .set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+  }
+
+  public interface Exporter {
+
+    void setExecutionTime(ZonedDateTime executionTime);
+
+    void setProcessingPeriodId(UUID processingPeriodId);
+
+    void setUserId(UUID userId);
+
+    void setDescription(String description);
+
   }
 }
