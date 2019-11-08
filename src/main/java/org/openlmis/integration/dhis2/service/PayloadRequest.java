@@ -21,7 +21,6 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.openlmis.integration.dhis2.domain.Configuration;
@@ -43,6 +42,7 @@ public class PayloadRequest {
 
   private String description;
 
+  @Getter
   private final boolean manualExecution;
 
   @Getter
