@@ -46,6 +46,7 @@ import org.springframework.http.MediaType;
 public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   private static final String RESOURCE_URL = ExecutionController.RESOURCE_PATH;
+  private static final String ID_URL = RESOURCE_URL + ExecutionController.ID_URL;
   private static final String REQUEST_URL = RESOURCE_URL + ExecutionController.REQUEST_URL;
 
   private Execution execution = new ExecutionDataBuilder().buildAsAutomatic();
@@ -161,6 +162,76 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
         .post(RESOURCE_URL)
         .then()
         .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  // GET /integrationExecutions/{id}
+
+  @Test
+  public void shouldReturnGivenExecution() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body("id", is(executionDto.getId().toString()))
+        .body("programId", is(executionDto.getProgramId().toString()));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnUnauthorizedForGetSpecifiedExecutionIfUserIsNotAuthorized() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(execution);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .pathParam(ID, executionDto.getId().toString())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnForbiddenWhenUserHasNotRightForGetExecutionById() {
+    disablePermission();
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_FORBIDDEN)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_PERMISSION_MISSING));
+
+    assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenExecutionWithIdDoesNotExistForGetExecutionById() {
+    given(executionRepository.findOne(executionDto.getId())).willReturn(null);
+
+    restAssured
+        .given()
+        .header(HttpHeaders.AUTHORIZATION, getTokenHeader())
+        .pathParam(ID, executionDto.getId())
+        .when()
+        .get(ID_URL)
+        .then()
+        .statusCode(HttpStatus.SC_NOT_FOUND)
+        .body(MESSAGE_KEY, is(MessageKeys.ERROR_EXECUTION_NOT_FOUND));
 
     assertThat(RAML_ASSERT_MESSAGE, restAssured.getLastReport(), RamlMatchers.hasNoViolations());
   }
