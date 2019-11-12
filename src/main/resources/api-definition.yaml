@@ -183,22 +183,6 @@ resourceTypes:
           body:
             application/json:
               schema: localizedErrorResponse
-    /queue:
-      get:
-        is: [ secured ]
-        description: Get executions from the execution queue.
-        responses:
-          200:
-            body:
-              application/json:
-                schema: integrationExecutionQueue
-          401:
-            body:
-              application/json:
-          403:
-            body:
-              application/json:
-                schema: localizedErrorResponse
     /{id}:
       uriParameters:
         id:
@@ -244,6 +228,22 @@ resourceTypes:
               body:
                 application/json:
                   schema: localizedErrorResponse
+  /integrationExecutionQueue:
+    get:
+      is: [ secured ]
+      description: Get executions from the execution queue.
+      responses:
+        200:
+          body:
+            application/json:
+              schema: integrationExecutionQueue
+        401:
+          body:
+            application/json:
+        403:
+          body:
+            application/json:
+              schema: localizedErrorResponse
   /integrationConfigurations:
     displayName: integrationConfigurations
     get:
