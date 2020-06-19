@@ -10,3 +10,6 @@ COPY kuunika_certs/kuunika-org.crt /usr/local/share/ca-certificates/kuunika-org.
 COPY kuunika_certs/kuunika-org-second.crt /usr/local/share/ca-certificates/kuunika-org-second.crt
 
 RUN update-ca-certificates
+
+ENV JAVA_OPTS="-Djavax.net.ssl.trustStore=/etc/ssl/certs/ca-certificates.crt"
+ENV JAVA_OPTS="-Djavax.net.ssl.trustStorePassword=openlmis"
