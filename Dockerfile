@@ -5,4 +5,8 @@ COPY build/consul /consul
 
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
+COPY kuunika_certs/kuunika-all.crt /usr/local/share/ca-certificates/kuunika-all.crt
+COPY kuunika_certs/kuunika-org.crt /usr/local/share/ca-certificates/kuunika-org.crt
+COPY kuunika_certs/kuunika-org-second.crt /usr/local/share/ca-certificates/kuunika-org-second.crt
+
 RUN update-ca-certificates
