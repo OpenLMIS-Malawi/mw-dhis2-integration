@@ -176,7 +176,7 @@ public class PostPayloadTaskTest {
 
     // then
     verify(automaticPayloadRequest).createExecution(CLOCK);
-    verify(payloadBuilder).build(START_DATE, END_DATE, null, null);
+    verify(payloadBuilder).build(START_DATE, END_DATE, "", null);
     verify(executionRepository, times(3)).saveAndFlush(execution);
     verify(objectMapper).writeValueAsString(anyString());
     verify(restTemplate).exchange(eq(TARGET_URL), eq(HttpMethod.POST),
