@@ -182,7 +182,7 @@ public class PostPayloadTask implements Runnable, Comparable<PostPayloadTask> {
 
   private String getProgramName(PayloadRequest request) {
     if (null == request.getProgramId()) {
-      return null;
+      return "";
     }
 
     return programReferenceDataService
