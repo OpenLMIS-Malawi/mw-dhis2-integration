@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.openlmis.integration.dhis2.service.RequestParameters;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,7 +48,12 @@ public class FacilityReferenceDataService extends BaseReferenceDataService<Facil
    * @return List of FacilityDtos with similar ids.
    */
   public List<FacilityDto> search(Collection<UUID> facilityIds) {
-    return getPage(RequestParameters.init().set("id", facilityIds)).getContent();
+    RequestParameters parameters = RequestParameters
+        .init()
+        .set("id", facilityIds)
+        .setPage(new PageRequest(0, Integer.MAX_VALUE, Direction.ASC, "name"));
+
+    return getPage(parameters).getContent();
   }
 
 }

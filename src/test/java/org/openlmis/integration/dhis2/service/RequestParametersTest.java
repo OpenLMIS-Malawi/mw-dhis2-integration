@@ -35,11 +35,17 @@ import java.util.Set;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class RequestParametersTest {
   private static final String KEY = "key";
   private static final String VALUE = "value";
+
+  private static final Pageable PAGE_WITHOUT_SORT = new PageRequest(0, 10);
+  private static final Pageable PAGE_WITH_SORT = new PageRequest(1, 15, Direction.DESC, "test");
 
   @Test
   public void equalsContract() {
@@ -153,6 +159,31 @@ public class RequestParametersTest {
     assertThat(split.getLeft(), is(params));
     assertThat(split.getRight(), is(nullValue()));
   }
+
+  @Test
+  public void shouldNotSetPageIfValueIsNull() {
+    RequestParameters params = RequestParameters.init().setPage(null);
+    assertThat(toMap(params), not(hasKey(RequestParameters.PAGE)));
+    assertThat(toMap(params), not(hasKey(RequestParameters.SIZE)));
+    assertThat(toMap(params), not(hasKey(RequestParameters.SORT)));
+  }
+
+  @Test
+  public void shouldSetPageWithoutSort() {
+    RequestParameters params = RequestParameters.init().setPage(PAGE_WITHOUT_SORT);
+    assertHasEntry(toMap(params), RequestParameters.PAGE, PAGE_WITHOUT_SORT.getPageNumber());
+    assertHasEntry(toMap(params), RequestParameters.SIZE, PAGE_WITHOUT_SORT.getPageSize());
+    assertThat(toMap(params), not(hasKey(RequestParameters.SORT)));
+  }
+
+  @Test
+  public void shouldSetPageIfSortIsPresent() {
+    RequestParameters params = RequestParameters.init().setPage(PAGE_WITH_SORT);
+    assertHasEntry(toMap(params), RequestParameters.PAGE, PAGE_WITH_SORT.getPageNumber());
+    assertHasEntry(toMap(params), RequestParameters.SIZE, PAGE_WITH_SORT.getPageSize());
+    assertHasEntry(toMap(params), RequestParameters.SORT, "test," + Direction.DESC);
+  }
+
 
   private void assertHasEntry(Map<String, List<String>> map, String key, Object value) {
     assertThat(map, hasEntry(key, Collections.singletonList(String.valueOf(value))));
