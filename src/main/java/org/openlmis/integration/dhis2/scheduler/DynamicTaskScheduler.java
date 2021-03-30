@@ -28,6 +28,7 @@ import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
+import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,9 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
 
   @Autowired
   private PeriodReferenceDataService periodReferenceDataService;
+
+  @Autowired
+  private ProgramReferenceDataService programReferenceDataService;
 
   private ScheduledTaskRegistrar taskRegistrar;
   private Clock clock;
@@ -146,14 +150,22 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
 
     LOGGER.debug("Current date: {}", now);
     LOGGER.trace("Previous date: {}", nowMinusMonth);
-    LOGGER.trace("First day of month: {}", startDate);
-    LOGGER.trace("Last day of month: {}", endDate);
-
-    ProcessingPeriodDto period = periodReferenceDataService.search(startDate, endDate).get(0);
-    LOGGER.info("Retrieved period: {}", period.getName());
 
     for (Integration integration : integrations) {
-      sendData(integration, period);
+      //MALAWISUP-2518: Checking if it is weekly program
+      if (null != integration.getProgramId()
+          && programReferenceDataService.findOne(
+              integration.getProgramId()).getCode().equals("cov-w")) {
+        startDate = now.minusWeeks(1);
+        endDate = now.minusDays(1);
+      }
+
+      LOGGER.trace("Start date: {}", startDate);
+      LOGGER.trace("End date: {}", endDate);
+
+      List<ProcessingPeriodDto> period = periodReferenceDataService.search(startDate, endDate);
+      LOGGER.trace("Periods: {}", period);
+      sendData(integration, period.get(0));
     }
 
     LOGGER.debug("Sent data for {} integrations", integrations.size());
