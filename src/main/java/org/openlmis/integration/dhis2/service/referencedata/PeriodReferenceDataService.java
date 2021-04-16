@@ -17,6 +17,7 @@ package org.openlmis.integration.dhis2.service.referencedata;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import org.openlmis.integration.dhis2.service.RequestParameters;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +42,12 @@ public class PeriodReferenceDataService extends BaseReferenceDataService<Process
   /**
    * Retrieves periods from the reference data service by start and end dates.
    */
-  public List<ProcessingPeriodDto> search(LocalDate startDate, LocalDate endDate) {
+  public List<ProcessingPeriodDto> search(LocalDate startDate, LocalDate endDate, UUID programId) {
     RequestParameters parameters = RequestParameters
-        .init()
-        .set("startDate", startDate)
-        .set("endDate", endDate);
+            .init()
+            .set("startDate", startDate)
+            .set("endDate", endDate)
+            .set("programId", programId);
 
     return getPage(parameters).getContent();
   }

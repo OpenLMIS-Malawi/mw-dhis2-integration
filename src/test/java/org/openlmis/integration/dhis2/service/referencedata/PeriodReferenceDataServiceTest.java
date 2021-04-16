@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +31,7 @@ import org.openlmis.integration.dhis2.service.BaseCommunicationServiceTest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PeriodReferenceDataServiceTest
-    extends BaseCommunicationServiceTest<ProcessingPeriodDto> {
+        extends BaseCommunicationServiceTest<ProcessingPeriodDto> {
 
   private PeriodReferenceDataService service;
 
@@ -56,21 +57,23 @@ public class PeriodReferenceDataServiceTest
     // given
     LocalDate startDate = LocalDate.now().minusMonths(1);
     LocalDate endDate = LocalDate.now();
+    UUID programId = UUID.randomUUID();
 
     // when
     ProcessingPeriodDto period = mockPageResponseEntityAndGetDto();
-    Collection<ProcessingPeriodDto> result = service.search(startDate, endDate);
+    Collection<ProcessingPeriodDto> result = service.search(startDate, endDate, programId);
 
     // then
     assertThat(result, hasSize(1));
     assertTrue(result.contains(period));
 
     verifyPageRequest()
-        .isGetRequest()
-        .hasAuthHeader()
-        .hasEmptyBody()
-        .hasQueryParameter("startDate", startDate)
-        .hasQueryParameter("endDate", endDate);
+            .isGetRequest()
+            .hasAuthHeader()
+            .hasEmptyBody()
+            .hasQueryParameter("startDate", startDate)
+            .hasQueryParameter("endDate", endDate)
+            .hasQueryParameter("programId", programId);
   }
 
 }
