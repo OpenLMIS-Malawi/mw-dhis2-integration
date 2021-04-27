@@ -42,11 +42,10 @@ public class PeriodReferenceDataService extends BaseReferenceDataService<Process
   /**
    * Retrieves periods from the reference data service by start and end dates.
    */
-  public List<ProcessingPeriodDto> search(LocalDate startDate, LocalDate endDate, UUID programId) {
+  public List<ProcessingPeriodDto> search(LocalDate startDate, UUID programId) {
     RequestParameters parameters = RequestParameters
             .init()
             .set("startDate", startDate)
-            .set("endDate", endDate)
             .set("programId", programId);
 
     return getPage(parameters).getContent();

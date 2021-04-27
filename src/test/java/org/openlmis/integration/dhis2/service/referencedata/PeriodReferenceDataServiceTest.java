@@ -56,12 +56,11 @@ public class PeriodReferenceDataServiceTest
   public void shouldSearchProcessingPeriodsByStartAndEndDates() {
     // given
     LocalDate startDate = LocalDate.now().minusMonths(1);
-    LocalDate endDate = LocalDate.now();
     UUID programId = UUID.randomUUID();
 
     // when
     ProcessingPeriodDto period = mockPageResponseEntityAndGetDto();
-    Collection<ProcessingPeriodDto> result = service.search(startDate, endDate, programId);
+    Collection<ProcessingPeriodDto> result = service.search(startDate, programId);
 
     // then
     assertThat(result, hasSize(1));
@@ -72,7 +71,6 @@ public class PeriodReferenceDataServiceTest
             .hasAuthHeader()
             .hasEmptyBody()
             .hasQueryParameter("startDate", startDate)
-            .hasQueryParameter("endDate", endDate)
             .hasQueryParameter("programId", programId);
   }
 

@@ -16,9 +16,8 @@
 package org.openlmis.integration.dhis2.scheduler;
 
 import java.time.Clock;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -29,7 +28,6 @@ import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
-import org.openlmis.integration.dhis2.service.referencedata.ProgramReferenceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +57,6 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
   @Autowired
   private PeriodReferenceDataService periodReferenceDataService;
 
-  @Autowired
-  private ProgramReferenceDataService programReferenceDataService;
 
   private ScheduledTaskRegistrar taskRegistrar;
   private Clock clock;
@@ -145,45 +141,26 @@ public class DynamicTaskScheduler implements SchedulingConfigurer {
     LOGGER.debug("Send data for {} integrations", integrations.size());
 
     LocalDate now = LocalDate.now(clock);
-    LocalDate nowMinusMonth = now.minusMonths(1);
-    LocalDate nowMinusWeek = now.minusWeeks(1);
-    LocalDate startDate = nowMinusMonth.with(TemporalAdjusters.firstDayOfMonth());
-    LocalDate endDate = nowMinusMonth.with(TemporalAdjusters.lastDayOfMonth());
-
-    LOGGER.debug("Current date: {}", now);
-    LOGGER.trace("Previous month date: {}", nowMinusMonth);
-    LOGGER.trace("Previous week date: {}", nowMinusWeek);
-    LOGGER.trace("First day of month: {}", startDate);
-    LOGGER.trace("Last day of month: {}", endDate);
-
+    LocalDate then;
+    long daysBetween;
 
     for (Integration integration : integrations) {
-      //MALAWISUP-2518: Checking if it is weekly program
-      if (null != integration.getProgramId()
-              && programReferenceDataService.findOne(
-              integration.getProgramId()).getCode().equals("cov-w")) {
+      // MALAWISUP-2518: scheduled integration works for all type of programs
+      ProcessingPeriodDto period = periodReferenceDataService.search(now,
+          integration.getProgramId()).get(0);
 
-        if (now.getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
-          startDate = nowMinusWeek;
-        } else {
-          startDate = nowMinusWeek.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
-        }
+      daysBetween = ChronoUnit.DAYS.between(period.getStartDate(), period.getEndDate());
+      then = now.minusDays(daysBetween);
 
-        if (now.getDayOfWeek().equals(DayOfWeek.THURSDAY)) {
-          endDate = nowMinusWeek;
-        } else {
-          endDate = nowMinusWeek.with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
-        }
-      }
+      period = periodReferenceDataService.search(then,
+          integration.getProgramId()).get(0);
 
-      List<ProcessingPeriodDto> period = periodReferenceDataService.search(startDate, endDate,
-              integration.getProgramId());
+      LOGGER.trace("Days between: {}", daysBetween);
+      LOGGER.trace("Period starts: {}", period.getStartDate());
+      LOGGER.trace("period: {}", period.getName());
 
-      LOGGER.trace("Period: {}", period);
-
-      sendData(integration, period.get(0));
+      sendData(integration, period);
     }
-
     LOGGER.debug("Sent data for {} integrations", integrations.size());
   }
 
