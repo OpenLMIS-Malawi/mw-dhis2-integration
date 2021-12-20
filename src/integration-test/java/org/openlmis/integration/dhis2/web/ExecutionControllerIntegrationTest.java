@@ -25,8 +25,14 @@ import static org.mockito.Matchers.any;
 
 import com.google.common.collect.Lists;
 import guru.nidi.ramltester.junit.RamlMatchers;
-import java.util.Arrays;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -34,6 +40,7 @@ import org.junit.Test;
 import org.openlmis.integration.dhis2.ExecutionDataBuilder;
 import org.openlmis.integration.dhis2.IntegrationDataBuilder;
 import org.openlmis.integration.dhis2.domain.Execution;
+import org.openlmis.integration.dhis2.domain.ExecutionResponse;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.i18n.MessageKeys;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
@@ -89,8 +96,33 @@ public class ExecutionControllerIntegrationTest extends BaseWebIntegrationTest {
 
   @Test
   public void shouldReturnPageOfExecutions() {
-    given(executionRepository.findAll(any(Pageable.class)))
-        .willReturn(new PageImpl<>(Arrays.asList(execution, execution1)));
+    List<Map<String, Object>> repositoryResultList = Stream.of(execution, execution1).map(e -> {
+          Map<String, Object> map = new HashMap<>();
+
+          ExecutionResponse executionResponse = e.getResponse();
+          if (executionResponse != null) {
+            map.put("responseDate", executionResponse.getResponseDate());
+            map.put("statusCode", executionResponse.getStatusCode());
+            map.put("body", executionResponse.getBody());
+          }
+
+          map.put("manualExecution", e.isManualExecution());
+          map.put("programId", e.getProgramId());
+          map.put("facilityId", e.getFacilityId());
+          map.put("processingPeriodId", e.getProcessingPeriodId());
+          map.put("status", e.getStatus());
+          map.put("description", e.getDescription());
+          map.put("targetUrl", e.getTargetUrl());
+          map.put("startDate", e.getStartDate());
+          map.put("endDate", e.getEndDate());
+          map.put("id", e.getId());
+
+          return map;
+        }
+    ).collect(Collectors.toList());
+
+    given(executionRepository.findAllExcludingRequestBody(any(Pageable.class)))
+        .willReturn(new PageImpl<>(repositoryResultList));
 
     restAssured
         .given()

@@ -17,9 +17,8 @@ package org.openlmis.integration.dhis2.web;
 
 import static org.openlmis.integration.dhis2.web.ExecutionController.RESOURCE_PATH;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import org.openlmis.integration.dhis2.domain.Execution;
 import org.openlmis.integration.dhis2.domain.Integration;
 import org.openlmis.integration.dhis2.exception.NotFoundException;
@@ -30,7 +29,6 @@ import org.openlmis.integration.dhis2.service.PayloadRequest;
 import org.openlmis.integration.dhis2.service.PayloadService;
 import org.openlmis.integration.dhis2.service.referencedata.PeriodReferenceDataService;
 import org.openlmis.integration.dhis2.service.referencedata.ProcessingPeriodDto;
-import org.openlmis.integration.dhis2.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -112,13 +110,8 @@ public class ExecutionController extends BaseController {
   public Page<ExecutionDto> getAllHistoricalExecutions(Pageable pageable) {
     permissionService.canManageDhis2();
 
-    Page<Execution> page = executionRepository.findAll(pageable);
-    List<ExecutionDto> content = page
-        .getContent()
-        .stream()
-        .map(ExecutionDto::newInstance)
-        .collect(Collectors.toList());
-    return Pagination.getPage(content, pageable, page.getTotalElements());
+    return executionRepository.findAllExcludingRequestBody(pageable)
+            .map(ExecutionDto::fromSqlMap);
   }
 
   /**

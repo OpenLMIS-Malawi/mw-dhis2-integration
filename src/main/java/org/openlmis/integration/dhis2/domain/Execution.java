@@ -45,31 +45,40 @@ public class Execution extends BaseEntity {
 
   private static final String EMPTY_JSON = "{}";
 
+  @Getter
   @Column(nullable = false)
   private boolean manualExecution;
 
+  @Getter
   @Type(type = UUID_TYPE)
   private UUID programId;
 
+  @Getter
   @Type(type = UUID_TYPE)
   private UUID facilityId;
 
+  @Getter
   @Type(type = UUID_TYPE)
   @Column(nullable = false)
   private UUID processingPeriodId;
 
+  @Getter
   @Enumerated(EnumType.STRING)
   private ExecutionStatus status;
 
+  @Getter
   @Column(columnDefinition = TEXT_COLUMN_DEFINITION)
   private String description;
 
+  @Getter
   @Column(nullable = false, columnDefinition = TEXT_COLUMN_DEFINITION)
   private String targetUrl;
 
+  @Getter
   @Column(nullable = false, columnDefinition = TIMESTAMP_COLUMN_DEFINITION)
   private ZonedDateTime startDate;
 
+  @Getter
   @Column(columnDefinition = TIMESTAMP_COLUMN_DEFINITION)
   private ZonedDateTime endDate;
 
@@ -82,6 +91,7 @@ public class Execution extends BaseEntity {
   @Column
   private UUID userId;
 
+  @Getter
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "execution",
       orphanRemoval = true, fetch = FetchType.EAGER)
   private ExecutionResponse response;

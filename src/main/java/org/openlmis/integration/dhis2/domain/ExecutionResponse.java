@@ -42,6 +42,7 @@ public final class ExecutionResponse {
   @Id
   private UUID id;
 
+  @Getter
   @Column(nullable = false, columnDefinition = BaseEntity.TIMESTAMP_COLUMN_DEFINITION)
   private ZonedDateTime responseDate;
 

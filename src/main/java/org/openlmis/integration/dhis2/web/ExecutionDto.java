@@ -16,6 +16,7 @@
 package org.openlmis.integration.dhis2.web;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -57,7 +58,6 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   /**
    * Creates new instance based on domain object.
    */
-
   public static ExecutionDto newInstance(Execution execution) {
     ExecutionDto dto = new ExecutionDto();
     execution.export(dto);
@@ -73,6 +73,44 @@ public final class ExecutionDto extends BaseDto implements Execution.Exporter {
   @JsonSetter("ExecutionResponseDto")
   public void setResponse(ExecutionResponseDto executionResponseDto) {
     this.response = executionResponseDto;
+  }
+
+  /**
+   * Exporter for custom sql queries. Exports also ExecutionResponseDto
+   * @param map Properties needed to build proper dto
+   * @return Execution dto
+   */
+  public static ExecutionDto fromSqlMap(Map<String, Object> map) {
+    ExecutionResponseDto executionResponse = null;
+
+    if (map.get("responseDate") != null
+         && map.get("statusCode") != null
+         && map.get("body") != null
+    ) {
+      executionResponse = new ExecutionResponseDto(
+              (ZonedDateTime) map.get("responseDate"),
+              (Integer) map.get("statusCode"),
+              (String) map.get("body")
+      );
+    }
+
+    ExecutionDto result = new ExecutionDto(
+            ((Boolean) map.get("manualExecution")),
+            ((UUID) map.get("programId")),
+            ((UUID) map.get("facilityId")),
+            ((UUID) map.get("processingPeriodId")),
+            ((ExecutionStatus) map.get("status")),
+            ((String) map.get("description")),
+            ((String) map.get("targetUrl")),
+            ((ZonedDateTime) map.get("startDate")),
+            ((ZonedDateTime) map.get("endDate")),
+            ((UUID) map.get("id")),
+            executionResponse
+    );
+
+    result.setId((UUID) map.get("id"));
+
+    return result;
   }
 
 }
